@@ -1,15 +1,20 @@
 use std::collections::{HashMap};
 use std::convert::From;
 
-const TRANSPARENT: RGBA = RGBA { r: 0.0, g: 0.0, b: 0.0, a: 0.0 };
+mod glyphs;
 
 mod prelude {
     pub use bracket_lib::prelude::*;
+
+    pub use crate::glyphs::*;
+
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 50;
     pub const DISPLAY_WIDTH: i32 = SCREEN_WIDTH / 2;
     pub const DISPLAY_HEIGHT: i32 = SCREEN_HEIGHT / 2;
 }
+
+const TRANSPARENT: RGBA = RGBA { r: 0.0, g: 0.0, b: 0.0, a: 0.0 };
 
 use prelude::*;
 
@@ -18,15 +23,6 @@ enum Source {
     ManualPageNumber(usize),
     ScreenshotFilename(String),
     Other(String),
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-struct Glyph(u16);
-
-impl From<u16> for Glyph {
-    fn from(item: u16) -> Self {
-        Self(item)
-    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -112,27 +108,13 @@ impl GlyphMap {
             ctx.set_active_console(segment);
             ctx.cls();
 
+            let segment: u16 = match segment.try_into() {
+                Ok(seg) => seg,
+                Err(err) => panic!("Invalid segment index: {}", err),
+            };
+
             if let Some(glyph) = self.get_glyph(x, y) {
-                let mask: u16 = match segment {
-                    00 => 0b1000_0000_0000_0000,
-                    01 => 0b0100_0000_0000_0000,
-                    02 => 0b0010_0000_0000_0000,
-                    03 => 0b0001_0000_0000_0000,
-                    04 => 0b0000_1000_0000_0000,
-                    05 => 0b0000_0100_0000_0000,
-                    06 => 0b0000_0010_0000_0000,
-                    07 => 0b0000_0001_0000_0000,
-                    08 => 0b0000_0000_1000_0000,
-                    09 => 0b0000_0000_0100_0000,
-                    10 => 0b0000_0000_0010_0000,
-                    11 => 0b0000_0000_0001_0000,
-                    12 => 0b0000_0000_0000_1000,
-                    13 => 0b0000_0000_0000_0100,
-                    14 => 0b0000_0000_0000_0010,
-                    15 => 0b0000_0000_0000_0001,
-                    _ => panic!("Unexpected segment index: {}", segment),
-                };
-                if (mask & glyph.0) > 0 {
+                if glyph.includes_segment(segment) {
                     ctx.set(1, 1, PURPLE, TRANSPARENT, segment);
                 }
             }
