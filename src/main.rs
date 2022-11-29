@@ -19,6 +19,7 @@ use prelude::*;
 
 #[derive(Clone, Debug, Default, PartialEq)]
 struct State {
+    tick_count: usize,
     all_words: HashMap<usize, Word>,
     all_snippets: HashMap<usize, Snippet>,
 }
@@ -72,11 +73,19 @@ fn draw_map_at(map: &GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
+        self.tick_count += 1;
+
         let mut map = GlyphMap::new(10, 10);
         map.set_glyph(0, 0, Glyph(0b0000_0010_0000_0001));
         map.set_glyph(0, 0, Glyph(0b1111_1111_1111_1110));
         map.set_glyph(1, 0, Glyph(18));
         map.set_glyph(2, 0, Glyph(99));
+
+        let segment_index: usize = (self.tick_count / 3) % 16;
+        let all_segments: u16 = 0b1111_1111_1111_1110;
+
+        let mask = Glyph::mask_from_usize(segment_index);
+        map.set_glyph(1, 1, (all_segments ^ mask).into());
 
         draw_map_at(&map, ctx, 1, 1);
 
@@ -85,7 +94,8 @@ impl GameState for State {
 }
 
 fn example_language_usage() {
-    let glyph: Glyph = (0xAF).into();
+    let glyph_code: u16 = 0xAF;
+    let glyph: Glyph = glyph_code.into();
     let word1 = Word::Tunic(vec![glyph]);
     let word2 = Word::English("Testing".into());
     let word3: Word = vec![0x01, 0x11, 0xF1].into();
