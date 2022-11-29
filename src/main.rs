@@ -72,8 +72,6 @@ impl GlyphMap {
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
-        // let mut draw_batch = DrawBatch::new();
-
         let mut map = GlyphMap::new(10, 10);
         map.set_glyph(0, 0, Glyph(0b0000_0010_0000_0001));
         map.set_glyph(0, 0, Glyph(0b1111_1111_1111_1110));
@@ -86,7 +84,7 @@ impl GameState for State {
     }
 }
 
-fn main() -> BError {
+fn example_language_usage() {
     let glyph: Glyph = (0xAF).into();
     let word1 = Word::Tunic(vec![glyph]);
     let word2 = Word::English("Testing".into());
@@ -98,6 +96,10 @@ fn main() -> BError {
 
     println!("Hello, world!");
     println!("Here's your glyph! {:?}", snippet);
+}
+
+fn main() -> BError {
+    example_language_usage();
 
     let context = BTermBuilder::new()
         .with_title("Tunic Language Toolkit")
@@ -106,8 +108,6 @@ fn main() -> BError {
         .with_tile_dimensions(32, 32)
         .with_resource_path("resources/")
         .with_font("tunic-dungeonfont.png", 64, 64)
-        //.with_font("dungeonfont.png", 32, 32)
-        //.with_font("terminal8x8.png", 8, 8)
         .with_simple_console_no_bg(DISPLAY_WIDTH, DISPLAY_HEIGHT, "tunic-dungeonfont.png")
         .with_simple_console_no_bg(DISPLAY_WIDTH, DISPLAY_HEIGHT, "tunic-dungeonfont.png")
         .with_simple_console_no_bg(DISPLAY_WIDTH, DISPLAY_HEIGHT, "tunic-dungeonfont.png")
