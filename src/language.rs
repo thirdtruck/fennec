@@ -1,7 +1,12 @@
-#![allow(unused_imports)]
-use crate::prelude::*;
-
 use std::convert::From;
+
+#[allow(dead_code)]
+#[derive(Clone, Debug, PartialEq)]
+pub enum Source {
+    ManualPageNumber(usize),
+    ScreenshotFilename(String),
+    Other(String),
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Glyph(pub u16);
@@ -36,4 +41,38 @@ impl Glyph {
         
         (mask & self.0) > 0
     }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum Word {
+    Tunic(Vec<Glyph>),
+    English(String),
+}
+
+impl From<Vec<u16>> for Word {
+    fn from(items: Vec<u16>) -> Self {
+        let glyphs: Vec<Glyph> = items
+            .iter()
+            .map(|g| (*g).into())
+            .collect();
+
+        Self::Tunic(glyphs)
+    }
+}
+
+impl From<&[u16]> for Word {
+    fn from(items: &[u16]) -> Self {
+        let glyphs: Vec<Glyph> = items
+            .iter()
+            .map(|g| (*g).into())
+            .collect();
+
+        Self::Tunic(glyphs)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Snippet {
+    pub words: Vec<Word>,
+    pub source: Option<Source>,
 }

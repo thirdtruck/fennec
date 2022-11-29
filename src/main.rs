@@ -1,5 +1,4 @@
 use std::collections::{HashMap};
-use std::convert::From;
 
 mod language;
 
@@ -17,48 +16,6 @@ mod prelude {
 const TRANSPARENT: RGBA = RGBA { r: 0.0, g: 0.0, b: 0.0, a: 0.0 };
 
 use prelude::*;
-
-#[allow(dead_code)]
-#[derive(Clone, Debug, PartialEq)]
-enum Source {
-    ManualPageNumber(usize),
-    ScreenshotFilename(String),
-    Other(String),
-}
-
-#[derive(Clone, Debug, PartialEq)]
-enum Word {
-    Tunic(Vec<Glyph>),
-    English(String),
-}
-
-impl From<Vec<u16>> for Word {
-    fn from(items: Vec<u16>) -> Self {
-        let glyphs: Vec<Glyph> = items
-            .iter()
-            .map(|g| (*g).into())
-            .collect();
-
-        Self::Tunic(glyphs)
-    }
-}
-
-impl From<&[u16]> for Word {
-    fn from(items: &[u16]) -> Self {
-        let glyphs: Vec<Glyph> = items
-            .iter()
-            .map(|g| (*g).into())
-            .collect();
-
-        Self::Tunic(glyphs)
-    }
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Snippet {
-    words: Vec<Word>,
-    source: Option<Source>,
-}
 
 #[derive(Clone, Debug, Default, PartialEq)]
 struct State {
