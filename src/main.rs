@@ -46,23 +46,23 @@ impl GlyphMap {
     fn get_glyph(&self, x: usize, y: usize) -> Option<Glyph> {
         *self.glyphs.get(x + (y * self.width)).unwrap()
     }
+}
 
-    fn draw_glyphs_at(&self, ctx: &mut BTerm, x: usize, y: usize) {
-        for segment in 0..15 {
-            ctx.set_active_console(segment);
-            ctx.cls();
+fn draw_map_at(map: &GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
+    for segment in 0..15 {
+        ctx.set_active_console(segment);
+        ctx.cls();
 
-            let segment: u16 = match segment.try_into() {
-                Ok(seg) => seg,
-                Err(err) => panic!("Invalid segment index: {}", err),
-            };
+        let segment: u16 = match segment.try_into() {
+            Ok(seg) => seg,
+            Err(err) => panic!("Invalid segment index: {}", err),
+        };
 
-            for gx in 0..self.width {
-                for gy in 0..self.height {
-                    if let Some(glyph) = self.get_glyph(gx, gy) {
-                        if glyph.includes_segment(segment) {
-                            ctx.set(x + gx, y + gy, PURPLE, TRANSPARENT, segment);
-                        }
+        for gx in 0..map.width {
+            for gy in 0..map.height {
+                if let Some(glyph) = map.get_glyph(gx, gy) {
+                    if glyph.includes_segment(segment) {
+                        ctx.set(x + gx, y + gy, PURPLE, TRANSPARENT, segment);
                     }
                 }
             }
@@ -78,7 +78,7 @@ impl GameState for State {
         map.set_glyph(1, 0, Glyph(18));
         map.set_glyph(2, 0, Glyph(99));
 
-        map.draw_glyphs_at(ctx, 1, 1);
+        draw_map_at(&map, ctx, 1, 1);
 
         render_draw_buffer(ctx).expect("Render error");
     }
