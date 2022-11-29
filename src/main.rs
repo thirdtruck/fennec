@@ -112,10 +112,29 @@ impl GlyphMap {
             ctx.set_active_console(segment);
             ctx.cls();
 
-            // TODO: Still need to filter this down to only those segments that should be
-            // printed...
-            if let Some(seg) = self.get_glyph(x, y) {
-                ctx.set(1, 1, PURPLE, TRANSPARENT, segment);
+            if let Some(glyph) = self.get_glyph(x, y) {
+                let mask: u16 = match segment {
+                    00 => 0b1000_0000_0000_0000,
+                    01 => 0b0100_0000_0000_0000,
+                    02 => 0b0010_0000_0000_0000,
+                    03 => 0b0001_0000_0000_0000,
+                    04 => 0b0000_1000_0000_0000,
+                    05 => 0b0000_0100_0000_0000,
+                    06 => 0b0000_0010_0000_0000,
+                    07 => 0b0000_0001_0000_0000,
+                    08 => 0b0000_0000_1000_0000,
+                    09 => 0b0000_0000_0100_0000,
+                    10 => 0b0000_0000_0010_0000,
+                    11 => 0b0000_0000_0001_0000,
+                    12 => 0b0000_0000_0000_1000,
+                    13 => 0b0000_0000_0000_0100,
+                    14 => 0b0000_0000_0000_0010,
+                    15 => 0b0000_0000_0000_0001,
+                    _ => panic!("Unexpected segment index: {}", segment),
+                };
+                if (mask & glyph.0) > 0 {
+                    ctx.set(1, 1, PURPLE, TRANSPARENT, segment);
+                }
             }
         }
     }
@@ -126,7 +145,8 @@ impl GameState for State {
         // let mut draw_batch = DrawBatch::new();
 
         let mut map = GlyphMap::new(10, 10);
-        map.set_glyph(0, 0, Glyph(5));
+        map.set_glyph(0, 0, Glyph(0b0000_0010_0000_0001));
+        map.set_glyph(0, 0, Glyph(0b1111_1111_1111_1110));
         map.set_glyph(1, 0, Glyph(18));
         map.set_glyph(2, 0, Glyph(99));
 
@@ -238,11 +258,7 @@ impl GameState for State {
 
         //dbg!(map);
 
-        map.draw_glyph_at(ctx, 1, 0);
-        /*
-        map.draw_glyph_at(ctx, 2, 0);
-        map.draw_glyph_at(ctx, 3, 0);
-        */
+        map.draw_glyph_at(ctx, 0, 0);
 
         render_draw_buffer(ctx).expect("Render error");
     }
