@@ -1,3 +1,4 @@
 /target
 /resources/.xdp*
 /resources/*~
+/resources/*.kra-autosave*
