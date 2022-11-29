@@ -65,20 +65,6 @@ struct State {
     all_snippets: HashMap<usize, Snippet>,
 }
 
-fn set_glyph_color(ctx: &mut BTerm, x: usize, y: usize, color: (u8, u8, u8), glyph: Glyph) {
-    for console in 0..15 {
-        if (glyph.0 & console) > 0 {
-            ctx.set_active_console(console.into());
-
-            ctx.set(x, y, color, TRANSPARENT, glyph.0);
-         }
-    }
-}
-
-fn set_glyph(ctx: &mut BTerm, x: usize, y: usize, glyph: Glyph) {
-    set_glyph_color(ctx, x, y, WHITE, glyph);
-}
-
 #[derive(Clone, Debug)]
 struct GlyphMap {
     width: usize,
@@ -135,114 +121,6 @@ impl GameState for State {
         map.set_glyph(0, 0, Glyph(0b1111_1111_1111_1110));
         map.set_glyph(1, 0, Glyph(18));
         map.set_glyph(2, 0, Glyph(99));
-
-        let x = 4;
-        let y = 0;
-
-        for glyph in 0..15 {
-            ctx.set_active_console(glyph);
-            ctx.cls();
-
-            ctx.set(x, y, BLUE, TRANSPARENT, glyph);
-            ctx.set(x+2, y, BLUE, TRANSPARENT, glyph);
-        }
-
-        let x = 22;
-        let y = 1;
-
-        for glyph in 0..15 {
-            ctx.set_active_console(glyph);
-            ctx.cls();
-
-            ctx.set(x, y, ORANGE, TRANSPARENT, glyph);
-            ctx.set(x+2, y, ORANGE, TRANSPARENT, glyph);
-        }
-
-        ctx.print_color_centered(
-            2,
-            WHITE,
-            TRANSPARENT,
-            "Tunic glyphs below",
-        );
-
-        let x = 4;
-        let y = 3;
-
-        ctx.print_color(x, y, WHITE, TRANSPARENT, "Loop");
-
-        for dash in 0..15 {
-            set_glyph_color(ctx, x, y+1, BLUE, Glyph(dash));
-        }
-
-        let x = 4;
-        let y = 5;
-
-        ctx.print_color(x, y, WHITE, TRANSPARENT, "individual");
-
-        set_glyph_color(ctx, x, y+1,GREEN, Glyph(3));
-        set_glyph_color(ctx, x, y+1,GREEN, Glyph(4));
-        set_glyph_color(ctx, x, y+1,GREEN, Glyph(5));
-        set_glyph_color(ctx, x, y+1,GREEN, Glyph(6));
-        set_glyph_color(ctx, x, y+1,GREEN, Glyph(7));
-
-        let x = 4;
-        let y = 7;
-
-        ctx.print_color(x, y, WHITE, TRANSPARENT, "Larger numbers");
-
-        set_glyph_color(ctx, x, y+1,YELLOW, Glyph(12));
-        set_glyph_color(ctx, x+1, y+1,YELLOW, Glyph(13));
-
-        let x = 4;
-        let y = 9;
-
-        ctx.print_color(x, y, WHITE, TRANSPARENT, "Seems to work...?");
-
-        set_glyph_color(ctx, x, y+1, RED, Glyph(14));
-        set_glyph_color(ctx, x, y+1, RED, Glyph(11));
-        set_glyph_color(ctx, x, y+1, RED, Glyph(9));
-
-        let x = 4;
-        let y = 11;
-
-        ctx.print_color(x, y, WHITE, TRANSPARENT, "All down the line");
-
-        for glyph in 0..15 {
-            if let Ok(g) = glyph.try_into() {
-                set_glyph_color(ctx, x+glyph, y+1, RED, Glyph(g));
-            }
-        }
-
-        let x = 4;
-        let y = 13;
-
-        ctx.print_color(x, y, WHITE, TRANSPARENT, "Combined in one");
-
-        for glyph in 0..3 {
-            if let Ok(g) = glyph.try_into() {
-                set_glyph_color(ctx, x, y+1, RED, Glyph(g));
-            }
-        }
-
-        for glyph in 4..7 {
-            if let Ok(g) = glyph.try_into() {
-                set_glyph_color(ctx, x+1, y+1, RED, Glyph(g));
-            }
-        }
-
-        for glyph in 8..11 {
-            if let Ok(g) = glyph.try_into() {
-                set_glyph_color(ctx, x+2, y+1, RED, Glyph(g));
-            }
-        }
-
-        for glyph in 12..15 {
-            if let Ok(g) = glyph.try_into() {
-                set_glyph_color(ctx, x+3, y+1, RED, Glyph(g));
-            }
-        }
-
-        //dbg!(map);
 
         map.draw_glyphs_at(ctx, 1, 1);
 
