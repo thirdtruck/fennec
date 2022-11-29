@@ -82,10 +82,13 @@ impl GameState for State {
         map.set_glyph(2, 0, Glyph(99));
 
         let segment_index: usize = (self.tick_count / 3) % 16;
-        let all_segments: u16 = 0b1111_1111_1111_1110;
 
         let mask = Glyph::mask_from_usize(segment_index);
-        map.set_glyph(1, 1, (all_segments ^ mask).into());
+        map.set_glyph(1, 1, (ALL_SEGMENTS ^ mask).into());
+
+        let all_segments: usize = ALL_SEGMENTS.into();
+        let glyph_index: usize = (self.tick_count) % all_segments;
+        map.set_glyph(3, 1, glyph_index.into());
 
         draw_map_at(&map, ctx, 1, 1);
 

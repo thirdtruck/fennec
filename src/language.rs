@@ -1,5 +1,7 @@
 use std::convert::From;
 
+pub const ALL_SEGMENTS: u16 = 0b1111_1111_1111_1110;
+
 #[allow(dead_code)]
 #[derive(Clone, Debug, PartialEq)]
 pub enum Source {
