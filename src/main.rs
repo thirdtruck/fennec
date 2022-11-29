@@ -1,12 +1,12 @@
 use std::collections::{HashMap};
 use std::convert::From;
 
-mod glyphs;
+mod language;
 
 mod prelude {
     pub use bracket_lib::prelude::*;
 
-    pub use crate::glyphs::*;
+    pub use crate::language::*;
 
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 50;
