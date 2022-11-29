@@ -83,9 +83,52 @@ fn set_glyph(ctx: &mut BTerm, x: usize, y: usize, glyph: Glyph) {
     set_glyph_color(ctx, x, y, WHITE, glyph);
 }
 
+#[derive(Clone, Debug)]
+struct GlyphMap {
+    width: usize,
+    height: usize,
+    glyphs: Vec<Option<Glyph>>,
+}
+
+impl GlyphMap {
+    fn new(width: usize, height: usize) -> Self {
+        Self {
+            width,
+            height,
+            glyphs: vec![None; width * height],
+        }
+    }
+
+    fn set_glyph(&mut self, x: usize, y: usize, glyph: Glyph) {
+        self.glyphs[x + (y * self.width)] = Some(glyph);
+    }
+
+    fn get_glyph(&self, x: usize, y: usize) -> Option<Glyph> {
+        *self.glyphs.get(x + (y * self.width)).unwrap()
+    }
+
+    fn draw_glyph_at(&self, ctx: &mut BTerm, x: usize, y: usize) {
+        for segment in 0..15 {
+            ctx.set_active_console(segment);
+            ctx.cls();
+
+            // TODO: Still need to filter this down to only those segments that should be
+            // printed...
+            if let Some(seg) = self.get_glyph(x, y) {
+                ctx.set(1, 1, PURPLE, TRANSPARENT, segment);
+            }
+        }
+    }
+}
+
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         // let mut draw_batch = DrawBatch::new();
+
+        let mut map = GlyphMap::new(10, 10);
+        map.set_glyph(0, 0, Glyph(5));
+        map.set_glyph(1, 0, Glyph(18));
+        map.set_glyph(2, 0, Glyph(99));
 
         let x = 4;
         let y = 0;
@@ -192,6 +235,14 @@ impl GameState for State {
                 set_glyph_color(ctx, x+3, y+1, RED, Glyph(g));
             }
         }
+
+        //dbg!(map);
+
+        map.draw_glyph_at(ctx, 1, 0);
+        /*
+        map.draw_glyph_at(ctx, 2, 0);
+        map.draw_glyph_at(ctx, 3, 0);
+        */
 
         render_draw_buffer(ctx).expect("Render error");
     }
