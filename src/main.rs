@@ -20,6 +20,7 @@ use prelude::*;
 #[derive(Clone, Debug, Default, PartialEq)]
 struct State {
     tick_count: usize,
+    active_glyph: Glyph,
     all_words: HashMap<usize, Word>,
     all_snippets: HashMap<usize, Snippet>,
 }
@@ -75,6 +76,35 @@ impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         self.tick_count += 1;
 
+        if let Some(key) = ctx.key {
+            let segment = match key {
+                VirtualKeyCode::W => Some(0),
+                VirtualKeyCode::E => Some(1),
+                VirtualKeyCode::R => Some(2),
+
+                VirtualKeyCode::A => Some(3),
+                VirtualKeyCode::S => Some(4),
+                VirtualKeyCode::D => Some(5),
+                VirtualKeyCode::F => Some(6),
+
+                VirtualKeyCode::U => Some(7),
+                VirtualKeyCode::I => Some(8),
+                VirtualKeyCode::O => Some(9),
+                VirtualKeyCode::P => Some(10),
+
+                VirtualKeyCode::J => Some(11),
+                VirtualKeyCode::K => Some(12),
+                VirtualKeyCode::L => Some(13),
+                VirtualKeyCode::Semicolon => Some(14),
+                VirtualKeyCode::Q => Some(15),
+                _ => None,
+            };
+
+            if let Some(segment) = segment {
+                self.active_glyph = self.active_glyph.with_toggled_segment(segment);
+            }
+        }
+
         let mut map = GlyphMap::new(10, 10);
         map.set_glyph(0, 0, Glyph(0b0000_0010_0000_0001));
         map.set_glyph(0, 0, Glyph(0b1111_1111_1111_1110));
@@ -89,6 +119,8 @@ impl GameState for State {
         let all_segments: usize = ALL_SEGMENTS.into();
         let glyph_index: usize = (self.tick_count) % all_segments;
         map.set_glyph(3, 1, glyph_index.into());
+
+        map.set_glyph(3, 3, self.active_glyph);
 
         draw_map_at(&map, ctx, 1, 1);
 
