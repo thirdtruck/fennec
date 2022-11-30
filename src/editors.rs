@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+use std::rc::Rc;
+
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct GlyphEditor {
     active_glyph: Glyph,
@@ -17,7 +19,29 @@ impl GlyphEditor {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct WordEditor {
-    pub active_word: Word,
+    active_word: Word,
+    glyph_editor: Option<GlyphEditor>,
+    active_glyph: Option<Rc<Glyph>>,
+}
+
+impl WordEditor {
+    pub fn apply_active_glyph<F>(&self, mut receiver: F)
+        where F: FnMut(Glyph)
+    {
+        if let Some(glyph) = self.active_glyph.clone() {
+            receiver((*glyph).clone());
+        }
+    }
+}
+
+impl Default for WordEditor {
+    fn default() -> Self {
+        Self {
+            active_word: Word::default(),
+            glyph_editor: None,
+            active_glyph: None,
+        }
+    }
 }

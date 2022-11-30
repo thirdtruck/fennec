@@ -1,6 +1,10 @@
 use std::convert::From;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 pub const ALL_SEGMENTS: u16 = 0b1111_1111_1111_1110;
+
+pub type RcGlyph = Rc<RefCell<Glyph>>;
 
 #[allow(dead_code)]
 #[derive(Clone, Debug, PartialEq)]
@@ -117,7 +121,7 @@ impl Glyph {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Word {
-    Tunic(Vec<Glyph>),
+    Tunic(Vec<RcGlyph>),
     English(String),
 }
 
@@ -127,9 +131,12 @@ impl Default for Word {
 
 impl From<Vec<u16>> for Word {
     fn from(items: Vec<u16>) -> Self {
-        let glyphs: Vec<Glyph> = items
+        let glyphs: Vec<RcGlyph> = items
             .iter()
-            .map(|g| (*g).into())
+            .map(|c| {
+                let code: u16 = (*c).into();
+                Rc::new(RefCell::new(Glyph(code)))
+            })
             .collect();
 
         Self::Tunic(glyphs)
@@ -138,9 +145,12 @@ impl From<Vec<u16>> for Word {
 
 impl From<&[u16]> for Word {
     fn from(items: &[u16]) -> Self {
-        let glyphs: Vec<Glyph> = items
+        let glyphs: Vec<RcGlyph> = items
             .iter()
-            .map(|g| (*g).into())
+            .map(|c| {
+                let code: u16 = (*c).into();
+                Rc::new(RefCell::new(Glyph(code)))
+            })
             .collect();
 
         Self::Tunic(glyphs)

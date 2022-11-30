@@ -1,4 +1,6 @@
 use std::collections::{HashMap};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 mod language;
 mod editors;
@@ -19,7 +21,7 @@ mod prelude {
 
 use prelude::*;
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Debug, Default, PartialEq)]
 struct State {
     tick_count: usize,
     glyph_editor: GlyphEditor,
@@ -134,7 +136,7 @@ impl GameState for State {
 fn example_language_usage() {
     let glyph_code: u16 = 0xAF;
     let glyph: Glyph = glyph_code.into();
-    let word1 = Word::Tunic(vec![glyph]);
+    let word1 = Word::Tunic(vec![Rc::new(RefCell::new(glyph))]);
     let word2 = Word::English("Testing".into());
     let word3: Word = vec![0x01, 0x11, 0xF1].into();
     let snippet = Snippet {
