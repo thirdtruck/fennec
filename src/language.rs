@@ -7,6 +7,12 @@ pub const ALL_SEGMENTS: u16 = 0b1111_1111_1111_1110;
 
 pub type RcGlyph = Rc<RefCell<Glyph>>;
 
+impl From<Glyph> for RcGlyph {
+    fn from(glyph: Glyph) -> Self {
+        Rc::new(RefCell::new(glyph.clone()))
+    }
+}
+
 #[allow(dead_code)]
 #[derive(Clone, Debug, PartialEq)]
 pub enum Source {
@@ -135,8 +141,7 @@ impl From<Vec<u16>> for Word {
         let glyphs: Vec<RcGlyph> = items
             .iter()
             .map(|c| {
-                let code: u16 = (*c).into();
-                Rc::new(RefCell::new(Glyph(code)))
+                Glyph((*c).into()).into()
             })
             .collect();
 
@@ -149,8 +154,7 @@ impl From<&[u16]> for Word {
         let glyphs: Vec<RcGlyph> = items
             .iter()
             .map(|c| {
-                let code: u16 = (*c).into();
-                Rc::new(RefCell::new(Glyph(code)))
+                Glyph((*c).into()).into()
             })
             .collect();
 
@@ -162,7 +166,7 @@ impl From<Vec<Glyph>> for Word {
     fn from(glyphs: Vec<Glyph>) -> Self {
         let glyphs: Vec<RcGlyph> = glyphs
             .iter()
-            .map(|g| Rc::new(RefCell::new(g.clone())))
+            .map(|g| g.clone().into())
             .collect();
 
         Self::Tunic(glyphs)
@@ -171,9 +175,7 @@ impl From<Vec<Glyph>> for Word {
 
 impl From<Glyph> for Word {
     fn from(glyph: Glyph) -> Self {
-        let glyph = Rc::new(RefCell::new(glyph.clone()));
-
-        Self::Tunic(vec![glyph])
+        Self::Tunic(vec![glyph.into()])
     }
 }
 
