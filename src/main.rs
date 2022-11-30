@@ -1,11 +1,13 @@
 use std::collections::{HashMap};
 
 mod language;
+mod editors;
 
 mod prelude {
     pub use bracket_lib::prelude::*;
 
     pub use crate::language::*;
+    pub use crate::editors::*;
 
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 50;
@@ -20,7 +22,7 @@ use prelude::*;
 #[derive(Clone, Debug, Default, PartialEq)]
 struct State {
     tick_count: usize,
-    active_glyph: Glyph,
+    glyph_editor: GlyphEditor,
     all_words: HashMap<usize, Word>,
     all_snippets: HashMap<usize, Snippet>,
 }
@@ -101,7 +103,7 @@ impl GameState for State {
             };
 
             if let Some(segment) = segment {
-                self.active_glyph = self.active_glyph.with_toggled_segment(segment);
+                self.glyph_editor.active_glyph = self.glyph_editor.active_glyph.with_toggled_segment(segment);
             }
         }
 
@@ -120,7 +122,7 @@ impl GameState for State {
         let glyph_index: usize = (self.tick_count) % all_segments;
         map.set_glyph(3, 1, glyph_index.into());
 
-        map.set_glyph(3, 3, self.active_glyph);
+        map.set_glyph(3, 3, self.glyph_editor.active_glyph);
 
         draw_map_at(&map, ctx, 1, 1);
 
