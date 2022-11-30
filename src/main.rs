@@ -23,6 +23,7 @@ use prelude::*;
 struct State {
     tick_count: usize,
     glyph_editor: GlyphEditor,
+    word_editor: WordEditor,
     all_words: HashMap<usize, Word>,
     all_snippets: HashMap<usize, Snippet>,
 }

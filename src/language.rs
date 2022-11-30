@@ -121,6 +121,10 @@ pub enum Word {
     English(String),
 }
 
+impl Default for Word {
+    fn default() -> Self { Self::Tunic(vec![]) }
+}
+
 impl From<Vec<u16>> for Word {
     fn from(items: Vec<u16>) -> Self {
         let glyphs: Vec<Glyph> = items
