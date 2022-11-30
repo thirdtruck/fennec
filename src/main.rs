@@ -104,7 +104,7 @@ impl GameState for State {
             };
 
             if let Some(segment) = segment {
-                self.glyph_editor.active_glyph = self.glyph_editor.active_glyph.with_toggled_segment(segment);
+                self.glyph_editor.toggle_segment(segment);
             }
         }
 
@@ -123,7 +123,7 @@ impl GameState for State {
         let glyph_index: usize = (self.tick_count) % all_segments;
         map.set_glyph(3, 1, glyph_index.into());
 
-        map.set_glyph(3, 3, self.glyph_editor.active_glyph);
+        self.glyph_editor.apply_active_glyph(|glyph| map.set_glyph(3, 3, glyph));
 
         draw_map_at(&map, ctx, 1, 1);
 
