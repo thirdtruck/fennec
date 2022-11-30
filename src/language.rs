@@ -2,6 +2,7 @@ use std::convert::From;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+#[allow(dead_code)]
 pub const ALL_SEGMENTS: u16 = 0b1111_1111_1111_1110;
 
 pub type RcGlyph = Rc<RefCell<Glyph>>;
@@ -154,6 +155,31 @@ impl From<&[u16]> for Word {
             .collect();
 
         Self::Tunic(glyphs)
+    }
+}
+
+impl From<Vec<Glyph>> for Word {
+    fn from(glyphs: Vec<Glyph>) -> Self {
+        let glyphs: Vec<RcGlyph> = glyphs
+            .iter()
+            .map(|g| Rc::new(RefCell::new(g.clone())))
+            .collect();
+
+        Self::Tunic(glyphs)
+    }
+}
+
+impl From<Glyph> for Word {
+    fn from(glyph: Glyph) -> Self {
+        let glyph = Rc::new(RefCell::new(glyph.clone()));
+
+        Self::Tunic(vec![glyph])
+    }
+}
+
+impl From<&str> for Word {
+    fn from(string: &str) -> Self {
+        Self::English(string.to_string())
     }
 }
 

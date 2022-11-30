@@ -1,6 +1,4 @@
 use std::collections::{HashMap};
-use std::cell::RefCell;
-use std::rc::Rc;
 
 mod language;
 mod editors;
@@ -24,7 +22,6 @@ use prelude::*;
 #[derive(Debug, Default, PartialEq)]
 struct State {
     tick_count: usize,
-    glyph_editor: GlyphEditor,
     word_editor: WordEditor,
     all_words: HashMap<usize, Word>,
     all_snippets: HashMap<usize, Snippet>,
@@ -69,7 +66,7 @@ fn draw_map_at(map: &GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
             for gy in 0..map.height {
                 if let Some(glyph) = map.get_glyph(gx, gy) {
                     if glyph.includes_segment(segment) {
-                        ctx.set(x + gx, y + gy, PURPLE, TRANSPARENT, segment);
+                        ctx.set(x + gx, y + gy, WHITE, TRANSPARENT, segment);
                     }
                 }
             }
@@ -111,21 +108,8 @@ impl GameState for State {
         }
 
         let mut map = GlyphMap::new(10, 10);
-        map.set_glyph(0, 0, Glyph(0b0000_0010_0000_0001));
-        map.set_glyph(0, 0, Glyph(0b1111_1111_1111_1110));
-        map.set_glyph(1, 0, Glyph(18));
-        map.set_glyph(2, 0, Glyph(99));
 
-        let segment_index: usize = (self.tick_count / 3) % 16;
-
-        let mask = Glyph::mask_from_usize(segment_index);
-        map.set_glyph(1, 1, (ALL_SEGMENTS ^ mask).into());
-
-        let all_segments: usize = ALL_SEGMENTS.into();
-        let glyph_index: usize = (self.tick_count) % all_segments;
-        map.set_glyph(3, 1, glyph_index.into());
-
-        self.word_editor.apply_active_glyph(|glyph| map.set_glyph(3, 3, glyph));
+        self.word_editor.apply_active_glyph(|glyph| map.set_glyph(1, 1, glyph));
 
         draw_map_at(&map, ctx, 1, 1);
 
@@ -136,8 +120,8 @@ impl GameState for State {
 fn example_language_usage() {
     let glyph_code: u16 = 0xAF;
     let glyph: Glyph = glyph_code.into();
-    let word1 = Word::Tunic(vec![Rc::new(RefCell::new(glyph))]);
-    let word2 = Word::English("Testing".into());
+    let word1: Word = glyph.into();
+    let word2: Word = "Testing".into();
     let word3: Word = vec![0x01, 0x11, 0xF1].into();
     let snippet = Snippet {
         words: vec![word1, word2, word3],
@@ -154,7 +138,7 @@ fn main() -> BError {
 
     let glyph_code: u16 = 0xAF;
     let glyph: Glyph = glyph_code.into();
-    let word = Word::Tunic(vec![Rc::new(RefCell::new(glyph))]);
+    let word: Word = vec![glyph].into();
 
     let mut state = State::default();
     state.word_editor = WordEditor::new(word);
