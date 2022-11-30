@@ -152,6 +152,14 @@ fn main() -> BError {
     example_language_usage();
     let font_file = "tunic-dungeonfont-16x32.png";
 
+    let glyph_code: u16 = 0xAF;
+    let glyph: Glyph = glyph_code.into();
+    let word = Word::Tunic(vec![Rc::new(RefCell::new(glyph))]);
+
+    let mut state = State::default();
+    state.word_editor = WordEditor::new(word);
+    state.word_editor.edit_glyph_at(0);
+
     let context = BTermBuilder::new()
         .with_title("Tunic Language Toolkit")
         .with_fps_cap(30.0)
@@ -176,5 +184,5 @@ fn main() -> BError {
         .with_simple_console_no_bg(DISPLAY_WIDTH, DISPLAY_HEIGHT, font_file)
         .build()?;
 
-    main_loop(context, State::default())
+    main_loop(context, state)
 }

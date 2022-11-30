@@ -34,6 +34,14 @@ impl WordEditor {
         }
     }
 
+    pub fn edit_glyph_at(&mut self, index: usize) {
+        if let Word::Tunic(glyphs) = &self.active_word {
+            if let Some(glyph) = glyphs.get(index) {
+                self.glyph_editor = Some(GlyphEditor { active_glyph: glyph.clone() });
+            }
+        }
+    }
+
     pub fn apply_active_glyph<F>(&self, receiver: F)
         where F: FnMut(Glyph)
     {
