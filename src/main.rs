@@ -123,7 +123,13 @@ impl GameState for State {
 
         let mut map = GlyphMap::new(10, 10);
 
-        self.word_editor.apply_active_glyph(|glyph| map.set_glyph(1, 1, glyph));
+        self.word_editor.apply_active_word(|word| {
+            if let Word::Tunic(glyphs) = word {
+                for (index, glyph) in glyphs.iter().enumerate() {
+                    map.set_glyph(1 + index, 1, glyph.borrow().clone())
+                }
+            }
+        });
 
         draw_map_at(&map, ctx, 1, 1);
 
@@ -150,9 +156,8 @@ fn main() -> BError {
     example_language_usage();
     let font_file = "tunic-dungeonfont-16x32.png";
 
-    let glyph_code: u16 = 0xAF;
-    let glyph: Glyph = glyph_code.into();
-    let word: Word = vec![glyph].into();
+    let glyphs: Vec<u16> = vec![0xAF, 0x13, 0xFF];
+    let word: Word = glyphs.into();
 
     let mut state = State::default();
     state.word_editor = WordEditor::new(word);

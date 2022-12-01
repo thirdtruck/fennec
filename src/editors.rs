@@ -19,10 +19,10 @@ impl GlyphEditor {
         *glyph = toggled_glyph;
     }
 
-    pub fn apply_active_glyph<F>(&self, mut receiver: F)
+    pub fn apply_active_glyph<F>(&self, mut listener: F)
         where F: FnMut(Glyph)
     {
-        receiver(self.active_glyph.borrow().clone());
+        listener(self.active_glyph.borrow().clone());
     }
 }
 
@@ -32,7 +32,7 @@ pub struct WordEditorCallbacks {
 }
 
 pub struct WordEditor {
-    active_word: Word,
+    active_word: RcWord,
     glyph_editor: Option<GlyphEditor>,
     pub callbacks: WordEditorCallbacks,
 }
@@ -40,14 +40,14 @@ pub struct WordEditor {
 impl WordEditor {
     pub fn new(word: Word) -> Self {
         Self {
-            active_word: word,
+            active_word: word.into(),
             glyph_editor: None,
             callbacks: WordEditorCallbacks::default(),
         }
     }
 
     pub fn edit_glyph_at(&mut self, index: usize) {
-        if let Word::Tunic(glyphs) = &self.active_word {
+        if let Word::Tunic(glyphs) = &self.active_word.borrow().clone() {
             if let Some(glyph) = glyphs.get(index) {
                 self.glyph_editor = Some(GlyphEditor {
                     active_glyph: glyph.clone(),
@@ -57,12 +57,18 @@ impl WordEditor {
         }
     }
 
-    pub fn apply_active_glyph<F>(&self, receiver: F)
+    pub fn apply_active_glyph<F>(&self, listener: F)
         where F: FnMut(Glyph)
     {
         if let Some(glyph_editor) = &self.glyph_editor {
-            glyph_editor.apply_active_glyph(receiver);
+            glyph_editor.apply_active_glyph(listener);
         }
+    }
+
+    pub fn apply_active_word<F>(&self, mut listener: F)
+        where F: FnMut(Word)
+    {
+        listener(self.active_word.borrow().clone());
     }
 
     pub fn toggle_segment_in_active_glyph(&mut self, segment: usize) {
@@ -97,7 +103,7 @@ impl WordEditor {
 impl Default for WordEditor {
     fn default() -> Self {
         Self {
-            active_word: Word::default(),
+            active_word: Word::default().into(),
             glyph_editor: None,
             callbacks: WordEditorCallbacks::default(),
         }

@@ -8,10 +8,17 @@ pub type Segment = usize;
 pub const ALL_SEGMENTS: u16 = 0b1111_1111_1111_1110;
 
 pub type RcGlyph = Rc<RefCell<Glyph>>;
+pub type RcWord = Rc<RefCell<Word>>;
 
 impl From<Glyph> for RcGlyph {
     fn from(glyph: Glyph) -> Self {
         Rc::new(RefCell::new(glyph.clone()))
+    }
+}
+
+impl From<Word> for RcWord {
+    fn from(word: Word) -> Self {
+        Rc::new(RefCell::new(word.clone()))
     }
 }
 
