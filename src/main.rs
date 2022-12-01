@@ -29,11 +29,17 @@ struct State {
     all_snippets: HashMap<usize, Snippet>,
 }
 
+#[derive(Clone, Copy, Debug)]
+struct GlyphDrawing {
+    glyph: Glyph,
+    color: RGBA,
+}
+
 #[derive(Clone, Debug)]
 struct GlyphMap {
     width: usize,
     height: usize,
-    glyphs: Vec<Option<Glyph>>,
+    glyphs: Vec<Option<GlyphDrawing>>,
 }
 
 impl GlyphMap {
@@ -45,11 +51,18 @@ impl GlyphMap {
         }
     }
 
-    fn set_glyph(&mut self, x: usize, y: usize, glyph: Glyph) {
-        self.glyphs[x + (y * self.width)] = Some(glyph);
+    fn set_glyph(&mut self, x: usize, y: usize, glyph: Glyph, color: RGBA) {
+        let index = x + (y * self.width);
+
+        let drawing = GlyphDrawing {
+            glyph,
+            color,
+        };
+
+        self.glyphs[index] = Some(drawing);
     }
 
-    fn get_glyph(&self, x: usize, y: usize) -> Option<Glyph> {
+    fn get_glyph(&self, x: usize, y: usize) -> Option<GlyphDrawing> {
         *self.glyphs.get(x + (y * self.width)).unwrap()
     }
 }
@@ -67,8 +80,11 @@ fn draw_map_at(map: &GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
         for gx in 0..map.width {
             for gy in 0..map.height {
                 if let Some(glyph) = map.get_glyph(gx, gy) {
+                    let color = glyph.color;
+                    let glyph = glyph.glyph;
+
                     if glyph.includes_segment(segment) {
-                        ctx.set(x + gx, y + gy, WHITE, TRANSPARENT, segment);
+                        ctx.set(x + gx, y + gy, color, TRANSPARENT, segment);
                     }
                 }
             }
@@ -132,13 +148,13 @@ impl GameState for State {
         self.word_editor.apply_selected_glyph(|selection| {
             let glyph = selection.glyph.borrow().clone();
 
-            map.set_glyph(1, 3, glyph);
+            map.set_glyph(1, 3, glyph, YELLOW.into());
         });
 
         self.word_editor.apply_active_word(|word| {
             if let Word::Tunic(glyphs) = word {
                 for (index, glyph) in glyphs.iter().enumerate() {
-                    map.set_glyph(1 + index, 1, glyph.borrow().clone());
+                    map.set_glyph(1 + index, 1, glyph.borrow().clone(), WHITE.into());
                 }
             }
         });
