@@ -109,20 +109,13 @@ impl Glyph {
     }
 
     pub fn with_toggled_segment(&self, index: usize) -> Self {
-        println!("Glyph to toggle: {:?}", self);
-        println!("Glyph code to toggle: {:#b}", self.0);
-
         let mask = Self::mask_from_usize(index);
-
-        println!("Mask: {:#b}", mask);
 
         let new_code = if self.includes_segment(Self::segment_index_from_mask(mask)) {
             self.0 ^ mask
         } else {
             self.0 | mask
         };
-
-        println!("New code: {:#b}", mask);
 
         Self(new_code)
     }
