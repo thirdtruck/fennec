@@ -1,8 +1,12 @@
+use std::cmp;
+
 use crate::prelude::*;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum EditorEvent {
     ToggleSegmentOnActiveGlyph(Segment),
+    MoveGlyphCursorRight,
+    MoveGlyphCursorLeft,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -34,6 +38,7 @@ pub struct WordEditorCallbacks {
 pub struct WordEditor {
     active_word: RcWord,
     glyph_editor: Option<GlyphEditor>,
+    active_glyph_index: Option<usize>,
     pub callbacks: WordEditorCallbacks,
 }
 
@@ -42,6 +47,7 @@ impl WordEditor {
         Self {
             active_word: word.into(),
             glyph_editor: None,
+            active_glyph_index: None,
             callbacks: WordEditorCallbacks::default(),
         }
     }
@@ -53,6 +59,34 @@ impl WordEditor {
                     active_glyph: glyph.clone(),
                     event_queue: vec![],
                 });
+                self.active_glyph_index = Some(index);
+            }
+        }
+    }
+
+    pub fn move_glyph_cursor_left(&mut self, amount: usize) {
+        let word = (*self.active_word.borrow()).clone();
+
+        if let Word::Tunic(_glyphs) = word {
+            if let Some(old_index) = self.active_glyph_index {
+                let new_index = if old_index >= amount {
+                    old_index - amount
+                } else {
+                    0
+                };
+
+                self.edit_glyph_at(new_index);
+            }
+        }
+    }
+
+    pub fn move_glyph_cursor_right(&mut self, amount: usize) {
+        let word = (*self.active_word.borrow()).clone();
+
+        if let Word::Tunic(glyphs) = word {
+            if let Some(old_index) = self.active_glyph_index {
+                let new_index = cmp::min(glyphs.len() - 1, old_index + amount);
+                self.edit_glyph_at(new_index);
             }
         }
     }
@@ -95,6 +129,12 @@ impl WordEditor {
                 EditorEvent::ToggleSegmentOnActiveGlyph(segment) => {
                     self.toggle_segment_in_active_glyph(segment);
                 },
+                EditorEvent::MoveGlyphCursorLeft => {
+                    self.move_glyph_cursor_left(1)
+                }
+                EditorEvent::MoveGlyphCursorRight => {
+                    self.move_glyph_cursor_right(1)
+                }
             }
         }
     }
@@ -105,6 +145,7 @@ impl Default for WordEditor {
         Self {
             active_word: Word::default().into(),
             glyph_editor: None,
+            active_glyph_index: None,
             callbacks: WordEditorCallbacks::default(),
         }
     }

@@ -112,6 +112,12 @@ impl GameState for State {
                 if let Some(segment) = segment {
                     events.push(EditorEvent::ToggleSegmentOnActiveGlyph(segment));
                 }
+
+                match key {
+                    VirtualKeyCode::Left => events.push(EditorEvent::MoveGlyphCursorLeft),
+                    VirtualKeyCode::Right => events.push(EditorEvent::MoveGlyphCursorRight),
+                    _ => (),
+                }
             }
 
             events
