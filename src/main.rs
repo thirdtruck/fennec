@@ -19,11 +19,13 @@ mod prelude {
 
 use prelude::*;
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Default)]
 struct State {
     tick_count: usize,
     word_editor: WordEditor,
+    #[allow(dead_code)]
     all_words: HashMap<usize, Word>,
+    #[allow(dead_code)]
     all_snippets: HashMap<usize, Snippet>,
 }
 
@@ -78,34 +80,46 @@ impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         self.tick_count += 1;
 
-        if let Some(key) = ctx.key {
-            let segment = match key {
-                VirtualKeyCode::W => Some(0),
-                VirtualKeyCode::E => Some(1),
-                VirtualKeyCode::R => Some(2),
+        let key = ctx.key.clone();
 
-                VirtualKeyCode::A => Some(3),
-                VirtualKeyCode::S => Some(4),
-                VirtualKeyCode::D => Some(5),
-                VirtualKeyCode::F => Some(6),
+        let while_editing_glyph = move |_glyph| {
+            let mut events: Vec<EditorEvent> = vec![];
 
-                VirtualKeyCode::U => Some(7),
-                VirtualKeyCode::I => Some(8),
-                VirtualKeyCode::O => Some(9),
-                VirtualKeyCode::P => Some(10),
+            if let Some(key) = key {
+                let segment = match key {
+                    VirtualKeyCode::W => Some(0),
+                    VirtualKeyCode::E => Some(1),
+                    VirtualKeyCode::R => Some(2),
 
-                VirtualKeyCode::J => Some(11),
-                VirtualKeyCode::K => Some(12),
-                VirtualKeyCode::L => Some(13),
-                VirtualKeyCode::Semicolon => Some(14),
-                VirtualKeyCode::Q => Some(15),
-                _ => None,
-            };
+                    VirtualKeyCode::A => Some(3),
+                    VirtualKeyCode::S => Some(4),
+                    VirtualKeyCode::D => Some(5),
+                    VirtualKeyCode::F => Some(6),
 
-            if let Some(segment) = segment {
-                self.word_editor.toggle_segment_in_active_glyph(segment);
+                    VirtualKeyCode::U => Some(7),
+                    VirtualKeyCode::I => Some(8),
+                    VirtualKeyCode::O => Some(9),
+                    VirtualKeyCode::P => Some(10),
+
+                    VirtualKeyCode::J => Some(11),
+                    VirtualKeyCode::K => Some(12),
+                    VirtualKeyCode::L => Some(13),
+                    VirtualKeyCode::Semicolon => Some(14),
+                    VirtualKeyCode::Q => Some(15),
+                    _ => None,
+                };
+
+                if let Some(segment) = segment {
+                    events.push(EditorEvent::ToggleSegmentOnActiveGlyph(segment));
+                }
             }
-        }
+
+            events
+        };
+
+        self.word_editor.callbacks.while_editing_glyph = Some(Box::new(while_editing_glyph));
+
+        self.word_editor.process_all_events();
 
         let mut map = GlyphMap::new(10, 10);
 

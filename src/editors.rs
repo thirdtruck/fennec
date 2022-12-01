@@ -1,8 +1,14 @@
 use crate::prelude::*;
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum EditorEvent {
+    ToggleSegmentOnActiveGlyph(Segment),
+}
+
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct GlyphEditor {
     active_glyph: RcGlyph,
+    event_queue: Vec<EditorEvent>,
 }
 
 impl GlyphEditor {
@@ -20,10 +26,15 @@ impl GlyphEditor {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Default)]
+pub struct WordEditorCallbacks {
+    pub while_editing_glyph: Option<Box<dyn FnMut(Glyph) -> Vec<EditorEvent>>>,
+}
+
 pub struct WordEditor {
     active_word: Word,
     glyph_editor: Option<GlyphEditor>,
+    pub callbacks: WordEditorCallbacks,
 }
 
 impl WordEditor {
@@ -31,13 +42,17 @@ impl WordEditor {
         Self {
             active_word: word,
             glyph_editor: None,
+            callbacks: WordEditorCallbacks::default(),
         }
     }
 
     pub fn edit_glyph_at(&mut self, index: usize) {
         if let Word::Tunic(glyphs) = &self.active_word {
             if let Some(glyph) = glyphs.get(index) {
-                self.glyph_editor = Some(GlyphEditor { active_glyph: glyph.clone() });
+                self.glyph_editor = Some(GlyphEditor {
+                    active_glyph: glyph.clone(),
+                    event_queue: vec![],
+                });
             }
         }
     }
@@ -55,6 +70,28 @@ impl WordEditor {
             ge.toggle_segment(segment);
         }
     }
+
+    pub fn process_all_events(&mut self) {
+        let mut events: Vec<EditorEvent> = vec![];
+
+        if let Some(editor) = &self.glyph_editor {
+            let active_glyph = editor.active_glyph.borrow().clone();
+
+            self.callbacks
+                .while_editing_glyph
+                .as_mut()
+                .and_then(|callback| Some(callback(active_glyph)))
+                .and_then(|evts| Some(events.extend(evts)));
+        }
+
+        for evt in events {
+            match evt {
+                EditorEvent::ToggleSegmentOnActiveGlyph(segment) => {
+                    self.toggle_segment_in_active_glyph(segment);
+                },
+            }
+        }
+    }
 }
 
 impl Default for WordEditor {
@@ -62,6 +99,7 @@ impl Default for WordEditor {
         Self {
             active_word: Word::default(),
             glyph_editor: None,
+            callbacks: WordEditorCallbacks::default(),
         }
     }
 }
