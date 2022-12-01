@@ -13,6 +13,7 @@ pub enum EditorEvent {
 pub struct GlyphSelection {
     pub glyph: RcGlyph,
     pub active: bool,
+    pub position_in_word: Option<usize>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -29,12 +30,13 @@ impl GlyphEditor {
         *glyph = toggled_glyph;
     }
 
-    pub fn apply_selected_glyph<F>(&self, mut listener: F)
+    pub fn apply_selected_glyph<F>(&self, mut listener: F, position_in_word: Option<usize>)
         where F: FnMut(GlyphSelection)
     {
         let selection = GlyphSelection {
             glyph: self.active_glyph.clone() ,
             active: true,
+            position_in_word,
         };
 
         listener(selection);
@@ -120,7 +122,7 @@ impl WordEditor {
         where F: FnMut(GlyphSelection)
     {
         if let Some(editor) = &self.glyph_editor {
-            editor.apply_selected_glyph(listener);
+            editor.apply_selected_glyph(listener, self.active_glyph_index);
         }
     }
 

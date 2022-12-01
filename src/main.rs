@@ -145,18 +145,20 @@ impl GameState for State {
 
         let mut map = GlyphMap::new(10, 10);
 
-        self.word_editor.apply_selected_glyph(|selection| {
-            let glyph = selection.glyph.borrow().clone();
-
-            map.set_glyph(1, 3, glyph, YELLOW.into());
-        });
-
         self.word_editor.apply_active_word(|word| {
             if let Word::Tunic(glyphs) = word {
                 for (index, glyph) in glyphs.iter().enumerate() {
                     map.set_glyph(1 + index, 1, glyph.borrow().clone(), WHITE.into());
                 }
             }
+        });
+
+        self.word_editor.apply_selected_glyph(|selection| {
+            let glyph = selection.glyph.borrow().clone();
+
+            let x_offset = selection.position_in_word.or_else(|| Some(0)).unwrap();
+
+            map.set_glyph(1 + x_offset, 1, glyph, YELLOW.into());
         });
 
         draw_map_at(&map, ctx, 1, 1);
