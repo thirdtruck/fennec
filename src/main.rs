@@ -92,6 +92,47 @@ fn draw_map_at(map: &GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
     }
 }
 
+fn while_editing_glyph(_glyph: Glyph, key: Option<VirtualKeyCode>) -> Vec<EditorEvent> {
+    let mut events: Vec<EditorEvent> = vec![];
+
+    if let Some(key) = key {
+        let segment = match key {
+            VirtualKeyCode::W => Some(0),
+            VirtualKeyCode::E => Some(1),
+            VirtualKeyCode::R => Some(2),
+
+            VirtualKeyCode::A => Some(3),
+            VirtualKeyCode::S => Some(4),
+            VirtualKeyCode::D => Some(5),
+            VirtualKeyCode::F => Some(6),
+
+            VirtualKeyCode::U => Some(7),
+            VirtualKeyCode::I => Some(8),
+            VirtualKeyCode::O => Some(9),
+            VirtualKeyCode::P => Some(10),
+
+            VirtualKeyCode::J => Some(11),
+            VirtualKeyCode::K => Some(12),
+            VirtualKeyCode::L => Some(13),
+            VirtualKeyCode::Semicolon => Some(14),
+            VirtualKeyCode::Q => Some(15),
+            _ => None,
+        };
+
+        if let Some(segment) = segment {
+            events.push(EditorEvent::ToggleSegmentOnActiveGlyph(segment));
+        }
+
+        match key {
+            VirtualKeyCode::Left => events.push(EditorEvent::MoveGlyphCursorLeft),
+            VirtualKeyCode::Right => events.push(EditorEvent::MoveGlyphCursorRight),
+            _ => (),
+        }
+    }
+
+    events
+}
+
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         self.tick_count += 1;
@@ -100,45 +141,8 @@ impl GameState for State {
 
         let key = ctx.key.clone();
 
-        let while_editing_glyph = move |_glyph| {
-            let mut events: Vec<EditorEvent> = vec![];
-
-            if let Some(key) = key {
-                let segment = match key {
-                    VirtualKeyCode::W => Some(0),
-                    VirtualKeyCode::E => Some(1),
-                    VirtualKeyCode::R => Some(2),
-
-                    VirtualKeyCode::A => Some(3),
-                    VirtualKeyCode::S => Some(4),
-                    VirtualKeyCode::D => Some(5),
-                    VirtualKeyCode::F => Some(6),
-
-                    VirtualKeyCode::U => Some(7),
-                    VirtualKeyCode::I => Some(8),
-                    VirtualKeyCode::O => Some(9),
-                    VirtualKeyCode::P => Some(10),
-
-                    VirtualKeyCode::J => Some(11),
-                    VirtualKeyCode::K => Some(12),
-                    VirtualKeyCode::L => Some(13),
-                    VirtualKeyCode::Semicolon => Some(14),
-                    VirtualKeyCode::Q => Some(15),
-                    _ => None,
-                };
-
-                if let Some(segment) = segment {
-                    events.push(EditorEvent::ToggleSegmentOnActiveGlyph(segment));
-                }
-
-                match key {
-                    VirtualKeyCode::Left => events.push(EditorEvent::MoveGlyphCursorLeft),
-                    VirtualKeyCode::Right => events.push(EditorEvent::MoveGlyphCursorRight),
-                    _ => (),
-                }
-            }
-
-            events
+        let while_editing_glyph = move |glyph| {
+            while_editing_glyph(glyph, key)
         };
 
         let word_editor_callbacks = WordEditorCallbacks {
