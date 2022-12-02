@@ -92,6 +92,24 @@ fn draw_map_at(map: &GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
     }
 }
 
+impl GlyphMap {
+    fn draw_active_word(&mut self, word: Word) {
+        if let Word::Tunic(glyphs) = word {
+            for (index, glyph) in glyphs.iter().enumerate() {
+                self.set_glyph(1 + index, 1, glyph.borrow().clone(), WHITE.into());
+            }
+        }
+    }
+
+    fn draw_selected_glyph(&mut self, selection: GlyphSelection) {
+        let glyph = selection.glyph.borrow().clone();
+
+        let x_offset = selection.position_in_word.or_else(|| Some(0)).unwrap();
+
+        self.set_glyph(1 + x_offset, 1, glyph, YELLOW.into());
+    }
+}
+
 fn while_editing_glyph(_glyph: Glyph, key: Option<VirtualKeyCode>) -> Vec<EditorEvent> {
     let mut events: Vec<EditorEvent> = vec![];
 
@@ -141,9 +159,7 @@ impl GameState for State {
 
         let key = ctx.key.clone();
 
-        let while_editing_glyph = move |glyph| {
-            while_editing_glyph(glyph, key)
-        };
+        let while_editing_glyph = move |glyph| while_editing_glyph(glyph, key);
 
         let word_editor_callbacks = WordEditorCallbacks {
             while_editing_glyph: Some(Box::new(while_editing_glyph)),
@@ -152,21 +168,9 @@ impl GameState for State {
         if let Some(editor) = &self.snippet_editor.word_editor {
             let editor = editor.with_callbacks(word_editor_callbacks);
 
-            editor.apply_active_word(|word| {
-                if let Word::Tunic(glyphs) = word {
-                    for (index, glyph) in glyphs.iter().enumerate() {
-                        map.set_glyph(1 + index, 1, glyph.borrow().clone(), WHITE.into());
-                    }
-                }
-            });
+            editor.apply_active_word(|word| map.draw_active_word(word));
 
-            editor.apply_selected_glyph(|selection| {
-                let glyph = selection.glyph.borrow().clone();
-
-                let x_offset = selection.position_in_word.or_else(|| Some(0)).unwrap();
-
-                map.set_glyph(1 + x_offset, 1, glyph, YELLOW.into());
-            });
+            editor.apply_selected_glyph(|selection| map.draw_selected_glyph(selection));
 
             self.snippet_editor.word_editor = Some(editor);
         }
