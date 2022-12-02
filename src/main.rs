@@ -22,7 +22,7 @@ use prelude::*;
 #[derive(Default)]
 struct State {
     tick_count: usize,
-    word_editor: WordEditor,
+    snippet_editor: SnippetEditor,
     #[allow(dead_code)]
     all_words: HashMap<usize, Word>,
     #[allow(dead_code)]
@@ -96,6 +96,8 @@ impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         self.tick_count += 1;
 
+        let mut map = GlyphMap::new(10, 10);
+
         let key = ctx.key.clone();
 
         let while_editing_glyph = move |_glyph| {
@@ -139,27 +141,33 @@ impl GameState for State {
             events
         };
 
-        self.word_editor.callbacks.while_editing_glyph = Some(Box::new(while_editing_glyph));
+        let word_editor_callbacks = WordEditorCallbacks {
+            while_editing_glyph: Some(Box::new(while_editing_glyph)),
+        };
 
-        self.word_editor.process_all_events();
+        if let Some(editor) = &self.snippet_editor.word_editor {
+            let editor = editor.with_callbacks(word_editor_callbacks);
 
-        let mut map = GlyphMap::new(10, 10);
-
-        self.word_editor.apply_active_word(|word| {
-            if let Word::Tunic(glyphs) = word {
-                for (index, glyph) in glyphs.iter().enumerate() {
-                    map.set_glyph(1 + index, 1, glyph.borrow().clone(), WHITE.into());
+            editor.apply_active_word(|word| {
+                if let Word::Tunic(glyphs) = word {
+                    for (index, glyph) in glyphs.iter().enumerate() {
+                        map.set_glyph(1 + index, 1, glyph.borrow().clone(), WHITE.into());
+                    }
                 }
-            }
-        });
+            });
 
-        self.word_editor.apply_selected_glyph(|selection| {
-            let glyph = selection.glyph.borrow().clone();
+            editor.apply_selected_glyph(|selection| {
+                let glyph = selection.glyph.borrow().clone();
 
-            let x_offset = selection.position_in_word.or_else(|| Some(0)).unwrap();
+                let x_offset = selection.position_in_word.or_else(|| Some(0)).unwrap();
 
-            map.set_glyph(1 + x_offset, 1, glyph, YELLOW.into());
-        });
+                map.set_glyph(1 + x_offset, 1, glyph, YELLOW.into());
+            });
+
+            self.snippet_editor.word_editor = Some(editor);
+        }
+
+        self.snippet_editor.process_all_events();
 
         draw_map_at(&map, ctx, 1, 1);
 
@@ -186,12 +194,14 @@ fn main() -> BError {
     example_language_usage();
     let font_file = "tunic-dungeonfont-16x32.png";
 
-    let glyphs: Vec<u16> = vec![0xAF, 0x13, 0xFF];
-    let word: Word = glyphs.into();
+    let snippet: Snippet = vec![
+        vec![0xAF, 0x13, 0xFF].into(),
+        vec![0x01, 0x55, 0x78].into(),
+    ].into();
 
     let mut state = State::default();
-    state.word_editor = WordEditor::new(word);
-    state.word_editor.edit_glyph_at(0);
+    state.snippet_editor = SnippetEditor::new(snippet);
+    state.snippet_editor.edit_word_at(0);
 
     let context = BTermBuilder::new()
         .with_title("Tunic Language Toolkit")

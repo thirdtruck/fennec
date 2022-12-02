@@ -71,6 +71,15 @@ impl WordEditor {
         }
     }
 
+    pub fn with_callbacks(&self, callbacks: WordEditorCallbacks) -> Self {
+        Self {
+            active_word: self.active_word.clone(),
+            glyph_editor: self.glyph_editor.clone(),
+            active_glyph_index: self.active_glyph_index,
+            callbacks,
+        }
+    }
+
     pub fn edit_glyph_at(&mut self, index: usize) {
         if let Word::Tunic(glyphs) = &self.active_word.borrow().clone() {
             if let Some(glyph) = glyphs.get(index) {
@@ -174,6 +183,77 @@ impl Default for WordEditor {
             glyph_editor: None,
             active_glyph_index: None,
             callbacks: WordEditorCallbacks::default(),
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct SnippetEditorCallbacks {
+    pub while_editing_word: Option<Box<dyn FnMut(Word) -> Vec<EditorEvent>>>,
+}
+
+pub struct SnippetEditor {
+    active_snippet: RcSnippet,
+    pub word_editor: Option<WordEditor>,
+    active_word_index: Option<usize>,
+    pub callbacks: SnippetEditorCallbacks,
+    pub word_editor_callbacks: Option<WordEditorCallbacks>,
+}
+
+impl SnippetEditor {
+    pub fn new(snippet: Snippet) -> Self {
+        Self {
+            active_snippet: snippet.into(),
+            word_editor: None,
+            active_word_index: None,
+            callbacks: SnippetEditorCallbacks::default(),
+            word_editor_callbacks: None,
+        }
+    }
+
+    pub fn edit_word_at(&mut self, index: usize) {
+        let snippet = self.active_snippet.borrow().clone();
+        if let Some(word) = snippet.words.get(index) {
+            let mut editor = WordEditor::new(word.clone());
+            editor.edit_glyph_at(0);
+
+            self.word_editor = Some(editor);
+            self.active_word_index = Some(index);
+        }
+    }
+
+    pub fn process_all_events(&mut self) {
+        let mut events: Vec<EditorEvent> = vec![];
+
+        if let Some(editor) = &mut self.word_editor {
+            editor.process_all_events();
+
+            let active_word = editor.active_word.borrow().clone();
+
+            self.callbacks
+                .while_editing_word
+                .as_mut()
+                .and_then(|callback| Some(callback(active_word)))
+                .and_then(|evts| Some(events.extend(evts)));
+        }
+
+        for evt in events {
+            match evt {
+                _ => {
+                },
+            };
+        }
+    }
+}
+
+impl Default for SnippetEditor {
+    fn default() -> Self {
+        Self {
+            active_snippet: Snippet::default().into(),
+            word_editor: None,
+            active_word_index: None,
+            callbacks: SnippetEditorCallbacks::default(),
+            word_editor_callbacks: None,
         }
     }
 }

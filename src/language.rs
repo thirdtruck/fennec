@@ -9,6 +9,7 @@ pub const ALL_SEGMENTS: u16 = 0b1111_1111_1111_1110;
 
 pub type RcGlyph = Rc<RefCell<Glyph>>;
 pub type RcWord = Rc<RefCell<Word>>;
+pub type RcSnippet = Rc<RefCell<Snippet>>;
 
 impl From<Glyph> for RcGlyph {
     fn from(glyph: Glyph) -> Self {
@@ -187,8 +188,23 @@ impl From<&str> for Word {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct Snippet {
     pub words: Vec<Word>,
     pub source: Option<Source>,
+}
+
+impl From<Vec<Word>> for Snippet {
+    fn from(words: Vec<Word>) -> Self {
+        Self {
+            words,
+            source: None,
+        }
+    }
+}
+
+impl From<Snippet> for RcSnippet {
+    fn from(snippet: Snippet) -> Self {
+        Rc::new(RefCell::new(snippet.clone()))
+    }
 }
