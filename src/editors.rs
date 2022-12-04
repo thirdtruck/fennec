@@ -2,21 +2,21 @@ use std::cmp;
 
 use crate::prelude::*;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum EditorEvent {
     ToggleSegmentOnActiveGlyph(Segment),
     MoveGlyphCursorRight,
     MoveGlyphCursorLeft,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct GlyphSelection {
     pub glyph: RcGlyph,
     pub active: bool,
     pub position_in_word: Option<usize>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct GlyphEditor {
     active_glyph: RcGlyph,
     event_queue: Vec<EditorEvent>,
@@ -46,7 +46,7 @@ impl GlyphEditor {
     pub fn apply_active_glyph<F>(&self, mut listener: F)
         where F: FnMut(Glyph)
     {
-        listener(self.active_glyph.borrow().clone());
+        listener(*self.active_glyph.borrow());
     }
 }
 
@@ -153,13 +153,16 @@ impl WordEditor {
         let mut events: Vec<EditorEvent> = vec![];
 
         if let Some(editor) = &self.glyph_editor {
-            let active_glyph = editor.active_glyph.borrow().clone();
+            let active_glyph = *editor.active_glyph.borrow();
 
-            self.callbacks
+            let evts = self.callbacks
                 .while_editing_glyph
                 .as_mut()
-                .map(|callback| callback(active_glyph))
-                .map(|evts| events.extend(evts));
+                .map(|callback| callback(active_glyph));
+
+            if let Some(evts) = evts {
+                events.extend(evts);
+            }
         }
 
         for evt in events {
@@ -232,11 +235,14 @@ impl SnippetEditor {
 
             let active_word = editor.active_word.borrow().clone();
 
-            self.callbacks
+            let evts = self.callbacks
                 .while_editing_word
                 .as_mut()
-                .map(|callback| callback(active_word))
-                .map(|evts| events.extend(evts));
+                .map(|callback| callback(active_word));
+
+            if let Some(evts) = evts {
+                events.extend(evts);
+            }
         }
 
         /*

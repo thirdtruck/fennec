@@ -13,25 +13,25 @@ pub type RcSnippet = Rc<RefCell<Snippet>>;
 
 impl From<Glyph> for RcGlyph {
     fn from(glyph: Glyph) -> Self {
-        Rc::new(RefCell::new(glyph.clone()))
+        Rc::new(RefCell::new(glyph))
     }
 }
 
 impl From<Word> for RcWord {
     fn from(word: Word) -> Self {
-        Rc::new(RefCell::new(word.clone()))
+        Rc::new(RefCell::new(word))
     }
 }
 
 #[allow(dead_code)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Source {
     ManualPageNumber(usize),
     ScreenshotFilename(String),
     Other(String),
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct Glyph(pub u16);
 
 impl From<u16> for Glyph {
@@ -50,16 +50,16 @@ impl From<usize> for Glyph {
 impl Glyph {
     pub fn includes_segment(&self, segment: u16) -> bool {
         let mask: u16 = match segment {
-            00 => 0b1000_0000_0000_0000,
-            01 => 0b0100_0000_0000_0000,
-            02 => 0b0010_0000_0000_0000,
-            03 => 0b0001_0000_0000_0000,
-            04 => 0b0000_1000_0000_0000,
-            05 => 0b0000_0100_0000_0000,
-            06 => 0b0000_0010_0000_0000,
-            07 => 0b0000_0001_0000_0000,
-            08 => 0b0000_0000_1000_0000,
-            09 => 0b0000_0000_0100_0000,
+            0 => 0b1000_0000_0000_0000,
+            1 => 0b0100_0000_0000_0000,
+            2 => 0b0010_0000_0000_0000,
+            3 => 0b0001_0000_0000_0000,
+            4 => 0b0000_1000_0000_0000,
+            5 => 0b0000_0100_0000_0000,
+            6 => 0b0000_0010_0000_0000,
+            7 => 0b0000_0001_0000_0000,
+            8 => 0b0000_0000_1000_0000,
+            9 => 0b0000_0000_0100_0000,
             10 => 0b0000_0000_0010_0000,
             11 => 0b0000_0000_0001_0000,
             12 => 0b0000_0000_0000_1000,
@@ -74,16 +74,16 @@ impl Glyph {
 
     pub fn segment_index_from_mask(mask: u16) -> u16 {
         match mask {
-            0b1000_0000_0000_0000 => 00,
-            0b0100_0000_0000_0000 => 01,
-            0b0010_0000_0000_0000 => 02,
-            0b0001_0000_0000_0000 => 03,
-            0b0000_1000_0000_0000 => 04,
-            0b0000_0100_0000_0000 => 05,
-            0b0000_0010_0000_0000 => 06,
-            0b0000_0001_0000_0000 => 07,
-            0b0000_0000_1000_0000 => 08,
-            0b0000_0000_0100_0000 => 09,
+            0b1000_0000_0000_0000 => 0,
+            0b0100_0000_0000_0000 => 1,
+            0b0010_0000_0000_0000 => 2,
+            0b0001_0000_0000_0000 => 3,
+            0b0000_1000_0000_0000 => 4,
+            0b0000_0100_0000_0000 => 5,
+            0b0000_0010_0000_0000 => 6,
+            0b0000_0001_0000_0000 => 7,
+            0b0000_0000_1000_0000 => 8,
+            0b0000_0000_0100_0000 => 9,
             0b0000_0000_0010_0000 => 10,
             0b0000_0000_0001_0000 => 11,
             0b0000_0000_0000_1000 => 12,
@@ -96,16 +96,16 @@ impl Glyph {
 
     pub fn mask_from_usize(index: usize) -> u16 {
         match index {
-            00 => 0b1000_0000_0000_0000,
-            01 => 0b0100_0000_0000_0000,
-            02 => 0b0010_0000_0000_0000,
-            03 => 0b0001_0000_0000_0000,
-            04 => 0b0000_1000_0000_0000,
-            05 => 0b0000_0100_0000_0000,
-            06 => 0b0000_0010_0000_0000,
-            07 => 0b0000_0001_0000_0000,
-            08 => 0b0000_0000_1000_0000,
-            09 => 0b0000_0000_0100_0000,
+            0 => 0b1000_0000_0000_0000,
+            1 => 0b0100_0000_0000_0000,
+            2 => 0b0010_0000_0000_0000,
+            3 => 0b0001_0000_0000_0000,
+            4 => 0b0000_1000_0000_0000,
+            5 => 0b0000_0100_0000_0000,
+            6 => 0b0000_0010_0000_0000,
+            7 => 0b0000_0001_0000_0000,
+            8 => 0b0000_0000_1000_0000,
+            9 => 0b0000_0000_0100_0000,
             10 => 0b0000_0000_0010_0000,
             11 => 0b0000_0000_0001_0000,
             12 => 0b0000_0000_0000_1000,
@@ -129,7 +129,7 @@ impl Glyph {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Word {
     Tunic(Vec<RcGlyph>),
     English(String),
@@ -144,7 +144,7 @@ impl From<Vec<u16>> for Word {
         let glyphs: Vec<RcGlyph> = items
             .iter()
             .map(|c| {
-                Glyph((*c).into()).into()
+                Glyph(*c).into()
             })
             .collect();
 
@@ -157,7 +157,7 @@ impl From<&[u16]> for Word {
         let glyphs: Vec<RcGlyph> = items
             .iter()
             .map(|c| {
-                Glyph((*c).into()).into()
+                Glyph(*c).into()
             })
             .collect();
 
@@ -169,7 +169,7 @@ impl From<Vec<Glyph>> for Word {
     fn from(glyphs: Vec<Glyph>) -> Self {
         let glyphs: Vec<RcGlyph> = glyphs
             .iter()
-            .map(|g| g.clone().into())
+            .map(|g| (*g).into())
             .collect();
 
         Self::Tunic(glyphs)
@@ -188,7 +188,7 @@ impl From<&str> for Word {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Snippet {
     pub words: Vec<Word>,
     pub source: Option<Source>,
@@ -205,6 +205,6 @@ impl From<Vec<Word>> for Snippet {
 
 impl From<Snippet> for RcSnippet {
     fn from(snippet: Snippet) -> Self {
-        Rc::new(RefCell::new(snippet.clone()))
+        Rc::new(RefCell::new(snippet))
     }
 }
