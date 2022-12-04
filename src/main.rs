@@ -108,17 +108,17 @@ impl GlyphMap {
     fn draw_active_word(&mut self, word: Word) {
         if let Word::Tunic(glyphs) = word {
             for (index, glyph) in glyphs.iter().enumerate() {
-                self.set_glyph(1 + index, 1, glyph.borrow().clone(), WHITE.into());
+                self.set_glyph(1 + index, 1, *glyph.borrow(), WHITE.into());
             }
         }
     }
 
     fn draw_selected_glyph(&mut self, selection: GlyphSelection) {
-        let glyph = selection.glyph.borrow().clone();
+        let glyph = *selection.glyph.borrow();
 
-        let x_offset = selection.position_in_word.or_else(|| Some(0)).unwrap();
-
-        self.set_glyph(1 + x_offset, 1, glyph, YELLOW.into());
+        if let Some(x_offset) = selection.position_in_word {
+            self.set_glyph(1 + x_offset, 1, glyph, YELLOW.into());
+        }
     }
 }
 
@@ -169,7 +169,8 @@ impl GameState for State {
 
         let mut map = GlyphMap::new(10, 10);
 
-        let key = ctx.key.clone();
+        let mut ctx = ctx.clone();
+        let key = ctx.key;
 
         let while_editing_glyph = move |glyph| while_editing_glyph(glyph, key);
 
@@ -189,9 +190,9 @@ impl GameState for State {
 
         self.snippet_editor.process_all_events();
 
-        draw_map_at(&map, ctx, 1, 1);
+        draw_map_at(&map, &mut ctx, 1, 1);
 
-        render_draw_buffer(ctx).expect("Render error");
+        render_draw_buffer(&mut ctx).expect("Render error");
     }
 }
 

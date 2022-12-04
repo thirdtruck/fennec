@@ -42,6 +42,7 @@ impl GlyphEditor {
         listener(selection);
     }
 
+    #[allow(dead_code)]
     pub fn apply_active_glyph<F>(&self, mut listener: F)
         where F: FnMut(Glyph)
     {
@@ -119,6 +120,7 @@ impl WordEditor {
         }
     }
 
+    #[allow(dead_code)]
     pub fn apply_active_glyph<F>(&self, listener: F)
         where F: FnMut(Glyph)
     {
@@ -156,8 +158,8 @@ impl WordEditor {
             self.callbacks
                 .while_editing_glyph
                 .as_mut()
-                .and_then(|callback| Some(callback(active_glyph)))
-                .and_then(|evts| Some(events.extend(evts)));
+                .map(|callback| callback(active_glyph))
+                .map(|evts| events.extend(evts));
         }
 
         for evt in events {
@@ -233,16 +235,17 @@ impl SnippetEditor {
             self.callbacks
                 .while_editing_word
                 .as_mut()
-                .and_then(|callback| Some(callback(active_word)))
-                .and_then(|evts| Some(events.extend(evts)));
+                .map(|callback| callback(active_word))
+                .map(|evts| events.extend(evts));
         }
 
+        /*
         for evt in events {
             match evt {
-                _ => {
-                },
+                _ => (),
             };
         }
+        */
     }
 }
 
