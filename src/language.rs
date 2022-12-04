@@ -188,6 +188,28 @@ impl From<&str> for Word {
     }
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum RawWord {
+    Tunic(Vec<Glyph>),
+    English(String),
+}
+
+impl From<Word> for RawWord {
+    fn from(word: Word) -> Self {
+        match word {
+            Word::Tunic(glyphs) => {
+                let glyphs: Vec<Glyph> = glyphs
+                    .iter()
+                    .map(|g| *g.borrow())
+                    .collect();
+
+                Self::Tunic(glyphs)
+            },
+            Word::English(string) => Self::English(string),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Snippet {
     pub words: Vec<Word>,
