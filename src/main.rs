@@ -1,4 +1,4 @@
-use std::collections::{HashMap};
+use std::collections::HashMap;
 
 mod language;
 mod editors;
@@ -27,6 +27,18 @@ struct State {
     all_words: HashMap<usize, Word>,
     #[allow(dead_code)]
     all_snippets: HashMap<usize, Snippet>,
+}
+
+impl State {
+    fn new(snippet: Snippet) -> Self {
+        let mut snippet_editor = SnippetEditor::new(snippet);
+        snippet_editor.edit_word_at(0);
+
+        Self {
+            snippet_editor,
+            ..Self::default()
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -207,9 +219,7 @@ fn main() -> BError {
         vec![0x01, 0x55, 0x78].into(),
     ].into();
 
-    let mut state = State::default();
-    state.snippet_editor = SnippetEditor::new(snippet);
-    state.snippet_editor.edit_word_at(0);
+    let state = State::new(snippet);
 
     let context = BTermBuilder::new()
         .with_title("Tunic Language Toolkit")
