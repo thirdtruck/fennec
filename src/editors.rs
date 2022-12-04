@@ -52,7 +52,7 @@ impl GlyphEditor {
 
 #[derive(Default)]
 pub struct WordEditorCallbacks {
-    pub while_editing_glyph: Option<Box<dyn FnMut(Glyph) -> Vec<EditorEvent>>>,
+    pub on_edit_glyph: Option<Box<dyn FnMut(Glyph) -> Vec<EditorEvent>>>,
 }
 
 pub struct WordEditor {
@@ -156,7 +156,7 @@ impl WordEditor {
             let active_glyph = *editor.active_glyph.borrow();
 
             let evts = self.callbacks
-                .while_editing_glyph
+                .on_edit_glyph
                 .as_mut()
                 .map(|callback| callback(active_glyph));
 
@@ -194,7 +194,7 @@ impl Default for WordEditor {
 
 #[derive(Default)]
 pub struct SnippetEditorCallbacks {
-    pub while_editing_word: Option<Box<dyn FnMut(Word) -> Vec<EditorEvent>>>,
+    pub on_edit_word: Option<Box<dyn FnMut(Word) -> Vec<EditorEvent>>>,
 }
 
 pub struct SnippetEditor {
@@ -236,7 +236,7 @@ impl SnippetEditor {
             let active_word = editor.active_word.borrow().clone();
 
             let evts = self.callbacks
-                .while_editing_word
+                .on_edit_word
                 .as_mut()
                 .map(|callback| callback(active_word));
 

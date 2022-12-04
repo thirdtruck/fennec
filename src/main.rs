@@ -122,7 +122,7 @@ impl GlyphMap {
     }
 }
 
-fn while_editing_glyph(_glyph: Glyph, key: Option<VirtualKeyCode>) -> Vec<EditorEvent> {
+fn on_edit_glyph(_glyph: Glyph, key: Option<VirtualKeyCode>) -> Vec<EditorEvent> {
     let mut events: Vec<EditorEvent> = vec![];
 
     if let Some(key) = key {
@@ -172,10 +172,10 @@ impl GameState for State {
         let mut ctx = ctx.clone();
         let key = ctx.key;
 
-        let while_editing_glyph = move |glyph| while_editing_glyph(glyph, key);
+        let on_edit_glyph = move |glyph| on_edit_glyph(glyph, key);
 
         let word_editor_callbacks = WordEditorCallbacks {
-            while_editing_glyph: Some(Box::new(while_editing_glyph)),
+            on_edit_glyph: Some(Box::new(on_edit_glyph)),
         };
 
         if let Some(editor) = &self.snippet_editor.word_editor {
