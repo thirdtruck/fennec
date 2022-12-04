@@ -202,10 +202,8 @@ fn example_language_usage() {
     let word1: Word = glyph.into();
     let word2: Word = "Testing".into();
     let word3: Word = vec![0x01, 0x11, 0xF1].into();
-    let snippet = Snippet {
-        words: vec![word1, word2, word3],
-        source: Some(Source::Other("Example snippet".into())),
-    };
+    let mut snippet: Snippet = vec![word1, word2, word3].into();
+    snippet.source = Some(Source::Other("Example snippet".into()));
 
     println!("Hello, world!");
     println!("Here's your glyph! {:?}", snippet);

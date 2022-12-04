@@ -212,12 +212,17 @@ impl From<Word> for RawWord {
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Snippet {
-    pub words: Vec<Word>,
+    pub words: Vec<RcWord>,
     pub source: Option<Source>,
 }
 
 impl From<Vec<Word>> for Snippet {
     fn from(words: Vec<Word>) -> Self {
+        let words: Vec<RcWord> = words
+            .iter()
+            .map(|w| w.clone().into())
+            .collect();
+
         Self {
             words,
             source: None,

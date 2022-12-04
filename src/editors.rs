@@ -219,7 +219,9 @@ impl SnippetEditor {
     pub fn edit_word_at(&mut self, index: usize) {
         let snippet = self.active_snippet.borrow().clone();
         if let Some(word) = snippet.words.get(index) {
-            let mut editor = WordEditor::new(word.clone());
+            let word = word.borrow().clone();
+
+            let mut editor = WordEditor::new(word);
             editor.edit_glyph_at(0);
 
             self.word_editor = Some(editor);
