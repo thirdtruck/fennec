@@ -235,3 +235,23 @@ impl From<Snippet> for RcSnippet {
         Rc::new(RefCell::new(snippet))
     }
 }
+
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub struct RawSnippet {
+    pub words: Vec<RawWord>,
+    pub source: Option<Source>,
+}
+
+impl From<Snippet> for RawSnippet {
+    fn from(snippet: Snippet) -> Self {
+        let words = snippet.words
+            .iter()
+            .map(|w| w.borrow().clone().into())
+            .collect();
+
+        Self {
+            words,
+            source: snippet.source,
+        }
+    }
+}
