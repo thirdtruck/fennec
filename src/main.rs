@@ -2,12 +2,14 @@ use std::collections::HashMap;
 
 mod language;
 mod editors;
+mod views;
 
 mod prelude {
     pub use bracket_lib::prelude::*;
 
     pub use crate::language::*;
     pub use crate::editors::*;
+    pub use crate::views::*;
 
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 50;
