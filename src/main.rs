@@ -213,6 +213,9 @@ fn main() -> BError {
 
     let state = State::new(snippet);
 
+    let output = serde_json::to_string(&state.snippet_editor).unwrap();
+    println!("Output: {}", output);
+
     let context = BTermBuilder::new()
         .with_title("Tunic Language Toolkit")
         .with_fps_cap(30.0)

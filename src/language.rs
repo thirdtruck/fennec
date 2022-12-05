@@ -1,3 +1,4 @@
+use serde::{Serialize, Deserialize};
 use std::convert::From;
 
 pub type Segment = usize;
@@ -6,14 +7,14 @@ pub type Segment = usize;
 pub const ALL_SEGMENTS: u16 = 0b1111_1111_1111_1110;
 
 #[allow(dead_code)]
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum Source {
     ManualPageNumber(usize),
     ScreenshotFilename(String),
     Other(String),
 }
 
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Glyph(pub u16);
 
 impl From<u16> for Glyph {
@@ -111,7 +112,7 @@ impl Glyph {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum Word {
     Tunic(Vec<Glyph>),
     English(String),
@@ -161,7 +162,7 @@ impl From<&str> for Word {
     }
 }
 
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Snippet {
     pub words: Vec<Word>,
     pub source: Option<Source>,

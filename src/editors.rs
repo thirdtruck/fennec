@@ -1,8 +1,9 @@
+use serde::{Serialize, Deserialize};
 use std::cmp;
 
 use crate::prelude::*;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum EditorEvent {
     NoOp,
     ToggleSegmentOnActiveGlyph(Segment),
@@ -19,7 +20,7 @@ pub struct GlyphSelection {
     pub position_in_word: Option<usize>,
 }
 
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub struct GlyphEditor {
     glyph: Glyph,
 }
@@ -51,7 +52,7 @@ pub struct WordEditorCallbacks {
     pub on_edit_glyph: Option<Box<dyn FnMut(Glyph) -> Vec<EditorEvent>>>,
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct WordEditor {
     active_word: Word,
     glyph_editor: Option<GlyphEditor>,
@@ -193,7 +194,7 @@ pub struct SnippetEditorCallbacks {
     pub on_edit_word: Option<Box<dyn FnMut(Word) -> Vec<EditorEvent>>>,
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct SnippetEditor {
     active_snippet: Snippet,
     pub word_editor: Option<WordEditor>,
