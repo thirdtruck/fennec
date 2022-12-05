@@ -40,18 +40,6 @@ impl GlyphEditor {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct WordSelection {
-    pub word: Word,
-    pub active: bool,
-    pub position_in_snippet: Option<usize>,
-}
-
-#[derive(Default)]
-pub struct WordEditorCallbacks {
-    pub on_edit_glyph: Option<Box<dyn FnMut(Glyph) -> Vec<EditorEvent>>>,
-}
-
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct WordEditor {
     active_word: Word,
@@ -117,17 +105,6 @@ impl WordEditor {
             self.with_glyph_selected(new_index)
         } else {
             self
-        }
-    }
-
-    pub fn edit_glyph_at(&mut self, index: usize) {
-        if let Word::Tunic(glyphs) = self.active_word.clone() {
-            if let Some(glyph) = glyphs.get(index) {
-                self.glyph_editor = Some(GlyphEditor {
-                    glyph: *glyph,
-                });
-                self.active_glyph_index = Some(index);
-            }
         }
     }
 
@@ -212,19 +189,6 @@ impl SnippetEditor {
 
     pub fn on_input(&self, callback: Box<dyn Fn(&SnippetEditor) -> EditorEvent>) -> EditorEvent {
         callback(self)
-    }
-
-    pub fn edit_word_at(&mut self, index: usize) {
-        let snippet = self.active_snippet.clone();
-        if let Some(word) = snippet.words.get(index) {
-            let word = word.clone();
-
-            let mut editor = WordEditor::new(word);
-            editor.edit_glyph_at(0);
-
-            self.word_editor = Some(editor);
-            self.active_word_index = Some(index);
-        }
     }
 
     pub fn with_word_selected(self, index: usize) -> Self {

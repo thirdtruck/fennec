@@ -31,11 +31,8 @@ struct State {
 
 impl State {
     fn new(snippet: Snippet) -> Self {
-        let mut snippet_editor = SnippetEditor::new(snippet);
-        snippet_editor.edit_word_at(0);
-
         Self {
-            snippet_editor,
+            snippet_editor: SnippetEditor::new(snippet).with_word_selected(0),
             ..Self::default()
         }
     }
