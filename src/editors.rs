@@ -226,25 +226,70 @@ impl SnippetEditor {
         }
     }
 
-    pub fn apply(self, event: EditorEvent) -> Self {
-        if let Some(editor) = self.word_editor {
-            let word_editor = editor.apply(event);
+    pub fn with_word_selected(self, index: usize) -> Self {
+        let words = self.active_snippet.words.clone();
 
-            let mut snippet = self.active_snippet.clone();
+        if let Some(word) = words.get(index) {
+            let editor = WordEditor::new(word.clone()).with_glyph_selected(0);
 
-            if let Some(index) = self.active_word_index {
-                if let Some(word) = snippet.words.get_mut(index) {
-                    *word = word_editor.active_word.clone();
-                }
-            }
-
-            Self {
-                active_snippet: snippet,
-                word_editor: Some(word_editor),
+            SnippetEditor {
+                word_editor: Some(editor),
+                active_word_index: Some(index),
                 ..self
             }
         } else {
             self
+        }
+    }
+
+    pub fn with_word_selection_moved_forward(self, amount: usize) -> Self {
+        if let Some(active_word_index) = self.active_word_index {
+            let index = cmp::min(self.active_snippet.words.len(), active_word_index + amount);
+            self.with_word_selected(index)
+        } else {
+            self
+        }
+    }
+
+    pub fn with_word_selection_moved_backwards(self, amount: usize) -> Self {
+        if let Some(active_word_index) = self.active_word_index {
+            let index = if active_word_index >= amount {
+                active_word_index - amount
+            } else {
+                0
+            };
+
+            self.with_word_selected(index)
+        } else {
+            self
+        }
+    }
+
+    pub fn apply(self, event: EditorEvent) -> Self {
+        match event {
+            EditorEvent::MoveWordCursorLeft => self.with_word_selection_moved_backwards(1),
+            EditorEvent::MoveWordCursorRight => self.with_word_selection_moved_forward(1),
+            _ => {
+                if let Some(editor) = self.word_editor {
+                    let word_editor = editor.apply(event);
+
+                    let mut snippet = self.active_snippet.clone();
+
+                    if let Some(index) = self.active_word_index {
+                        if let Some(word) = snippet.words.get_mut(index) {
+                            *word = word_editor.active_word.clone();
+                        }
+                    }
+
+                    Self {
+                        active_snippet: snippet,
+                        word_editor: Some(word_editor),
+                        ..self
+                    }
+                } else {
+                    self
+                }
+            }
         }
     }
 
