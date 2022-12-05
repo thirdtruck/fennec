@@ -104,24 +104,6 @@ fn draw_map_at(map: &GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
     }
 }
 
-impl GlyphMap {
-    fn draw_active_word(&mut self, word: Word) {
-        if let Word::Tunic(glyphs) = word {
-            for (index, glyph) in glyphs.iter().enumerate() {
-                self.set_glyph(1 + index, 1, *glyph.borrow(), WHITE.into());
-            }
-        }
-    }
-
-    fn draw_selected_glyph(&mut self, selection: GlyphSelection) {
-        let glyph = *selection.glyph.borrow();
-
-        if let Some(x_offset) = selection.position_in_word {
-            self.set_glyph(1 + x_offset, 1, glyph, YELLOW.into());
-        }
-    }
-}
-
 fn on_edit_glyph(_glyph: Glyph, key: Option<VirtualKeyCode>) -> Vec<EditorEvent> {
     let mut events: Vec<EditorEvent> = vec![];
 
@@ -181,19 +163,41 @@ impl GameState for State {
         if let Some(editor) = &self.snippet_editor.word_editor {
             let editor = editor.with_callbacks(word_editor_callbacks);
 
-            editor.apply_active_word(|word| map.draw_active_word(word));
-
-            editor.apply_selected_glyph(|selection| map.draw_selected_glyph(selection));
-
             self.snippet_editor.word_editor = Some(editor);
         }
 
         self.snippet_editor.process_all_events();
 
+        self.snippet_editor.render_with(|view, _index| render_snippet(&mut map, &view, 1, 1));
+
         draw_map_at(&map, &mut ctx, 1, 1);
 
         render_draw_buffer(&mut ctx).expect("Render error");
     }
+}
+
+fn render_snippet(map: &mut GlyphMap, view: &SnippetView, x: usize, y: usize) {
+    for (index, word_view) in view.word_views.iter().enumerate() {
+        render_word(map, word_view, x, y + index);
+    }
+}
+
+fn render_word(map: &mut GlyphMap, view: &WordView, x: usize, y: usize) {
+    for (index, glyph_view) in view.glyph_views.iter().enumerate() {
+        render_glyph(map, glyph_view, x + index, y);
+    }
+}
+
+fn render_glyph(map: &mut GlyphMap, view: &GlyphView, x: usize, y: usize) {
+    let glyph = view.glyph.borrow().clone();
+
+    let color = if view.selected {
+        YELLOW
+    } else {
+        WHITE
+    };
+
+    map.set_glyph(x, y, glyph, color.into());
 }
 
 fn example_language_usage() {
@@ -215,7 +219,7 @@ fn main() -> BError {
 
     let snippet: Snippet = vec![
         vec![0xAF, 0x13, 0xFF].into(),
-        vec![0x01, 0x55, 0x78].into(),
+        vec![0x03, 0x55, 0x78].into(),
     ].into();
 
     let state = State::new(snippet);

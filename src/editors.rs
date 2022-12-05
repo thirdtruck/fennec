@@ -29,25 +29,13 @@ impl GlyphEditor {
 
         *glyph = toggled_glyph;
     }
+}
 
-    pub fn apply_selected_glyph<F>(&self, mut listener: F, position_in_word: Option<usize>)
-        where F: FnMut(GlyphSelection)
-    {
-        let selection = GlyphSelection {
-            glyph: self.active_glyph.clone() ,
-            active: true,
-            position_in_word,
-        };
-
-        listener(selection);
-    }
-
-    #[allow(dead_code)]
-    pub fn apply_active_glyph<F>(&self, mut listener: F)
-        where F: FnMut(Glyph)
-    {
-        listener(*self.active_glyph.borrow());
-    }
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct WordSelection {
+    pub word: RcWord,
+    pub active: bool,
+    pub position_in_snippet: Option<usize>,
 }
 
 #[derive(Default)]
@@ -120,29 +108,6 @@ impl WordEditor {
         }
     }
 
-    #[allow(dead_code)]
-    pub fn apply_active_glyph<F>(&self, listener: F)
-        where F: FnMut(Glyph)
-    {
-        if let Some(glyph_editor) = &self.glyph_editor {
-            glyph_editor.apply_active_glyph(listener);
-        }
-    }
-
-    pub fn apply_selected_glyph<F>(&self, listener: F)
-        where F: FnMut(GlyphSelection)
-    {
-        if let Some(editor) = &self.glyph_editor {
-            editor.apply_selected_glyph(listener, self.active_glyph_index);
-        }
-    }
-
-    pub fn apply_active_word<F>(&self, mut listener: F)
-        where F: FnMut(Word)
-    {
-        listener(self.active_word.borrow().clone());
-    }
-
     pub fn toggle_segment_in_active_glyph(&mut self, segment: usize) {
         if let Some(ge) = &mut self.glyph_editor {
             ge.toggle_segment(segment);
@@ -190,6 +155,26 @@ impl Default for WordEditor {
             callbacks: WordEditorCallbacks::default(),
         }
     }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct GlyphView {
+    pub glyph: RcGlyph,
+    pub selected: bool,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct WordView {
+    pub word: RcWord,
+    pub selected: bool,
+    pub glyph_views: Vec<GlyphView>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct SnippetView {
+    pub snippet: RcSnippet,
+    pub selected: bool,
+    pub word_views: Vec<WordView>,
 }
 
 #[derive(Default)]
@@ -254,6 +239,66 @@ impl SnippetEditor {
             };
         }
         */
+    }
+
+    pub fn render_with<R>(&self, mut renderer: R)
+        where R: FnMut(SnippetView, usize)
+    {
+        let selected_glyph_index: Option<usize> = if let Some(editor) = &self.word_editor {
+            editor.active_glyph_index
+        } else {
+            None
+        };
+
+        let word_views: Vec<WordView> = self.active_snippet.borrow().words
+            .iter()
+            .enumerate()
+            .map(|(word_index, word)| {
+                let word = word.clone();
+                let selected_word = if let Some(active_index) = self.active_word_index {
+                    word_index == active_index
+                } else {
+                    false
+                };
+
+                let glyph_views: Vec<GlyphView> = match word.borrow().clone() {
+                    Word::Tunic(glyphs) => {
+                        glyphs
+                            .iter()
+                            .enumerate()
+                            .map(|(glyph_index, glyph)| {
+                                let selected_glyph: bool = if let Some(index) = selected_glyph_index {
+                                    index == glyph_index && selected_word
+                                } else {
+                                    false
+                                };
+
+                                GlyphView {
+                                    glyph: glyph.clone(),
+                                    selected: selected_glyph,
+                                }
+                            })
+                            .collect()
+
+                    },
+                    Word::English(_string) => todo!("Add support for English words"),
+                };
+
+                WordView {
+                    word,
+                    selected: selected_word,
+                    glyph_views,
+                }
+            })
+            .collect();
+
+        let view = SnippetView {
+            snippet: self.active_snippet.clone(),
+            word_views,
+            selected: true,
+        };
+
+        renderer(view, 0)
     }
 }
 

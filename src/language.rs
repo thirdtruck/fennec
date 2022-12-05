@@ -188,28 +188,6 @@ impl From<&str> for Word {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub enum RawWord {
-    Tunic(Vec<Glyph>),
-    English(String),
-}
-
-impl From<Word> for RawWord {
-    fn from(word: Word) -> Self {
-        match word {
-            Word::Tunic(glyphs) => {
-                let glyphs: Vec<Glyph> = glyphs
-                    .iter()
-                    .map(|g| *g.borrow())
-                    .collect();
-
-                Self::Tunic(glyphs)
-            },
-            Word::English(string) => Self::English(string),
-        }
-    }
-}
-
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Snippet {
     pub words: Vec<RcWord>,
@@ -233,25 +211,5 @@ impl From<Vec<Word>> for Snippet {
 impl From<Snippet> for RcSnippet {
     fn from(snippet: Snippet) -> Self {
         Rc::new(RefCell::new(snippet))
-    }
-}
-
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
-pub struct RawSnippet {
-    pub words: Vec<RawWord>,
-    pub source: Option<Source>,
-}
-
-impl From<Snippet> for RawSnippet {
-    fn from(snippet: Snippet) -> Self {
-        let words = snippet.words
-            .iter()
-            .map(|w| w.borrow().clone().into())
-            .collect();
-
-        Self {
-            words,
-            source: snippet.source,
-        }
     }
 }
