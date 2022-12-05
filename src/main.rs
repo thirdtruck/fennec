@@ -114,7 +114,7 @@ impl GameState for State {
         let key = ctx.key;
 
         let callback = move |_editor: &SnippetEditor| {
-            if let Some(key) = key.clone() {
+            if let Some(key) = key {
                 match key {
                     VirtualKeyCode::W => EditorEvent::ToggleSegmentOnActiveGlyph(0),
                     VirtualKeyCode::E => EditorEvent::ToggleSegmentOnActiveGlyph(1),
@@ -186,7 +186,7 @@ fn render_glyph(map: &mut GlyphMap, view: &GlyphView, x: usize, y: usize) {
         WHITE
     };
 
-    map.set_glyph(x, y, view.glyph.clone(), color.into());
+    map.set_glyph(x, y, view.glyph, color.into());
 }
 
 fn example_language_usage() {

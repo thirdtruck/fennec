@@ -28,7 +28,6 @@ impl GlyphEditor {
     pub fn with_segment_toggled(self, segment: usize) -> GlyphEditor {
         Self {
             glyph: self.glyph.with_toggled_segment(segment),
-            ..self
         }
     }
 
@@ -52,7 +51,7 @@ pub struct WordEditorCallbacks {
     pub on_edit_glyph: Option<Box<dyn FnMut(Glyph) -> Vec<EditorEvent>>>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct WordEditor {
     active_word: Word,
     glyph_editor: Option<GlyphEditor>,
@@ -62,7 +61,7 @@ pub struct WordEditor {
 impl WordEditor {
     pub fn new(word: Word) -> Self {
         Self {
-            active_word: word.into(),
+            active_word: word,
             glyph_editor: None,
             active_glyph_index: None,
         }
@@ -70,11 +69,11 @@ impl WordEditor {
 
     pub fn with_glyph_selected(self, index: usize) -> Self {
         let mut glyph_editor = self.glyph_editor.clone();
-        let mut active_glyph_index = self.active_glyph_index.clone();
+        let mut active_glyph_index = self.active_glyph_index;
 
         if let Word::Tunic(glyphs) = &self.active_word {
             if let Some(glyph) = glyphs.get(index) {
-                let glyph = glyph.clone();
+                let glyph = *glyph;
 
                 glyph_editor = Some(GlyphEditor { glyph });
                 active_glyph_index = Some(index);
@@ -124,7 +123,7 @@ impl WordEditor {
         if let Word::Tunic(glyphs) = self.active_word.clone() {
             if let Some(glyph) = glyphs.get(index) {
                 self.glyph_editor = Some(GlyphEditor {
-                    glyph: glyph.clone(),
+                    glyph: *glyph,
                 });
                 self.active_glyph_index = Some(index);
             }
@@ -169,16 +168,6 @@ impl WordEditor {
     }
 }
 
-impl Default for WordEditor {
-    fn default() -> Self {
-        Self {
-            active_word: Word::default().into(),
-            glyph_editor: None,
-            active_glyph_index: None,
-        }
-    }
-}
-
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct GlyphView {
     pub glyph: Glyph,
@@ -204,7 +193,7 @@ pub struct SnippetEditorCallbacks {
     pub on_edit_word: Option<Box<dyn FnMut(Word) -> Vec<EditorEvent>>>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct SnippetEditor {
     active_snippet: Snippet,
     pub word_editor: Option<WordEditor>,
@@ -214,7 +203,7 @@ pub struct SnippetEditor {
 impl SnippetEditor {
     pub fn new(snippet: Snippet) -> Self {
         Self {
-            active_snippet: snippet.into(),
+            active_snippet: snippet,
             word_editor: None,
             active_word_index: None,
         }
@@ -292,7 +281,7 @@ impl SnippetEditor {
                                 };
 
                                 GlyphView {
-                                    glyph: glyph.clone(),
+                                    glyph: *glyph,
                                     selected: selected_glyph,
                                 }
                             })
@@ -317,15 +306,5 @@ impl SnippetEditor {
         };
 
         renderer(view, 0)
-    }
-}
-
-impl Default for SnippetEditor {
-    fn default() -> Self {
-        Self {
-            active_snippet: Snippet::default().into(),
-            word_editor: None,
-            active_word_index: None,
-        }
     }
 }

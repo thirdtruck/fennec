@@ -125,9 +125,7 @@ impl From<Vec<u16>> for Word {
     fn from(items: Vec<u16>) -> Self {
         let glyphs: Vec<Glyph> = items
             .iter()
-            .map(|c| {
-                Glyph(*c).into()
-            })
+            .map(|c| Glyph(*c))
             .collect();
 
         Self::Tunic(glyphs)
@@ -138,9 +136,7 @@ impl From<&[u16]> for Word {
     fn from(items: &[u16]) -> Self {
         let glyphs: Vec<Glyph> = items
             .iter()
-            .map(|c| {
-                Glyph(*c).into()
-            })
+            .map(|c| Glyph(*c))
             .collect();
 
         Self::Tunic(glyphs)
@@ -149,18 +145,13 @@ impl From<&[u16]> for Word {
 
 impl From<Vec<Glyph>> for Word {
     fn from(glyphs: Vec<Glyph>) -> Self {
-        let glyphs: Vec<Glyph> = glyphs
-            .iter()
-            .map(|g| (*g).into())
-            .collect();
-
         Self::Tunic(glyphs)
     }
 }
 
 impl From<Glyph> for Word {
     fn from(glyph: Glyph) -> Self {
-        Self::Tunic(vec![glyph.into()])
+        Self::Tunic(vec![glyph])
     }
 }
 
@@ -178,11 +169,6 @@ pub struct Snippet {
 
 impl From<Vec<Word>> for Snippet {
     fn from(words: Vec<Word>) -> Self {
-        let words: Vec<Word> = words
-            .iter()
-            .map(|w| w.clone().into())
-            .collect();
-
         Self {
             words,
             source: None,
