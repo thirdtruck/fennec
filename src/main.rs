@@ -104,49 +104,6 @@ fn draw_map_at(map: &GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
     }
 }
 
-fn on_edit_glyph(_glyph: Glyph, key: Option<VirtualKeyCode>) -> Vec<EditorEvent> {
-    let mut events: Vec<EditorEvent> = vec![];
-
-    if let Some(key) = key {
-        let segment = match key {
-            VirtualKeyCode::W => Some(0),
-            VirtualKeyCode::E => Some(1),
-            VirtualKeyCode::R => Some(2),
-
-            VirtualKeyCode::A => Some(3),
-            VirtualKeyCode::S => Some(4),
-            VirtualKeyCode::D => Some(5),
-            VirtualKeyCode::F => Some(6),
-
-            VirtualKeyCode::U => Some(7),
-            VirtualKeyCode::I => Some(8),
-            VirtualKeyCode::O => Some(9),
-            VirtualKeyCode::P => Some(10),
-
-            VirtualKeyCode::J => Some(11),
-            VirtualKeyCode::K => Some(12),
-            VirtualKeyCode::L => Some(13),
-            VirtualKeyCode::Semicolon => Some(14),
-            VirtualKeyCode::Q => Some(15),
-            _ => None,
-        };
-
-        if let Some(segment) = segment {
-            events.push(EditorEvent::ToggleSegmentOnActiveGlyph(segment));
-        }
-
-        match key {
-            VirtualKeyCode::Up => events.push(EditorEvent::MoveWordCursorRight),
-            VirtualKeyCode::Down => events.push(EditorEvent::MoveWordCursorLeft),
-            VirtualKeyCode::Left => events.push(EditorEvent::MoveGlyphCursorLeft),
-            VirtualKeyCode::Right => events.push(EditorEvent::MoveGlyphCursorRight),
-            _ => (),
-        }
-    }
-
-    events
-}
-
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         self.tick_count += 1;
@@ -156,19 +113,51 @@ impl GameState for State {
         let mut ctx = ctx.clone();
         let key = ctx.key;
 
-        let on_edit_glyph = move |glyph| on_edit_glyph(glyph, key);
+        let callback = move |_editor: &SnippetEditor| {
+            if let Some(key) = key.clone() {
+                match key {
+                    VirtualKeyCode::W => EditorEvent::ToggleSegmentOnActiveGlyph(0),
+                    VirtualKeyCode::E => EditorEvent::ToggleSegmentOnActiveGlyph(1),
+                    VirtualKeyCode::R => EditorEvent::ToggleSegmentOnActiveGlyph(2),
 
-        let word_editor_callbacks = WordEditorCallbacks {
-            on_edit_glyph: Some(Box::new(on_edit_glyph)),
+                    VirtualKeyCode::A => EditorEvent::ToggleSegmentOnActiveGlyph(3),
+                    VirtualKeyCode::S => EditorEvent::ToggleSegmentOnActiveGlyph(4),
+                    VirtualKeyCode::D => EditorEvent::ToggleSegmentOnActiveGlyph(5),
+                    VirtualKeyCode::F => EditorEvent::ToggleSegmentOnActiveGlyph(6),
+
+                    VirtualKeyCode::U => EditorEvent::ToggleSegmentOnActiveGlyph(7),
+                    VirtualKeyCode::I => EditorEvent::ToggleSegmentOnActiveGlyph(8),
+                    VirtualKeyCode::O => EditorEvent::ToggleSegmentOnActiveGlyph(9),
+                    VirtualKeyCode::P => EditorEvent::ToggleSegmentOnActiveGlyph(10),
+
+                    VirtualKeyCode::J => EditorEvent::ToggleSegmentOnActiveGlyph(11),
+                    VirtualKeyCode::K => EditorEvent::ToggleSegmentOnActiveGlyph(12),
+                    VirtualKeyCode::L => EditorEvent::ToggleSegmentOnActiveGlyph(13),
+                    VirtualKeyCode::Semicolon => EditorEvent::ToggleSegmentOnActiveGlyph(14),
+                    VirtualKeyCode::Q => EditorEvent::ToggleSegmentOnActiveGlyph(15),
+
+                    VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorLeft,
+                    VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorRight,
+
+                    VirtualKeyCode::Up => EditorEvent::MoveWordCursorLeft,
+                    VirtualKeyCode::Down => EditorEvent::MoveWordCursorRight,
+
+                    _ => EditorEvent::NoOp,
+                }
+            } else {
+                EditorEvent::NoOp
+            }
         };
 
-        if let Some(editor) = &self.snippet_editor.word_editor {
-            let editor = editor.with_callbacks(word_editor_callbacks);
+        let editor = self.snippet_editor.clone();
 
-            self.snippet_editor.word_editor = Some(editor);
+        let event = editor.on_input(Box::new(callback));
+
+        if event != EditorEvent::NoOp {
+            let editor = editor.apply(event);
+
+            self.snippet_editor = editor;
         }
-
-        self.snippet_editor.process_all_events();
 
         self.snippet_editor.render_with(|view, _index| render_snippet(&mut map, &view, 1, 1));
 

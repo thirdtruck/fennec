@@ -11,6 +11,7 @@ pub enum GlyphView {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum EditorEvent {
+    NoOp,
     ToggleSegmentOnActiveGlyph(Segment),
     MoveGlyphCursorRight,
     MoveGlyphCursorLeft,
@@ -31,14 +32,17 @@ pub struct GlyphEditor {
 }
 
 impl GlyphEditor {
-    pub fn toggle_segment(&mut self, segment: usize) {
-        self.glyph = self.glyph.with_toggled_segment(segment);
-    }
-
     pub fn with_segment_toggled(self, segment: usize) -> GlyphEditor {
         Self {
             glyph: self.glyph.with_toggled_segment(segment),
             ..self
+        }
+    }
+
+    pub fn apply(self, event: EditorEvent) -> Self {
+        match event {
+            EditorEvent::ToggleSegmentOnActiveGlyph(segment) => self.with_segment_toggled(segment),
+            _ => self
         }
     }
 }
@@ -55,11 +59,12 @@ pub struct WordEditorCallbacks {
     pub on_edit_glyph: Option<Box<dyn FnMut(Glyph) -> Vec<EditorEvent>>>,
 }
 
+#[derive(Clone, Debug)]
 pub struct WordEditor {
     active_word: Word,
     glyph_editor: Option<GlyphEditor>,
     active_glyph_index: Option<usize>,
-    pub callbacks: WordEditorCallbacks,
+    //pub callbacks: WordEditorCallbacks,
 }
 
 impl WordEditor {
@@ -68,10 +73,11 @@ impl WordEditor {
             active_word: word.into(),
             glyph_editor: None,
             active_glyph_index: None,
-            callbacks: WordEditorCallbacks::default(),
+            //callbacks: WordEditorCallbacks::default(),
         }
     }
 
+    /*
     pub fn with_callbacks(&self, callbacks: WordEditorCallbacks) -> Self {
         Self {
             active_word: self.active_word.clone(),
@@ -80,17 +86,59 @@ impl WordEditor {
             callbacks,
         }
     }
-
-    /*
-    pub fn with_glyph_cursor_moved_forward(self, amount: usize) -> Self {
-        let word = self.active_word.clone();
-
-        if let Word::Tunic(glyphs) = word {
-            let index = cmp::min(self.active_glyph_index + amount, glyphs.len());
-
-            if self.active_glyph_index + amount
-    }
     */
+
+    pub fn with_glyph_selected(self, index: usize) -> Self {
+        let mut glyph_editor = self.glyph_editor.clone();
+        let mut active_glyph_index = self.active_glyph_index.clone();
+
+        if let Word::Tunic(glyphs) = &self.active_word {
+            if let Some(glyph) = glyphs.get(index) {
+                let glyph = glyph.clone();
+
+                glyph_editor = Some(GlyphEditor { glyph });
+                active_glyph_index = Some(index);
+            }
+        }
+
+        Self {
+            glyph_editor,
+            active_glyph_index,
+            ..self
+        }
+    }
+
+    pub fn with_glyph_selection_moved_forward(self, amount: usize) -> Self {
+        if let Word::Tunic(glyphs) = &self.active_word {
+            let new_index = if let Some(index) = self.active_glyph_index {
+                cmp::min(glyphs.len(), index + amount)
+            } else {
+                0
+            };
+
+            self.with_glyph_selected(new_index)
+        } else {
+            self
+        }
+    }
+
+    pub fn with_glyph_selection_moved_backwards(self, amount: usize) -> Self {
+        if let Word::Tunic(_glyphs) = &self.active_word {
+            let new_index = if let Some(index) = self.active_glyph_index {
+                if index >= amount {
+                    index - amount
+                } else {
+                    0
+                }
+            } else {
+                0
+            };
+
+            self.with_glyph_selected(new_index)
+        } else {
+            self
+        }
+    }
 
     pub fn edit_glyph_at(&mut self, index: usize) {
         if let Word::Tunic(glyphs) = self.active_word.clone() {
@@ -103,85 +151,40 @@ impl WordEditor {
         }
     }
 
-    pub fn move_glyph_cursor_left(&mut self, amount: usize) {
-        let word = self.active_word.clone();
-
-        if let Word::Tunic(_glyphs) = word {
-            if let Some(old_index) = self.active_glyph_index {
-                let new_index = if old_index >= amount {
-                    old_index - amount
-                } else {
-                    0
-                };
-
-                self.edit_glyph_at(new_index);
-            }
-        }
-    }
-
-    pub fn move_glyph_cursor_right(&mut self, amount: usize) {
-        let word = self.active_word.clone();
-
-        if let Word::Tunic(glyphs) = word {
-            if let Some(old_index) = self.active_glyph_index {
-                let new_index = cmp::min(glyphs.len() - 1, old_index + amount);
-                self.edit_glyph_at(new_index);
-            }
-        }
-    }
-
-    pub fn toggle_segment_in_active_glyph(&mut self, segment: usize) {
-        if let Some(ge) = &mut self.glyph_editor {
-            ge.toggle_segment(segment);
-        }
-    }
-
-    /*
-    pub fn apply(&self, event: EditorEvent) -> Self {
+    pub fn apply(self, event: EditorEvent) -> Self {
         match event {
-            EditorEvent::ToggleSegmentOnActiveGlyph(segment) => {
-                self.toggle_segment_in_active_glyph(segment)
-            },
             EditorEvent::MoveGlyphCursorLeft => {
-                self.move_glyph_cursor_left(1)
+                self.with_glyph_selection_moved_backwards(1)
             },
             EditorEvent::MoveGlyphCursorRight => {
-                self.move_glyph_cursor_right(1)
+                self.with_glyph_selection_moved_forward(1)
             },
-            _ => ()
-        }
-    }
-    */
+            _ => {
+                if let Some(editor) = self.glyph_editor {
+                    let glyph_editor = editor.apply(event);
 
-    pub fn process_all_events(&mut self) {
-        let mut events: Vec<EditorEvent> = vec![];
+                    let new_word = match self.active_word.clone() {
+                        Word::Tunic(mut glyphs) => {
+                            if let Some(index) = self.active_glyph_index {
+                                if let Some(glyph) = glyphs.get_mut(index) {
+                                    *glyph = glyph_editor.glyph;
+                                }
+                            }
 
-        if let Some(editor) = &self.glyph_editor {
-            let glyph = editor.glyph.clone();
+                            Word::Tunic(glyphs)
+                        },
+                        _ => todo!("Add support for other word types"),
+                    };
 
-            let evts = self.callbacks
-                .on_edit_glyph
-                .as_mut()
-                .map(|callback| callback(glyph));
-
-            if let Some(evts) = evts {
-                events.extend(evts);
-            }
-        }
-
-        for evt in events {
-            match evt {
-                EditorEvent::ToggleSegmentOnActiveGlyph(segment) => {
-                    self.toggle_segment_in_active_glyph(segment);
-                },
-                EditorEvent::MoveGlyphCursorLeft => {
-                    self.move_glyph_cursor_left(1)
-                },
-                EditorEvent::MoveGlyphCursorRight => {
-                    self.move_glyph_cursor_right(1)
-                },
-                _ => ()
-            }
+                    Self {
+                        active_word: new_word,
+                        glyph_editor: Some(glyph_editor),
+                        ..self
+                    }
+                } else {
+                    self
+                }
+            },
         }
     }
 }
@@ -192,7 +195,7 @@ impl Default for WordEditor {
             active_word: Word::default().into(),
             glyph_editor: None,
             active_glyph_index: None,
-            callbacks: WordEditorCallbacks::default(),
+            //callbacks: WordEditorCallbacks::default(),
         }
     }
 }
@@ -222,12 +225,13 @@ pub struct SnippetEditorCallbacks {
     pub on_edit_word: Option<Box<dyn FnMut(Word) -> Vec<EditorEvent>>>,
 }
 
+#[derive(Clone, Debug)]
 pub struct SnippetEditor {
     active_snippet: Snippet,
     pub word_editor: Option<WordEditor>,
     active_word_index: Option<usize>,
-    pub callbacks: SnippetEditorCallbacks,
-    pub word_editor_callbacks: Option<WordEditorCallbacks>,
+    //pub callbacks: SnippetEditorCallbacks,
+    //pub word_editor_callbacks: Option<WordEditorCallbacks>,
 }
 
 impl SnippetEditor {
@@ -236,9 +240,13 @@ impl SnippetEditor {
             active_snippet: snippet.into(),
             word_editor: None,
             active_word_index: None,
-            callbacks: SnippetEditorCallbacks::default(),
-            word_editor_callbacks: None,
+            //callbacks: SnippetEditorCallbacks::default(),
+            //word_editor_callbacks: None,
         }
+    }
+
+    pub fn on_input(&self, callback: Box<dyn Fn(&SnippetEditor) -> EditorEvent>) -> EditorEvent {
+        callback(self)
     }
 
     pub fn edit_word_at(&mut self, index: usize) {
@@ -254,60 +262,25 @@ impl SnippetEditor {
         }
     }
 
-    fn move_word_cursor_left(&mut self, amount: usize) {
-        if let Some(index) = self.active_word_index {
-            let new_index = if amount > index {
-                0
-            } else {
-                index - amount
-            };
+    pub fn apply(self, event: EditorEvent) -> Self {
+        if let Some(editor) = self.word_editor {
+            let word_editor = editor.apply(event);
 
-            self.edit_word_at(new_index)
-        };
-    }
+            let mut snippet = self.active_snippet.clone();
 
-    fn move_word_cursor_right(&mut self, amount: usize) {
-        let snippet = self.active_snippet.clone();
-
-        if let Some(index) = self.active_word_index {
-            let new_index = if (amount + index) < snippet.words.len() {
-                0
-            } else {
-                index - amount
-            };
-
-            self.edit_word_at(new_index)
-        };
-    }
-
-    pub fn process_all_events(&mut self) {
-        let mut events: Vec<EditorEvent> = vec![];
-
-        if let Some(editor) = &mut self.word_editor {
-            editor.process_all_events();
-
-            let active_word = editor.active_word.clone();
-
-            let evts = self.callbacks
-                .on_edit_word
-                .as_mut()
-                .map(|callback| callback(active_word));
-
-            if let Some(evts) = evts {
-                events.extend(evts);
+            if let Some(index) = self.active_word_index {
+                if let Some(word) = snippet.words.get_mut(index) {
+                    *word = word_editor.active_word.clone();
+                }
             }
-        }
 
-        for evt in events {
-            match evt {
-                EditorEvent::MoveWordCursorLeft => {
-                    self.move_word_cursor_left(1)
-                },
-                EditorEvent::MoveWordCursorRight => {
-                    self.move_word_cursor_right(1)
-                },
-                _ => (),
-            };
+            Self {
+                active_snippet: snippet,
+                word_editor: Some(word_editor),
+                ..self
+            }
+        } else {
+            self
         }
     }
 
@@ -378,8 +351,8 @@ impl Default for SnippetEditor {
             active_snippet: Snippet::default().into(),
             word_editor: None,
             active_word_index: None,
-            callbacks: SnippetEditorCallbacks::default(),
-            word_editor_callbacks: None,
+            //callbacks: SnippetEditorCallbacks::default(),
+            //word_editor_callbacks: None,
         }
     }
 }
