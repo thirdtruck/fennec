@@ -2,13 +2,6 @@ use std::cmp;
 
 use crate::prelude::*;
 
-/*
-pub enum GlyphView {
-    SelectedGlyph(Glyph),
-    PlainGlyph(Glyph),
-}
-*/
-
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum EditorEvent {
     NoOp,
@@ -64,7 +57,6 @@ pub struct WordEditor {
     active_word: Word,
     glyph_editor: Option<GlyphEditor>,
     active_glyph_index: Option<usize>,
-    //pub callbacks: WordEditorCallbacks,
 }
 
 impl WordEditor {
@@ -73,20 +65,8 @@ impl WordEditor {
             active_word: word.into(),
             glyph_editor: None,
             active_glyph_index: None,
-            //callbacks: WordEditorCallbacks::default(),
         }
     }
-
-    /*
-    pub fn with_callbacks(&self, callbacks: WordEditorCallbacks) -> Self {
-        Self {
-            active_word: self.active_word.clone(),
-            glyph_editor: self.glyph_editor.clone(),
-            active_glyph_index: self.active_glyph_index,
-            callbacks,
-        }
-    }
-    */
 
     pub fn with_glyph_selected(self, index: usize) -> Self {
         let mut glyph_editor = self.glyph_editor.clone();
@@ -195,7 +175,6 @@ impl Default for WordEditor {
             active_word: Word::default().into(),
             glyph_editor: None,
             active_glyph_index: None,
-            //callbacks: WordEditorCallbacks::default(),
         }
     }
 }
@@ -230,8 +209,6 @@ pub struct SnippetEditor {
     active_snippet: Snippet,
     pub word_editor: Option<WordEditor>,
     active_word_index: Option<usize>,
-    //pub callbacks: SnippetEditorCallbacks,
-    //pub word_editor_callbacks: Option<WordEditorCallbacks>,
 }
 
 impl SnippetEditor {
@@ -240,8 +217,6 @@ impl SnippetEditor {
             active_snippet: snippet.into(),
             word_editor: None,
             active_word_index: None,
-            //callbacks: SnippetEditorCallbacks::default(),
-            //word_editor_callbacks: None,
         }
     }
 
@@ -351,8 +326,6 @@ impl Default for SnippetEditor {
             active_snippet: Snippet::default().into(),
             word_editor: None,
             active_word_index: None,
-            //callbacks: SnippetEditorCallbacks::default(),
-            //word_editor_callbacks: None,
         }
     }
 }
