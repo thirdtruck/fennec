@@ -7,6 +7,8 @@ pub enum EditorEvent {
     ToggleSegmentOnActiveGlyph(Segment),
     MoveGlyphCursorRight,
     MoveGlyphCursorLeft,
+    MoveWordCursorRight,
+    MoveWordCursorLeft,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -137,10 +139,11 @@ impl WordEditor {
                 },
                 EditorEvent::MoveGlyphCursorLeft => {
                     self.move_glyph_cursor_left(1)
-                }
+                },
                 EditorEvent::MoveGlyphCursorRight => {
                     self.move_glyph_cursor_right(1)
-                }
+                },
+                _ => ()
             }
         }
     }
@@ -214,6 +217,32 @@ impl SnippetEditor {
         }
     }
 
+    fn move_word_cursor_left(&mut self, amount: usize) {
+        if let Some(index) = self.active_word_index {
+            let new_index = if amount > index {
+                0
+            } else {
+                index - amount
+            };
+
+            self.edit_word_at(new_index)
+        };
+    }
+
+    fn move_word_cursor_right(&mut self, amount: usize) {
+        let snippet = self.active_snippet.borrow().clone();
+
+        if let Some(index) = self.active_word_index {
+            let new_index = if (amount + index) < snippet.words.len() {
+                0
+            } else {
+                index - amount
+            };
+
+            self.edit_word_at(new_index)
+        };
+    }
+
     pub fn process_all_events(&mut self) {
         let mut events: Vec<EditorEvent> = vec![];
 
@@ -232,13 +261,17 @@ impl SnippetEditor {
             }
         }
 
-        /*
         for evt in events {
             match evt {
+                EditorEvent::MoveWordCursorLeft => {
+                    self.move_word_cursor_left(1)
+                },
+                EditorEvent::MoveWordCursorRight => {
+                    self.move_word_cursor_right(1)
+                },
                 _ => (),
             };
         }
-        */
     }
 
     pub fn render_with<R>(&self, mut renderer: R)

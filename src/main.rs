@@ -136,6 +136,8 @@ fn on_edit_glyph(_glyph: Glyph, key: Option<VirtualKeyCode>) -> Vec<EditorEvent>
         }
 
         match key {
+            VirtualKeyCode::Up => events.push(EditorEvent::MoveWordCursorRight),
+            VirtualKeyCode::Down => events.push(EditorEvent::MoveWordCursorLeft),
             VirtualKeyCode::Left => events.push(EditorEvent::MoveGlyphCursorLeft),
             VirtualKeyCode::Right => events.push(EditorEvent::MoveGlyphCursorRight),
             _ => (),
