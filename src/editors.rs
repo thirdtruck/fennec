@@ -13,13 +13,6 @@ pub enum EditorEvent {
     MoveWordCursorLeft,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct GlyphSelection {
-    pub glyph: Glyph,
-    pub active: bool,
-    pub position_in_word: Option<usize>,
-}
-
 #[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub struct GlyphEditor {
     glyph: Glyph,
