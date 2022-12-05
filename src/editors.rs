@@ -2,6 +2,13 @@ use std::cmp;
 
 use crate::prelude::*;
 
+/*
+pub enum GlyphView {
+    SelectedGlyph(Glyph),
+    PlainGlyph(Glyph),
+}
+*/
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum EditorEvent {
     ToggleSegmentOnActiveGlyph(Segment),
@@ -21,7 +28,6 @@ pub struct GlyphSelection {
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct GlyphEditor {
     active_glyph: RcGlyph,
-    event_queue: Vec<EditorEvent>,
 }
 
 impl GlyphEditor {
@@ -76,7 +82,6 @@ impl WordEditor {
             if let Some(glyph) = glyphs.get(index) {
                 self.glyph_editor = Some(GlyphEditor {
                     active_glyph: glyph.clone(),
-                    event_queue: vec![],
                 });
                 self.active_glyph_index = Some(index);
             }
