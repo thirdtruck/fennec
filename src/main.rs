@@ -191,15 +191,13 @@ fn render_word(map: &mut GlyphMap, view: &WordView, x: usize, y: usize) {
 }
 
 fn render_glyph(map: &mut GlyphMap, view: &GlyphView, x: usize, y: usize) {
-    let glyph = view.glyph.borrow().clone();
-
     let color = if view.selected {
         YELLOW
     } else {
         WHITE
     };
 
-    map.set_glyph(x, y, glyph, color.into());
+    map.set_glyph(x, y, view.glyph.clone(), color.into());
 }
 
 fn example_language_usage() {

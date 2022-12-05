@@ -1,27 +1,9 @@
 use std::convert::From;
-use std::cell::RefCell;
-use std::rc::Rc;
 
 pub type Segment = usize;
 
 #[allow(dead_code)]
 pub const ALL_SEGMENTS: u16 = 0b1111_1111_1111_1110;
-
-pub type RcGlyph = Rc<RefCell<Glyph>>;
-pub type RcWord = Rc<RefCell<Word>>;
-pub type RcSnippet = Rc<RefCell<Snippet>>;
-
-impl From<Glyph> for RcGlyph {
-    fn from(glyph: Glyph) -> Self {
-        Rc::new(RefCell::new(glyph))
-    }
-}
-
-impl From<Word> for RcWord {
-    fn from(word: Word) -> Self {
-        Rc::new(RefCell::new(word))
-    }
-}
 
 #[allow(dead_code)]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -131,7 +113,7 @@ impl Glyph {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Word {
-    Tunic(Vec<RcGlyph>),
+    Tunic(Vec<Glyph>),
     English(String),
 }
 
@@ -141,7 +123,7 @@ impl Default for Word {
 
 impl From<Vec<u16>> for Word {
     fn from(items: Vec<u16>) -> Self {
-        let glyphs: Vec<RcGlyph> = items
+        let glyphs: Vec<Glyph> = items
             .iter()
             .map(|c| {
                 Glyph(*c).into()
@@ -154,7 +136,7 @@ impl From<Vec<u16>> for Word {
 
 impl From<&[u16]> for Word {
     fn from(items: &[u16]) -> Self {
-        let glyphs: Vec<RcGlyph> = items
+        let glyphs: Vec<Glyph> = items
             .iter()
             .map(|c| {
                 Glyph(*c).into()
@@ -167,7 +149,7 @@ impl From<&[u16]> for Word {
 
 impl From<Vec<Glyph>> for Word {
     fn from(glyphs: Vec<Glyph>) -> Self {
-        let glyphs: Vec<RcGlyph> = glyphs
+        let glyphs: Vec<Glyph> = glyphs
             .iter()
             .map(|g| (*g).into())
             .collect();
@@ -190,13 +172,13 @@ impl From<&str> for Word {
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Snippet {
-    pub words: Vec<RcWord>,
+    pub words: Vec<Word>,
     pub source: Option<Source>,
 }
 
 impl From<Vec<Word>> for Snippet {
     fn from(words: Vec<Word>) -> Self {
-        let words: Vec<RcWord> = words
+        let words: Vec<Word> = words
             .iter()
             .map(|w| w.clone().into())
             .collect();
@@ -205,11 +187,5 @@ impl From<Vec<Word>> for Snippet {
             words,
             source: None,
         }
-    }
-}
-
-impl From<Snippet> for RcSnippet {
-    fn from(snippet: Snippet) -> Self {
-        Rc::new(RefCell::new(snippet))
     }
 }

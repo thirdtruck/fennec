@@ -20,28 +20,32 @@ pub enum EditorEvent {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct GlyphSelection {
-    pub glyph: RcGlyph,
+    pub glyph: Glyph,
     pub active: bool,
     pub position_in_word: Option<usize>,
 }
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct GlyphEditor {
-    active_glyph: RcGlyph,
+    glyph: Glyph,
 }
 
 impl GlyphEditor {
     pub fn toggle_segment(&mut self, segment: usize) {
-        let mut glyph = self.active_glyph.borrow_mut();
-        let toggled_glyph = glyph.with_toggled_segment(segment);
+        self.glyph = self.glyph.with_toggled_segment(segment);
+    }
 
-        *glyph = toggled_glyph;
+    pub fn with_segment_toggled(self, segment: usize) -> GlyphEditor {
+        Self {
+            glyph: self.glyph.with_toggled_segment(segment),
+            ..self
+        }
     }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct WordSelection {
-    pub word: RcWord,
+    pub word: Word,
     pub active: bool,
     pub position_in_snippet: Option<usize>,
 }
@@ -52,7 +56,7 @@ pub struct WordEditorCallbacks {
 }
 
 pub struct WordEditor {
-    active_word: RcWord,
+    active_word: Word,
     glyph_editor: Option<GlyphEditor>,
     active_glyph_index: Option<usize>,
     pub callbacks: WordEditorCallbacks,
@@ -77,11 +81,22 @@ impl WordEditor {
         }
     }
 
+    /*
+    pub fn with_glyph_cursor_moved_forward(self, amount: usize) -> Self {
+        let word = self.active_word.clone();
+
+        if let Word::Tunic(glyphs) = word {
+            let index = cmp::min(self.active_glyph_index + amount, glyphs.len());
+
+            if self.active_glyph_index + amount
+    }
+    */
+
     pub fn edit_glyph_at(&mut self, index: usize) {
-        if let Word::Tunic(glyphs) = &self.active_word.borrow().clone() {
+        if let Word::Tunic(glyphs) = self.active_word.clone() {
             if let Some(glyph) = glyphs.get(index) {
                 self.glyph_editor = Some(GlyphEditor {
-                    active_glyph: glyph.clone(),
+                    glyph: glyph.clone(),
                 });
                 self.active_glyph_index = Some(index);
             }
@@ -89,7 +104,7 @@ impl WordEditor {
     }
 
     pub fn move_glyph_cursor_left(&mut self, amount: usize) {
-        let word = (*self.active_word.borrow()).clone();
+        let word = self.active_word.clone();
 
         if let Word::Tunic(_glyphs) = word {
             if let Some(old_index) = self.active_glyph_index {
@@ -105,7 +120,7 @@ impl WordEditor {
     }
 
     pub fn move_glyph_cursor_right(&mut self, amount: usize) {
-        let word = (*self.active_word.borrow()).clone();
+        let word = self.active_word.clone();
 
         if let Word::Tunic(glyphs) = word {
             if let Some(old_index) = self.active_glyph_index {
@@ -121,16 +136,33 @@ impl WordEditor {
         }
     }
 
+    /*
+    pub fn apply(&self, event: EditorEvent) -> Self {
+        match event {
+            EditorEvent::ToggleSegmentOnActiveGlyph(segment) => {
+                self.toggle_segment_in_active_glyph(segment)
+            },
+            EditorEvent::MoveGlyphCursorLeft => {
+                self.move_glyph_cursor_left(1)
+            },
+            EditorEvent::MoveGlyphCursorRight => {
+                self.move_glyph_cursor_right(1)
+            },
+            _ => ()
+        }
+    }
+    */
+
     pub fn process_all_events(&mut self) {
         let mut events: Vec<EditorEvent> = vec![];
 
         if let Some(editor) = &self.glyph_editor {
-            let active_glyph = *editor.active_glyph.borrow();
+            let glyph = editor.glyph.clone();
 
             let evts = self.callbacks
                 .on_edit_glyph
                 .as_mut()
-                .map(|callback| callback(active_glyph));
+                .map(|callback| callback(glyph));
 
             if let Some(evts) = evts {
                 events.extend(evts);
@@ -167,20 +199,20 @@ impl Default for WordEditor {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct GlyphView {
-    pub glyph: RcGlyph,
+    pub glyph: Glyph,
     pub selected: bool,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct WordView {
-    pub word: RcWord,
+    pub word: Word,
     pub selected: bool,
     pub glyph_views: Vec<GlyphView>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SnippetView {
-    pub snippet: RcSnippet,
+    pub snippet: Snippet,
     pub selected: bool,
     pub word_views: Vec<WordView>,
 }
@@ -191,7 +223,7 @@ pub struct SnippetEditorCallbacks {
 }
 
 pub struct SnippetEditor {
-    active_snippet: RcSnippet,
+    active_snippet: Snippet,
     pub word_editor: Option<WordEditor>,
     active_word_index: Option<usize>,
     pub callbacks: SnippetEditorCallbacks,
@@ -210,9 +242,9 @@ impl SnippetEditor {
     }
 
     pub fn edit_word_at(&mut self, index: usize) {
-        let snippet = self.active_snippet.borrow().clone();
+        let snippet = self.active_snippet.clone();
         if let Some(word) = snippet.words.get(index) {
-            let word = word.borrow().clone();
+            let word = word.clone();
 
             let mut editor = WordEditor::new(word);
             editor.edit_glyph_at(0);
@@ -235,7 +267,7 @@ impl SnippetEditor {
     }
 
     fn move_word_cursor_right(&mut self, amount: usize) {
-        let snippet = self.active_snippet.borrow().clone();
+        let snippet = self.active_snippet.clone();
 
         if let Some(index) = self.active_word_index {
             let new_index = if (amount + index) < snippet.words.len() {
@@ -254,7 +286,7 @@ impl SnippetEditor {
         if let Some(editor) = &mut self.word_editor {
             editor.process_all_events();
 
-            let active_word = editor.active_word.borrow().clone();
+            let active_word = editor.active_word.clone();
 
             let evts = self.callbacks
                 .on_edit_word
@@ -288,7 +320,7 @@ impl SnippetEditor {
             None
         };
 
-        let word_views: Vec<WordView> = self.active_snippet.borrow().words
+        let word_views: Vec<WordView> = self.active_snippet.words
             .iter()
             .enumerate()
             .map(|(word_index, word)| {
@@ -299,7 +331,7 @@ impl SnippetEditor {
                     false
                 };
 
-                let glyph_views: Vec<GlyphView> = match word.borrow().clone() {
+                let glyph_views: Vec<GlyphView> = match word.clone() {
                     Word::Tunic(glyphs) => {
                         glyphs
                             .iter()
