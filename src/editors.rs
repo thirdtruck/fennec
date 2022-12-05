@@ -1,6 +1,8 @@
 use serde::{Serialize, Deserialize};
 use std::cmp;
 
+pub mod glyph_editors;
+
 use crate::prelude::*;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -11,26 +13,6 @@ pub enum EditorEvent {
     MoveGlyphCursorLeft,
     MoveWordCursorRight,
     MoveWordCursorLeft,
-}
-
-#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
-pub struct GlyphEditor {
-    glyph: Glyph,
-}
-
-impl GlyphEditor {
-    pub fn with_segment_toggled(self, segment: usize) -> GlyphEditor {
-        Self {
-            glyph: self.glyph.with_toggled_segment(segment),
-        }
-    }
-
-    pub fn apply(self, event: EditorEvent) -> Self {
-        match event {
-            EditorEvent::ToggleSegmentOnActiveGlyph(segment) => self.with_segment_toggled(segment),
-            _ => self
-        }
-    }
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
