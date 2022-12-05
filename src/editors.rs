@@ -139,11 +139,6 @@ impl WordEditor {
     }
 }
 
-#[derive(Default)]
-pub struct SnippetEditorCallbacks {
-    pub on_edit_word: Option<Box<dyn FnMut(Word) -> Vec<EditorEvent>>>,
-}
-
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct SnippetEditor {
     active_snippet: Snippet,
