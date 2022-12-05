@@ -3,10 +3,6 @@ use std::convert::From;
 
 pub type Segment = usize;
 
-#[allow(dead_code)]
-pub const ALL_SEGMENTS: u16 = 0b1111_1111_1111_1110;
-
-#[allow(dead_code)]
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum Source {
     ManualPageNumber(usize),

@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 mod language;
 mod editors;
 mod views;
@@ -25,10 +23,6 @@ use prelude::*;
 struct State {
     tick_count: usize,
     snippet_editor: SnippetEditor,
-    #[allow(dead_code)]
-    all_words: HashMap<usize, Word>,
-    #[allow(dead_code)]
-    all_snippets: HashMap<usize, Snippet>,
 }
 
 impl State {
