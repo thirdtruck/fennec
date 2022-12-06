@@ -7,7 +7,7 @@ use crate::prelude::*;
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct SnippetEditor {
     active_snippet: Snippet,
-    pub word_editor: Option<WordEditor>,
+    word_editor: Option<WordEditor>,
     active_word_index: Option<usize>,
 }
 
