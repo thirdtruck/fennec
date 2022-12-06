@@ -23,6 +23,14 @@ impl WordEditor {
         self.active_word.clone()
     }
 
+    pub fn on_glyph_editor_input(&self, callback: Box<dyn Fn(&GlyphEditor) -> EditorEvent>) -> EditorEvent {
+        if let Some(editor) = &self.glyph_editor {
+            callback(editor)
+        } else {
+            EditorEvent::NoOp
+        }
+    }
+
     pub fn with_glyph_selected(self, index: usize) -> Self {
         let mut glyph_editor = self.glyph_editor.clone();
         let mut active_glyph_index = self.active_glyph_index;

@@ -100,7 +100,7 @@ fn draw_map_at(map: &GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
     }
 }
 
-fn on_editor_input(_editor: &SnippetEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
+fn on_glyph_editor_input(_editor: &GlyphEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
     if let Some(key) = key {
         match key {
             VirtualKeyCode::W => EditorEvent::ToggleSegmentOnActiveGlyph(0),
@@ -123,13 +123,33 @@ fn on_editor_input(_editor: &SnippetEditor, key: Option<VirtualKeyCode>) -> Edit
             VirtualKeyCode::Semicolon => EditorEvent::ToggleSegmentOnActiveGlyph(14),
             VirtualKeyCode::Q => EditorEvent::ToggleSegmentOnActiveGlyph(15),
 
+            _ => EditorEvent::NoOp
+        }
+    } else {
+        EditorEvent::NoOp
+    }
+}
+
+fn on_word_editor_input(editor: &WordEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
+    if let Some(key) = key {
+        match key {
             VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
             VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
 
+            _ => editor.on_glyph_editor_input(Box::new(move |glyph_editor| on_glyph_editor_input(glyph_editor, Some(key))))
+        }
+    } else {
+        EditorEvent::NoOp
+    }
+}
+
+fn on_editor_input(editor: &SnippetEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
+    if let Some(key) = key {
+        match key {
             VirtualKeyCode::Up => EditorEvent::MoveWordCursorBackward,
             VirtualKeyCode::Down => EditorEvent::MoveWordCursorForward,
 
-            _ => EditorEvent::NoOp,
+            _ => editor.on_word_editor_input(Box::new(move |word_editor| on_word_editor_input(word_editor, Some(key))))
         }
     } else {
         EditorEvent::NoOp

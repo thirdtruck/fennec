@@ -24,6 +24,14 @@ impl SnippetEditor {
         callback(self)
     }
 
+    pub fn on_word_editor_input(&self, callback: Box<dyn Fn(&WordEditor) -> EditorEvent>) -> EditorEvent {
+        if let Some(editor) = &self.word_editor {
+            callback(editor)
+        } else {
+            EditorEvent::NoOp
+        }
+    }
+
     pub fn with_word_selected(self, index: usize) -> Self {
         let words = self.active_snippet.words.clone();
 
