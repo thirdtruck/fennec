@@ -47,7 +47,7 @@ impl Glyph {
             15 => 0b0000_0000_0000_0001,
             _ => panic!("Unexpected segment index: {}", segment),
         };
-        
+
         (mask & self.0) > 0
     }
 

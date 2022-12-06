@@ -8,6 +8,10 @@ pub struct GlyphEditor {
 }
 
 impl GlyphEditor {
+    pub fn new(glyph: Glyph) -> Self {
+        Self { glyph }
+    }
+
     pub fn with_segment_toggled(self, segment: usize) -> GlyphEditor {
         Self {
             glyph: self.glyph.with_toggled_segment(segment),
@@ -18,6 +22,13 @@ impl GlyphEditor {
         match event {
             EditorEvent::ToggleSegmentOnActiveGlyph(segment) => self.with_segment_toggled(segment),
             _ => self
+        }
+    }
+
+    pub fn to_view(&self, selected: bool) -> GlyphView {
+        GlyphView {
+            glyph: self.glyph,
+            selected,
         }
     }
 }

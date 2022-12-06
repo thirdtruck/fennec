@@ -7,7 +7,7 @@ use crate::prelude::*;
 pub struct WordEditor {
     active_word: Word,
     pub glyph_editor: Option<GlyphEditor>,
-    pub active_glyph_index: Option<usize>,
+    active_glyph_index: Option<usize>,
 }
 
 impl WordEditor {
@@ -109,6 +109,37 @@ impl WordEditor {
                     self
                 }
             },
+        }
+    }
+
+    pub fn to_view(&self, selected: bool) -> WordView {
+        match &self.active_word {
+            Word::Tunic(glyphs) => {
+                let glyph_views: Vec<GlyphView> = glyphs
+                    .iter()
+                    .enumerate()
+                    .map(|(glyph_index, glyph)| {
+                        let selected = if let Some(active_glyph_index) = self.active_glyph_index {
+                            glyph_index == active_glyph_index
+                        } else {
+                            false
+                        };
+
+                        if selected {
+                            self.glyph_editor.as_ref().expect("Missing GlyphEditor").to_view(true)
+                        } else {
+                            GlyphEditor::new(*glyph).to_view(false)
+                        }
+                    })
+                    .collect();
+
+                WordView {
+                    word: self.active_word.clone(),
+                    glyph_views,
+                    selected,
+                }
+            },
+            Word::English(_) => todo!("Add support for English words"),
         }
     }
 }

@@ -94,50 +94,22 @@ impl SnippetEditor {
     pub fn render_with<R>(&self, mut renderer: R)
         where R: FnMut(SnippetView, usize)
     {
-        let selected_glyph_index: Option<usize> = if let Some(editor) = &self.word_editor {
-            editor.active_glyph_index
-        } else {
-            None
-        };
-
-        let word_views: Vec<WordView> = self.active_snippet.words
+        let word_views: Vec<WordView> = self
+            .active_snippet
+            .words
             .iter()
             .enumerate()
             .map(|(word_index, word)| {
-                let word = word.clone();
-                let selected_word = if let Some(active_index) = self.active_word_index {
-                    word_index == active_index
+                let selected = if let Some(active_word_index) = self.active_word_index {
+                    word_index == active_word_index
                 } else {
                     false
                 };
 
-                let glyph_views: Vec<GlyphView> = match word.clone() {
-                    Word::Tunic(glyphs) => {
-                        glyphs
-                            .iter()
-                            .enumerate()
-                            .map(|(glyph_index, glyph)| {
-                                let selected_glyph: bool = if let Some(index) = selected_glyph_index {
-                                    index == glyph_index && selected_word
-                                } else {
-                                    false
-                                };
-
-                                GlyphView {
-                                    glyph: *glyph,
-                                    selected: selected_glyph,
-                                }
-                            })
-                            .collect()
-
-                    },
-                    Word::English(_string) => todo!("Add support for English words"),
-                };
-
-                WordView {
-                    word,
-                    selected: selected_word,
-                    glyph_views,
+                if selected {
+                    self.word_editor.as_ref().expect("Missing WordEditor").to_view(true)
+                } else {
+                    WordEditor::new(word.clone()).to_view(false)
                 }
             })
             .collect();
