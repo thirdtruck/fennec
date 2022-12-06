@@ -9,6 +9,7 @@ mod prelude {
     pub use crate::editors::*;
     pub use crate::editors::glyph_editors::*;
     pub use crate::editors::word_editors::*;
+    pub use crate::editors::snippet_editors::*;
     pub use crate::views::*;
 
     pub const SCREEN_WIDTH: i32 = 80;
