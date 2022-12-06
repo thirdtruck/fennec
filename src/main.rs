@@ -100,6 +100,42 @@ fn draw_map_at(map: &GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
     }
 }
 
+fn on_editor_input(_editor: &SnippetEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
+    if let Some(key) = key {
+        match key {
+            VirtualKeyCode::W => EditorEvent::ToggleSegmentOnActiveGlyph(0),
+            VirtualKeyCode::E => EditorEvent::ToggleSegmentOnActiveGlyph(1),
+            VirtualKeyCode::R => EditorEvent::ToggleSegmentOnActiveGlyph(2),
+
+            VirtualKeyCode::A => EditorEvent::ToggleSegmentOnActiveGlyph(3),
+            VirtualKeyCode::S => EditorEvent::ToggleSegmentOnActiveGlyph(4),
+            VirtualKeyCode::D => EditorEvent::ToggleSegmentOnActiveGlyph(5),
+            VirtualKeyCode::F => EditorEvent::ToggleSegmentOnActiveGlyph(6),
+
+            VirtualKeyCode::U => EditorEvent::ToggleSegmentOnActiveGlyph(7),
+            VirtualKeyCode::I => EditorEvent::ToggleSegmentOnActiveGlyph(8),
+            VirtualKeyCode::O => EditorEvent::ToggleSegmentOnActiveGlyph(9),
+            VirtualKeyCode::P => EditorEvent::ToggleSegmentOnActiveGlyph(10),
+
+            VirtualKeyCode::J => EditorEvent::ToggleSegmentOnActiveGlyph(11),
+            VirtualKeyCode::K => EditorEvent::ToggleSegmentOnActiveGlyph(12),
+            VirtualKeyCode::L => EditorEvent::ToggleSegmentOnActiveGlyph(13),
+            VirtualKeyCode::Semicolon => EditorEvent::ToggleSegmentOnActiveGlyph(14),
+            VirtualKeyCode::Q => EditorEvent::ToggleSegmentOnActiveGlyph(15),
+
+            VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorLeft,
+            VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorRight,
+
+            VirtualKeyCode::Up => EditorEvent::MoveWordCursorLeft,
+            VirtualKeyCode::Down => EditorEvent::MoveWordCursorRight,
+
+            _ => EditorEvent::NoOp,
+        }
+    } else {
+        EditorEvent::NoOp
+    }
+}
+
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         self.tick_count += 1;
@@ -109,45 +145,9 @@ impl GameState for State {
         let mut ctx = ctx.clone();
         let key = ctx.key;
 
-        let callback = move |_editor: &SnippetEditor| {
-            if let Some(key) = key {
-                match key {
-                    VirtualKeyCode::W => EditorEvent::ToggleSegmentOnActiveGlyph(0),
-                    VirtualKeyCode::E => EditorEvent::ToggleSegmentOnActiveGlyph(1),
-                    VirtualKeyCode::R => EditorEvent::ToggleSegmentOnActiveGlyph(2),
-
-                    VirtualKeyCode::A => EditorEvent::ToggleSegmentOnActiveGlyph(3),
-                    VirtualKeyCode::S => EditorEvent::ToggleSegmentOnActiveGlyph(4),
-                    VirtualKeyCode::D => EditorEvent::ToggleSegmentOnActiveGlyph(5),
-                    VirtualKeyCode::F => EditorEvent::ToggleSegmentOnActiveGlyph(6),
-
-                    VirtualKeyCode::U => EditorEvent::ToggleSegmentOnActiveGlyph(7),
-                    VirtualKeyCode::I => EditorEvent::ToggleSegmentOnActiveGlyph(8),
-                    VirtualKeyCode::O => EditorEvent::ToggleSegmentOnActiveGlyph(9),
-                    VirtualKeyCode::P => EditorEvent::ToggleSegmentOnActiveGlyph(10),
-
-                    VirtualKeyCode::J => EditorEvent::ToggleSegmentOnActiveGlyph(11),
-                    VirtualKeyCode::K => EditorEvent::ToggleSegmentOnActiveGlyph(12),
-                    VirtualKeyCode::L => EditorEvent::ToggleSegmentOnActiveGlyph(13),
-                    VirtualKeyCode::Semicolon => EditorEvent::ToggleSegmentOnActiveGlyph(14),
-                    VirtualKeyCode::Q => EditorEvent::ToggleSegmentOnActiveGlyph(15),
-
-                    VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorLeft,
-                    VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorRight,
-
-                    VirtualKeyCode::Up => EditorEvent::MoveWordCursorLeft,
-                    VirtualKeyCode::Down => EditorEvent::MoveWordCursorRight,
-
-                    _ => EditorEvent::NoOp,
-                }
-            } else {
-                EditorEvent::NoOp
-            }
-        };
-
         let editor = self.snippet_editor.clone();
 
-        let event = editor.on_input(Box::new(callback));
+        let event = editor.on_input(Box::new(move |editor| on_editor_input(editor, key)));
 
         if event != EditorEvent::NoOp {
             let editor = editor.apply(event);
