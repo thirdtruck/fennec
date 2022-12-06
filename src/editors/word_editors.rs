@@ -3,7 +3,7 @@ use std::cmp;
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WordEditorState {
     ModifySelectedGlyph,
     ModifyGlyphSet,
@@ -178,6 +178,7 @@ impl WordEditor {
                     word: self.active_word.clone(),
                     glyph_views,
                     selected,
+                    state: self.state,
                 }
             },
             Word::English(_) => todo!("Add support for English words"),

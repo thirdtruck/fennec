@@ -201,6 +201,18 @@ fn render_word(map: &mut GlyphMap, view: &WordView, x: usize, y: usize) {
     for (index, glyph_view) in view.glyph_views.iter().enumerate() {
         render_glyph(map, glyph_view, x + index, y);
     }
+
+    let state_x = 0;
+    let state_y = 0;
+
+    if view.selected {
+        let color = match &view.state {
+            WordEditorState::ModifyGlyphSet => BLUE,
+            WordEditorState::ModifySelectedGlyph => YELLOW,
+        };
+
+        map.set_glyph(state_x, state_y, Glyph(u16::MAX), color.into());
+    }
 }
 
 fn render_glyph(map: &mut GlyphMap, view: &GlyphView, x: usize, y: usize) {

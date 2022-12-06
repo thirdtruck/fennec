@@ -11,6 +11,7 @@ pub struct WordView {
     pub word: Word,
     pub selected: bool,
     pub glyph_views: Vec<GlyphView>,
+    pub state: WordEditorState,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
