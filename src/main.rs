@@ -123,11 +123,11 @@ fn on_editor_input(_editor: &SnippetEditor, key: Option<VirtualKeyCode>) -> Edit
             VirtualKeyCode::Semicolon => EditorEvent::ToggleSegmentOnActiveGlyph(14),
             VirtualKeyCode::Q => EditorEvent::ToggleSegmentOnActiveGlyph(15),
 
-            VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorLeft,
-            VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorRight,
+            VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
+            VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
 
-            VirtualKeyCode::Up => EditorEvent::MoveWordCursorLeft,
-            VirtualKeyCode::Down => EditorEvent::MoveWordCursorRight,
+            VirtualKeyCode::Up => EditorEvent::MoveWordCursorBackward,
+            VirtualKeyCode::Down => EditorEvent::MoveWordCursorForward,
 
             _ => EditorEvent::NoOp,
         }

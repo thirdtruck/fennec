@@ -49,7 +49,7 @@ impl SnippetEditor {
         }
     }
 
-    pub fn with_word_selection_moved_backwards(self, amount: usize) -> Self {
+    pub fn with_word_selection_moved_backward(self, amount: usize) -> Self {
         if let Some(active_word_index) = self.active_word_index {
             let index = if active_word_index >= amount {
                 active_word_index - amount
@@ -65,8 +65,8 @@ impl SnippetEditor {
 
     pub fn apply(self, event: EditorEvent) -> Self {
         match event {
-            EditorEvent::MoveWordCursorLeft => self.with_word_selection_moved_backwards(1),
-            EditorEvent::MoveWordCursorRight => self.with_word_selection_moved_forward(1),
+            EditorEvent::MoveWordCursorBackward => self.with_word_selection_moved_backward(1),
+            EditorEvent::MoveWordCursorForward => self.with_word_selection_moved_forward(1),
             _ => {
                 if let Some(editor) = self.word_editor {
                     let word_editor = editor.apply(event);

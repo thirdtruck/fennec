@@ -57,7 +57,7 @@ impl WordEditor {
         }
     }
 
-    pub fn with_glyph_selection_moved_backwards(self, amount: usize) -> Self {
+    pub fn with_glyph_selection_moved_backward(self, amount: usize) -> Self {
         if let Word::Tunic(_glyphs) = &self.active_word {
             let new_index = if let Some(index) = self.active_glyph_index {
                 if index >= amount {
@@ -77,10 +77,10 @@ impl WordEditor {
 
     pub fn apply(self, event: EditorEvent) -> Self {
         match event {
-            EditorEvent::MoveGlyphCursorLeft => {
-                self.with_glyph_selection_moved_backwards(1)
+            EditorEvent::MoveGlyphCursorBackward => {
+                self.with_glyph_selection_moved_backward(1)
             },
-            EditorEvent::MoveGlyphCursorRight => {
+            EditorEvent::MoveGlyphCursorForward => {
                 self.with_glyph_selection_moved_forward(1)
             },
             _ => {

@@ -10,8 +10,8 @@ use crate::prelude::*;
 pub enum EditorEvent {
     NoOp,
     ToggleSegmentOnActiveGlyph(Segment),
-    MoveGlyphCursorRight,
-    MoveGlyphCursorLeft,
-    MoveWordCursorRight,
-    MoveWordCursorLeft,
+    MoveGlyphCursorForward,
+    MoveGlyphCursorBackward,
+    MoveWordCursorForward,
+    MoveWordCursorBackward,
 }
