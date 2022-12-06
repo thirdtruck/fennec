@@ -6,7 +6,7 @@ use crate::prelude::*;
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct WordEditor {
     active_word: Word,
-    pub glyph_editor: Option<GlyphEditor>,
+    glyph_editor: Option<GlyphEditor>,
     active_glyph_index: Option<usize>,
 }
 
