@@ -24,9 +24,9 @@ impl SnippetEditor {
         callback(self)
     }
 
-    pub fn on_word_editor_input(&self, callback: Box<dyn Fn(&WordEditor) -> EditorEvent>) -> EditorEvent {
+    pub fn on_word_editor_input(&self, callbacks: WordEditorCallbacks) -> EditorEvent {
         if let Some(editor) = &self.word_editor {
-            callback(editor)
+            editor.on_input(callbacks)
         } else {
             EditorEvent::NoOp
         }

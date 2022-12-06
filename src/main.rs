@@ -100,7 +100,7 @@ fn draw_map_at(map: &GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
     }
 }
 
-fn on_glyph_editor_input(_editor: &GlyphEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
+fn on_modify_selected_glyph(_editor: &GlyphEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
     if let Some(key) = key {
         match key {
             VirtualKeyCode::W => EditorEvent::ToggleSegmentOnActiveGlyph(0),
@@ -130,13 +130,13 @@ fn on_glyph_editor_input(_editor: &GlyphEditor, key: Option<VirtualKeyCode>) -> 
     }
 }
 
-fn on_word_editor_input(editor: &WordEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
+fn on_modify_glyph_set(_editor: &WordEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
     if let Some(key) = key {
         match key {
             VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
             VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
 
-            _ => editor.on_glyph_editor_input(Box::new(move |glyph_editor| on_glyph_editor_input(glyph_editor, Some(key))))
+            _ => EditorEvent::NoOp
         }
     } else {
         EditorEvent::NoOp
@@ -148,8 +148,16 @@ fn on_editor_input(editor: &SnippetEditor, key: Option<VirtualKeyCode>) -> Edito
         match key {
             VirtualKeyCode::Up => EditorEvent::MoveWordCursorBackward,
             VirtualKeyCode::Down => EditorEvent::MoveWordCursorForward,
+            VirtualKeyCode::Q => EditorEvent::ToggleGlyphEditingMode,
 
-            _ => editor.on_word_editor_input(Box::new(move |word_editor| on_word_editor_input(word_editor, Some(key))))
+            _ => {
+                let callbacks = WordEditorCallbacks {
+                    on_modify_selected_glyph: Box::new(move |glyph_editor| on_modify_selected_glyph(glyph_editor, Some(key))),
+                    on_modify_glyph_set: Box::new(move |word_editor| on_modify_glyph_set(word_editor, Some(key))),
+                };
+
+                editor.on_word_editor_input(callbacks)
+            }
         }
     } else {
         EditorEvent::NoOp

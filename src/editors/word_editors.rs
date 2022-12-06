@@ -3,11 +3,23 @@ use std::cmp;
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum WordEditorState {
+    ModifySelectedGlyph,
+    ModifyGlyphSet,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WordEditor {
     active_word: Word,
     glyph_editor: Option<GlyphEditor>,
     active_glyph_index: Option<usize>,
+    state: WordEditorState,
+}
+
+pub struct WordEditorCallbacks {
+    pub on_modify_selected_glyph: Box<dyn Fn(&GlyphEditor) -> EditorEvent>,
+    pub on_modify_glyph_set: Box<dyn Fn(&WordEditor) -> EditorEvent>,
 }
 
 impl WordEditor {
@@ -16,6 +28,7 @@ impl WordEditor {
             active_word: word,
             glyph_editor: None,
             active_glyph_index: None,
+            state: WordEditorState::ModifySelectedGlyph,
         }
     }
 
@@ -23,11 +36,18 @@ impl WordEditor {
         self.active_word.clone()
     }
 
-    pub fn on_glyph_editor_input(&self, callback: Box<dyn Fn(&GlyphEditor) -> EditorEvent>) -> EditorEvent {
-        if let Some(editor) = &self.glyph_editor {
-            callback(editor)
-        } else {
-            EditorEvent::NoOp
+    pub fn on_input(&self, callbacks: WordEditorCallbacks) -> EditorEvent {
+        match self.state {
+            WordEditorState::ModifySelectedGlyph => {
+                if let Some(editor) = &self.glyph_editor {
+                    (callbacks.on_modify_selected_glyph)(editor)
+                } else {
+                    EditorEvent::NoOp
+                }
+            },
+            WordEditorState::ModifyGlyphSet => {
+                (callbacks.on_modify_glyph_set)(self)
+            }
         }
     }
 
@@ -83,8 +103,21 @@ impl WordEditor {
         }
     }
 
+    pub fn with_glyph_editing_mode_toggled(self) -> Self {
+        let state = match &self.state {
+            WordEditorState::ModifyGlyphSet => WordEditorState::ModifySelectedGlyph,
+            WordEditorState::ModifySelectedGlyph => WordEditorState::ModifyGlyphSet,
+        };
+
+        Self {
+            state,
+            ..self
+        }
+    }
+
     pub fn apply(self, event: EditorEvent) -> Self {
         match event {
+            EditorEvent::ToggleGlyphEditingMode => self.with_glyph_editing_mode_toggled(),
             EditorEvent::MoveGlyphCursorBackward => {
                 self.with_glyph_selection_moved_backward(1)
             },

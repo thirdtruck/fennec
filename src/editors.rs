@@ -14,4 +14,5 @@ pub enum EditorEvent {
     MoveGlyphCursorBackward,
     MoveWordCursorForward,
     MoveWordCursorBackward,
+    ToggleGlyphEditingMode,
 }
