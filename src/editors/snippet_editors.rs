@@ -75,7 +75,7 @@ impl SnippetEditor {
 
                     if let Some(index) = self.active_word_index {
                         if let Some(word) = snippet.words.get_mut(index) {
-                            *word = word_editor.active_word.clone();
+                            *word = word_editor.selected_word();
                         }
                     }
 

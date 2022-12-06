@@ -5,7 +5,7 @@ use crate::prelude::*;
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct WordEditor {
-    pub active_word: Word,
+    active_word: Word,
     pub glyph_editor: Option<GlyphEditor>,
     pub active_glyph_index: Option<usize>,
 }
@@ -17,6 +17,10 @@ impl WordEditor {
             glyph_editor: None,
             active_glyph_index: None,
         }
+    }
+
+    pub fn selected_word(&self) -> Word {
+        self.active_word.clone()
     }
 
     pub fn with_glyph_selected(self, index: usize) -> Self {
