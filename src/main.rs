@@ -100,31 +100,45 @@ fn draw_map_at(map: &GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
     }
 }
 
+fn map_key_to_glyph_segment(key: VirtualKeyCode) -> Option<Segment> {
+    match key {
+        VirtualKeyCode::W => Some(0),
+        VirtualKeyCode::E => Some(1),
+        VirtualKeyCode::R => Some(2),
+
+        VirtualKeyCode::A => Some(3),
+        VirtualKeyCode::S => Some(4),
+        VirtualKeyCode::D => Some(5),
+        VirtualKeyCode::F => Some(6),
+
+        VirtualKeyCode::U => Some(7),
+        VirtualKeyCode::I => Some(8),
+        VirtualKeyCode::O => Some(9),
+        VirtualKeyCode::P => Some(10),
+
+        VirtualKeyCode::J => Some(11),
+        VirtualKeyCode::K => Some(12),
+        VirtualKeyCode::L => Some(13),
+        VirtualKeyCode::Semicolon => Some(14),
+        VirtualKeyCode::Q => Some(15),
+
+        _ => None
+    }
+}
+
 fn on_modify_selected_glyph(_editor: &GlyphEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
     if let Some(key) = key {
-        match key {
-            VirtualKeyCode::W => EditorEvent::ToggleSegmentOnActiveGlyph(0),
-            VirtualKeyCode::E => EditorEvent::ToggleSegmentOnActiveGlyph(1),
-            VirtualKeyCode::R => EditorEvent::ToggleSegmentOnActiveGlyph(2),
+        if let Some(segment) = map_key_to_glyph_segment(key) {
+            EditorEvent::ToggleSegmentOnActiveGlyph(segment)
+        } else {
+            match key {
+                VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
+                VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
 
-            VirtualKeyCode::A => EditorEvent::ToggleSegmentOnActiveGlyph(3),
-            VirtualKeyCode::S => EditorEvent::ToggleSegmentOnActiveGlyph(4),
-            VirtualKeyCode::D => EditorEvent::ToggleSegmentOnActiveGlyph(5),
-            VirtualKeyCode::F => EditorEvent::ToggleSegmentOnActiveGlyph(6),
-
-            VirtualKeyCode::U => EditorEvent::ToggleSegmentOnActiveGlyph(7),
-            VirtualKeyCode::I => EditorEvent::ToggleSegmentOnActiveGlyph(8),
-            VirtualKeyCode::O => EditorEvent::ToggleSegmentOnActiveGlyph(9),
-            VirtualKeyCode::P => EditorEvent::ToggleSegmentOnActiveGlyph(10),
-
-            VirtualKeyCode::J => EditorEvent::ToggleSegmentOnActiveGlyph(11),
-            VirtualKeyCode::K => EditorEvent::ToggleSegmentOnActiveGlyph(12),
-            VirtualKeyCode::L => EditorEvent::ToggleSegmentOnActiveGlyph(13),
-            VirtualKeyCode::Semicolon => EditorEvent::ToggleSegmentOnActiveGlyph(14),
-            VirtualKeyCode::Q => EditorEvent::ToggleSegmentOnActiveGlyph(15),
-
-            _ => EditorEvent::NoOp
+                _ => EditorEvent::NoOp
+            }
         }
+
     } else {
         EditorEvent::NoOp
     }
@@ -132,12 +146,17 @@ fn on_modify_selected_glyph(_editor: &GlyphEditor, key: Option<VirtualKeyCode>) 
 
 fn on_modify_glyph_set(_editor: &WordEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
     if let Some(key) = key {
-        match key {
-            VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
-            VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
+        if let Some(segment) = map_key_to_glyph_segment(key) {
+            EditorEvent::ToggleSegmentOnActiveGlyph(segment)
+        } else {
+            match key {
+                VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
+                VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
 
-            _ => EditorEvent::NoOp
+                _ => EditorEvent::NoOp
+            }
         }
+
     } else {
         EditorEvent::NoOp
     }

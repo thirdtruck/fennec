@@ -46,7 +46,11 @@ impl WordEditor {
                 }
             },
             WordEditorState::ModifyGlyphSet => {
-                (callbacks.on_modify_glyph_set)(self)
+                if let Some(_editor) = &self.glyph_editor {
+                    (callbacks.on_modify_glyph_set)(self)
+                } else {
+                    EditorEvent::NoOp
+                }
             }
         }
     }
