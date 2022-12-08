@@ -1,6 +1,7 @@
 mod language;
 mod editors;
 mod views;
+mod renderers;
 
 mod prelude {
     pub use bracket_lib::prelude::*;
@@ -11,6 +12,7 @@ mod prelude {
     pub use crate::editors::word_editors::*;
     pub use crate::editors::snippet_editors::*;
     pub use crate::views::*;
+    pub use crate::renderers::*;
 
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 50;
@@ -33,69 +35,6 @@ impl State {
         Self {
             snippet_editor: SnippetEditor::new(snippet).with_word_selected(0),
             ..Self::default()
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug)]
-struct GlyphDrawing {
-    glyph: Glyph,
-    color: RGBA,
-}
-
-#[derive(Clone, Debug)]
-struct GlyphMap {
-    width: usize,
-    height: usize,
-    glyphs: Vec<Option<GlyphDrawing>>,
-}
-
-impl GlyphMap {
-    fn new(width: usize, height: usize) -> Self {
-        Self {
-            width,
-            height,
-            glyphs: vec![None; width * height],
-        }
-    }
-
-    fn set_glyph(&mut self, x: usize, y: usize, glyph: Glyph, color: RGBA) {
-        let index = x + (y * self.width);
-
-        let drawing = GlyphDrawing {
-            glyph,
-            color,
-        };
-
-        self.glyphs[index] = Some(drawing);
-    }
-
-    fn get_glyph(&self, x: usize, y: usize) -> Option<GlyphDrawing> {
-        *self.glyphs.get(x + (y * self.width)).unwrap()
-    }
-}
-
-fn draw_map_at(map: &GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
-    for segment in 0..15 {
-        ctx.set_active_console(segment);
-        ctx.cls();
-
-        let segment: u16 = match segment.try_into() {
-            Ok(seg) => seg,
-            Err(err) => panic!("Invalid segment index: {}", err),
-        };
-
-        for gx in 0..map.width {
-            for gy in 0..map.height {
-                if let Some(glyph) = map.get_glyph(gx, gy) {
-                    let color = glyph.color;
-                    let glyph = glyph.glyph;
-
-                    if glyph.includes_segment(segment) {
-                        ctx.set(x + gx, y + gy, color, TRANSPARENT, segment);
-                    }
-                }
-            }
         }
     }
 }
@@ -204,7 +143,7 @@ impl GameState for State {
 
         self.snippet_editor.render_with(|view, _index| render_snippet(&mut map, &view, 1, 1));
 
-        draw_map_at(&map, &mut ctx, 1, 1);
+        map.draw_on(&mut ctx, 1, 1);
 
         ctx.set_active_console(16);
         ctx.cls();
