@@ -61,4 +61,38 @@ impl GlyphMap {
             }
         }
     }
+
+    pub fn render_snippet_on(&mut self, view: &SnippetView, x: usize, y: usize) {
+        for (index, word_view) in view.word_views.iter().enumerate() {
+            self.render_word_on(word_view, x, y + index);
+        }
+    }
+
+    pub fn render_word_on(&mut self, view: &WordView, x: usize, y: usize) {
+        for (index, glyph_view) in view.glyph_views.iter().enumerate() {
+            self.render_glyph_on(glyph_view, x + index, y);
+        }
+
+        let state_x = 0;
+        let state_y = 0;
+
+        if view.selected {
+            let color = match &view.state {
+                WordEditorState::ModifyGlyphSet => BLUE,
+                WordEditorState::ModifySelectedGlyph => YELLOW,
+            };
+
+            self.set_glyph(state_x, state_y, Glyph(u16::MAX), color.into());
+        }
+    }
+
+    pub fn render_glyph_on(&mut self, view: &GlyphView, x: usize, y: usize) {
+        let color = if view.selected {
+            YELLOW
+        } else {
+            WHITE
+        };
+
+        self.set_glyph(x, y, view.glyph, color.into());
+    }
 }

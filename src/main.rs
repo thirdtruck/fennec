@@ -141,7 +141,7 @@ impl GameState for State {
             self.snippet_editor = editor;
         }
 
-        self.snippet_editor.render_with(|view, _index| render_snippet(&mut map, &view, 1, 1));
+        self.snippet_editor.render_with(|view, _index| map.render_snippet_on(&view, 1, 1));
 
         map.draw_on(&mut ctx, 1, 1);
 
@@ -155,40 +155,6 @@ impl GameState for State {
 
         render_draw_buffer(&mut ctx).expect("Render error");
     }
-}
-
-fn render_snippet(map: &mut GlyphMap, view: &SnippetView, x: usize, y: usize) {
-    for (index, word_view) in view.word_views.iter().enumerate() {
-        render_word(map, word_view, x, y + index);
-    }
-}
-
-fn render_word(map: &mut GlyphMap, view: &WordView, x: usize, y: usize) {
-    for (index, glyph_view) in view.glyph_views.iter().enumerate() {
-        render_glyph(map, glyph_view, x + index, y);
-    }
-
-    let state_x = 0;
-    let state_y = 0;
-
-    if view.selected {
-        let color = match &view.state {
-            WordEditorState::ModifyGlyphSet => BLUE,
-            WordEditorState::ModifySelectedGlyph => YELLOW,
-        };
-
-        map.set_glyph(state_x, state_y, Glyph(u16::MAX), color.into());
-    }
-}
-
-fn render_glyph(map: &mut GlyphMap, view: &GlyphView, x: usize, y: usize) {
-    let color = if view.selected {
-        YELLOW
-    } else {
-        WHITE
-    };
-
-    map.set_glyph(x, y, view.glyph, color.into());
 }
 
 fn example_language_usage() {
