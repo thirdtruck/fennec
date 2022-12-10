@@ -157,31 +157,17 @@ impl GameState for State {
     }
 }
 
-fn example_language_usage() {
-    let glyph_code: u16 = 0xAF;
-    let glyph: Glyph = glyph_code.into();
-    let word1: Word = glyph.into();
-    let word2: Word = "Testing".into();
-    let word3: Word = vec![0x01, 0x11, 0xF1].into();
-    let mut snippet: Snippet = vec![word1, word2, word3].into();
-    snippet.source = Some(Source::Other("Example snippet".into()));
-
-    println!("Hello, world!");
-    println!("Here's your glyph! {:?}", snippet);
-}
-
 fn main() -> BError {
-    example_language_usage();
     let glyph_font = "tunic_glyphs.png";
     let small_text_font = "dbyte_1x.png";
     let large_text_font = "dbyte_2x.png";
 
-    let snippet: Snippet = vec![
+    let starting_snippet: Snippet = vec![
         vec![0xAF, 0x13, 0xFF].into(),
         vec![0x03, 0x55, 0x78].into(),
     ].into();
 
-    let state = State::new(snippet);
+    let state = State::new(starting_snippet);
 
     let output = serde_json::to_string(&state.snippet_editor).unwrap();
     println!("Output: {}", output);
