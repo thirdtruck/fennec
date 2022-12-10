@@ -1,8 +1,8 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 pub mod glyph_editors;
-pub mod word_editors;
 pub mod snippet_editors;
+pub mod word_editors;
 
 use crate::prelude::*;
 

@@ -1,25 +1,30 @@
-mod language;
 mod editors;
-mod views;
+mod language;
 mod renderers;
+mod views;
 
 mod prelude {
     pub use bracket_lib::prelude::*;
 
-    pub use crate::language::*;
-    pub use crate::editors::*;
     pub use crate::editors::glyph_editors::*;
-    pub use crate::editors::word_editors::*;
     pub use crate::editors::snippet_editors::*;
-    pub use crate::views::*;
+    pub use crate::editors::word_editors::*;
+    pub use crate::editors::*;
+    pub use crate::language::*;
     pub use crate::renderers::*;
+    pub use crate::views::*;
 
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 50;
     pub const DISPLAY_WIDTH: i32 = SCREEN_WIDTH / 2;
     pub const DISPLAY_HEIGHT: i32 = SCREEN_HEIGHT / 2;
 
-    pub const TRANSPARENT: RGBA = RGBA { r: 0.0, g: 0.0, b: 0.0, a: 0.0 };
+    pub const TRANSPARENT: RGBA = RGBA {
+        r: 0.0,
+        g: 0.0,
+        b: 0.0,
+        a: 0.0,
+    };
 }
 
 use prelude::*;
@@ -61,7 +66,7 @@ fn map_key_to_glyph_segment(key: VirtualKeyCode) -> Option<Segment> {
         VirtualKeyCode::Semicolon => Some(14),
         VirtualKeyCode::Q => Some(15),
 
-        _ => None
+        _ => None,
     }
 }
 
@@ -74,10 +79,9 @@ fn on_modify_selected_glyph(_editor: &GlyphEditor, key: Option<VirtualKeyCode>) 
                 VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
                 VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
 
-                _ => EditorEvent::NoOp
+                _ => EditorEvent::NoOp,
             }
         }
-
     } else {
         EditorEvent::NoOp
     }
@@ -92,10 +96,9 @@ fn on_modify_glyph_set(_editor: &WordEditor, key: Option<VirtualKeyCode>) -> Edi
                 VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
                 VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
 
-                _ => EditorEvent::NoOp
+                _ => EditorEvent::NoOp,
             }
         }
-
     } else {
         EditorEvent::NoOp
     }
@@ -110,8 +113,12 @@ fn on_editor_input(editor: &SnippetEditor, key: Option<VirtualKeyCode>) -> Edito
 
             _ => {
                 let callbacks = WordEditorCallbacks {
-                    on_modify_selected_glyph: Box::new(move |glyph_editor| on_modify_selected_glyph(glyph_editor, Some(key))),
-                    on_modify_glyph_set: Box::new(move |word_editor| on_modify_glyph_set(word_editor, Some(key))),
+                    on_modify_selected_glyph: Box::new(move |glyph_editor| {
+                        on_modify_selected_glyph(glyph_editor, Some(key))
+                    }),
+                    on_modify_glyph_set: Box::new(move |word_editor| {
+                        on_modify_glyph_set(word_editor, Some(key))
+                    }),
                 };
 
                 editor.on_word_editor_input(callbacks)
@@ -141,7 +148,8 @@ impl GameState for State {
             self.snippet_editor = editor;
         }
 
-        self.snippet_editor.render_with(|view, _index| map.render_snippet_on(&view, 1, 1));
+        self.snippet_editor
+            .render_with(|view, _index| map.render_snippet_on(&view, 1, 1));
 
         map.draw_on(&mut ctx, 1, 1);
 
@@ -162,10 +170,8 @@ fn main() -> BError {
     let small_text_font = "dbyte_1x.png";
     let large_text_font = "dbyte_2x.png";
 
-    let starting_snippet: Snippet = vec![
-        vec![0xAF, 0x13, 0xFF].into(),
-        vec![0x03, 0x55, 0x78].into(),
-    ].into();
+    let starting_snippet: Snippet =
+        vec![vec![0xAF, 0x13, 0xFF].into(), vec![0x03, 0x55, 0x78].into()].into();
 
     let state = State::new(starting_snippet);
 
@@ -197,8 +203,8 @@ fn main() -> BError {
         .with_simple_console_no_bg(DISPLAY_WIDTH, DISPLAY_HEIGHT, glyph_font)
         .with_simple_console_no_bg(DISPLAY_WIDTH, DISPLAY_HEIGHT, glyph_font) // 14
         .with_simple_console_no_bg(DISPLAY_WIDTH, DISPLAY_HEIGHT, glyph_font) // 15
-        .with_simple_console_no_bg(DISPLAY_WIDTH*2, DISPLAY_HEIGHT*2, small_text_font) // 16
-        .with_simple_console_no_bg(DISPLAY_WIDTH*2, DISPLAY_HEIGHT*2, large_text_font) // 17
+        .with_simple_console_no_bg(DISPLAY_WIDTH * 2, DISPLAY_HEIGHT * 2, small_text_font) // 16
+        .with_simple_console_no_bg(DISPLAY_WIDTH * 2, DISPLAY_HEIGHT * 2, large_text_font) // 17
         .build()?;
 
     main_loop(context, state)

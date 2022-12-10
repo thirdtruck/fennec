@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
 
@@ -21,7 +21,7 @@ impl GlyphEditor {
     pub fn apply(self, event: EditorEvent) -> Self {
         match event {
             EditorEvent::ToggleSegmentOnActiveGlyph(segment) => self.with_segment_toggled(segment),
-            _ => self
+            _ => self,
         }
     }
 

@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use std::cmp;
 
@@ -100,7 +100,8 @@ impl SnippetEditor {
     }
 
     pub fn render_with<R>(&self, mut renderer: R)
-        where R: FnMut(SnippetView, usize)
+    where
+        R: FnMut(SnippetView, usize),
     {
         let word_views: Vec<WordView> = self
             .active_snippet
@@ -115,7 +116,10 @@ impl SnippetEditor {
                 };
 
                 if selected {
-                    self.word_editor.as_ref().expect("Missing WordEditor").to_view(true)
+                    self.word_editor
+                        .as_ref()
+                        .expect("Missing WordEditor")
+                        .to_view(true)
                 } else {
                     WordEditor::new(word.clone()).to_view(false)
                 }

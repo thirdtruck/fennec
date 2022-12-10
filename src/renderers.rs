@@ -25,10 +25,7 @@ impl GlyphMap {
     pub fn set_glyph(&mut self, x: usize, y: usize, glyph: Glyph, color: RGBA) {
         let index = x + (y * self.width);
 
-        let drawing = GlyphDrawing {
-            glyph,
-            color,
-        };
+        let drawing = GlyphDrawing { glyph, color };
 
         self.glyphs[index] = Some(drawing);
     }
@@ -87,11 +84,7 @@ impl GlyphMap {
     }
 
     pub fn render_glyph_on(&mut self, view: &GlyphView, x: usize, y: usize) {
-        let color = if view.selected {
-            YELLOW
-        } else {
-            WHITE
-        };
+        let color = if view.selected { YELLOW } else { WHITE };
 
         self.set_glyph(x, y, view.glyph, color.into());
     }

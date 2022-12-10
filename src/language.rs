@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::convert::From;
 
 pub type Segment = usize;
@@ -115,15 +115,14 @@ pub enum Word {
 }
 
 impl Default for Word {
-    fn default() -> Self { Self::Tunic(vec![]) }
+    fn default() -> Self {
+        Self::Tunic(vec![])
+    }
 }
 
 impl From<Vec<u16>> for Word {
     fn from(items: Vec<u16>) -> Self {
-        let glyphs: Vec<Glyph> = items
-            .iter()
-            .map(|c| Glyph(*c))
-            .collect();
+        let glyphs: Vec<Glyph> = items.iter().map(|c| Glyph(*c)).collect();
 
         Self::Tunic(glyphs)
     }
@@ -131,10 +130,7 @@ impl From<Vec<u16>> for Word {
 
 impl From<&[u16]> for Word {
     fn from(items: &[u16]) -> Self {
-        let glyphs: Vec<Glyph> = items
-            .iter()
-            .map(|c| Glyph(*c))
-            .collect();
+        let glyphs: Vec<Glyph> = items.iter().map(|c| Glyph(*c)).collect();
 
         Self::Tunic(glyphs)
     }

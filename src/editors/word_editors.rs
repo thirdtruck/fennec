@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::cmp;
 
 use crate::prelude::*;
@@ -44,7 +44,7 @@ impl WordEditor {
                 } else {
                     EditorEvent::NoOp
                 }
-            },
+            }
             WordEditorState::ModifyGlyphSet => {
                 if let Some(_editor) = &self.glyph_editor {
                     (callbacks.on_modify_glyph_set)(self)
@@ -113,21 +113,14 @@ impl WordEditor {
             WordEditorState::ModifySelectedGlyph => WordEditorState::ModifyGlyphSet,
         };
 
-        Self {
-            state,
-            ..self
-        }
+        Self { state, ..self }
     }
 
     pub fn apply(self, event: EditorEvent) -> Self {
         match event {
             EditorEvent::ToggleGlyphEditingMode => self.with_glyph_editing_mode_toggled(),
-            EditorEvent::MoveGlyphCursorBackward => {
-                self.with_glyph_selection_moved_backward(1)
-            },
-            EditorEvent::MoveGlyphCursorForward => {
-                self.with_glyph_selection_moved_forward(1)
-            },
+            EditorEvent::MoveGlyphCursorBackward => self.with_glyph_selection_moved_backward(1),
+            EditorEvent::MoveGlyphCursorForward => self.with_glyph_selection_moved_forward(1),
             _ => {
                 if let Some(editor) = self.glyph_editor {
                     let glyph_editor = editor.apply(event);
@@ -141,7 +134,7 @@ impl WordEditor {
                             }
 
                             Word::Tunic(glyphs)
-                        },
+                        }
                         _ => todo!("Add support for other word types"),
                     };
 
@@ -153,7 +146,7 @@ impl WordEditor {
                 } else {
                     self
                 }
-            },
+            }
         }
     }
 
@@ -171,7 +164,10 @@ impl WordEditor {
                         };
 
                         if selected {
-                            self.glyph_editor.as_ref().expect("Missing GlyphEditor").to_view(true)
+                            self.glyph_editor
+                                .as_ref()
+                                .expect("Missing GlyphEditor")
+                                .to_view(true)
                         } else {
                             GlyphEditor::new(*glyph).to_view(false)
                         }
@@ -184,7 +180,7 @@ impl WordEditor {
                     selected,
                     state: self.state,
                 }
-            },
+            }
             Word::English(_) => todo!("Add support for English words"),
         }
     }
