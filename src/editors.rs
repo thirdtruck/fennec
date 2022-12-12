@@ -15,4 +15,5 @@ pub enum EditorEvent {
     MoveWordCursorForward,
     MoveWordCursorBackward,
     ToggleGlyphEditingMode,
+    AddNewTunicWord,
 }

@@ -29,7 +29,7 @@ impl WordEditor {
             glyph_editor: None,
             selected_glyph_index: None,
             state: WordEditorState::ModifySelectedGlyph,
-        }
+        }.with_glyph_selected(0)
     }
 
     pub fn selected_word(&self) -> Word {
