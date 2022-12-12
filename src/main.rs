@@ -176,10 +176,14 @@ fn main() -> BError {
 
     let starting_snippet: Snippet =
         vec![vec![0xAF, 0x13, 0xFF].into(), vec![0x03, 0x55, 0x78].into()].into();
+    let starting_snippet = Snippet {
+        source: Some(Source::Other("Example snippet".into())),
+        ..starting_snippet
+    };
 
     let state = State::new(starting_snippet);
 
-    let output = serde_json::to_string(&state.snippet_editor).unwrap();
+    let output = serde_yaml::to_string(&state.snippet_editor).unwrap();
     println!("Output: {}", output);
 
     let context = BTermBuilder::new()
