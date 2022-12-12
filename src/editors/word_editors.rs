@@ -11,9 +11,9 @@ pub enum WordEditorState {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WordEditor {
-    active_word: Word,
+    selected_word: Word,
     glyph_editor: Option<GlyphEditor>,
-    active_glyph_index: Option<usize>,
+    selected_glyph_index: Option<usize>,
     state: WordEditorState,
 }
 
@@ -25,15 +25,15 @@ pub struct WordEditorCallbacks {
 impl WordEditor {
     pub fn new(word: Word) -> Self {
         Self {
-            active_word: word,
+            selected_word: word,
             glyph_editor: None,
-            active_glyph_index: None,
+            selected_glyph_index: None,
             state: WordEditorState::ModifySelectedGlyph,
         }
     }
 
     pub fn selected_word(&self) -> Word {
-        self.active_word.clone()
+        self.selected_word.clone()
     }
 
     pub fn on_input(&self, callbacks: WordEditorCallbacks) -> EditorEvent {
@@ -57,27 +57,27 @@ impl WordEditor {
 
     pub fn with_glyph_selected(self, index: usize) -> Self {
         let mut glyph_editor = self.glyph_editor.clone();
-        let mut active_glyph_index = self.active_glyph_index;
+        let mut selected_glyph_index = self.selected_glyph_index;
 
-        if let Word::Tunic(glyphs) = &self.active_word {
+        if let Word::Tunic(glyphs) = &self.selected_word {
             if let Some(glyph) = glyphs.get(index) {
                 let glyph = *glyph;
 
                 glyph_editor = Some(GlyphEditor { glyph });
-                active_glyph_index = Some(index);
+                selected_glyph_index = Some(index);
             }
         }
 
         Self {
             glyph_editor,
-            active_glyph_index,
+            selected_glyph_index,
             ..self
         }
     }
 
     pub fn with_glyph_selection_moved_forward(self, amount: usize) -> Self {
-        if let Word::Tunic(glyphs) = &self.active_word {
-            let new_index = if let Some(index) = self.active_glyph_index {
+        if let Word::Tunic(glyphs) = &self.selected_word {
+            let new_index = if let Some(index) = self.selected_glyph_index {
                 cmp::min(glyphs.len(), index + amount)
             } else {
                 0
@@ -90,8 +90,8 @@ impl WordEditor {
     }
 
     pub fn with_glyph_selection_moved_backward(self, amount: usize) -> Self {
-        if let Word::Tunic(_glyphs) = &self.active_word {
-            let new_index = if let Some(index) = self.active_glyph_index {
+        if let Word::Tunic(_glyphs) = &self.selected_word {
+            let new_index = if let Some(index) = self.selected_glyph_index {
                 if index >= amount {
                     index - amount
                 } else {
@@ -125,9 +125,9 @@ impl WordEditor {
                 if let Some(editor) = self.glyph_editor {
                     let glyph_editor = editor.apply(event);
 
-                    let new_word = match self.active_word.clone() {
+                    let new_word = match self.selected_word.clone() {
                         Word::Tunic(mut glyphs) => {
-                            if let Some(index) = self.active_glyph_index {
+                            if let Some(index) = self.selected_glyph_index {
                                 if let Some(glyph) = glyphs.get_mut(index) {
                                     *glyph = glyph_editor.glyph;
                                 }
@@ -139,7 +139,7 @@ impl WordEditor {
                     };
 
                     Self {
-                        active_word: new_word,
+                        selected_word: new_word,
                         glyph_editor: Some(glyph_editor),
                         ..self
                     }
@@ -151,14 +151,14 @@ impl WordEditor {
     }
 
     pub fn to_view(&self, selected: bool) -> WordView {
-        match &self.active_word {
+        match &self.selected_word {
             Word::Tunic(glyphs) => {
                 let glyph_views: Vec<GlyphView> = glyphs
                     .iter()
                     .enumerate()
                     .map(|(glyph_index, glyph)| {
-                        let selected = if let Some(active_glyph_index) = self.active_glyph_index {
-                            glyph_index == active_glyph_index
+                        let selected = if let Some(selected_glyph_index) = self.selected_glyph_index {
+                            glyph_index == selected_glyph_index
                         } else {
                             false
                         };
@@ -175,7 +175,7 @@ impl WordEditor {
                     .collect();
 
                 WordView {
-                    word: self.active_word.clone(),
+                    word: self.selected_word.clone(),
                     glyph_views,
                     selected,
                     state: self.state,

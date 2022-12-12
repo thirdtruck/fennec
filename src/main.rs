@@ -73,7 +73,7 @@ fn map_key_to_glyph_segment(key: VirtualKeyCode) -> Option<Segment> {
 fn on_modify_selected_glyph(_editor: &GlyphEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
     if let Some(key) = key {
         if let Some(segment) = map_key_to_glyph_segment(key) {
-            EditorEvent::ToggleSegmentOnActiveGlyph(segment)
+            EditorEvent::ToggleSegmentOnSelectedGlyph(segment)
         } else {
             match key {
                 VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
@@ -90,7 +90,7 @@ fn on_modify_selected_glyph(_editor: &GlyphEditor, key: Option<VirtualKeyCode>) 
 fn on_modify_glyph_set(_editor: &WordEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
     if let Some(key) = key {
         if let Some(segment) = map_key_to_glyph_segment(key) {
-            EditorEvent::ToggleSegmentOnActiveGlyph(segment)
+            EditorEvent::ToggleSegmentOnSelectedGlyph(segment)
         } else {
             match key {
                 VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,

@@ -6,17 +6,17 @@ use crate::prelude::*;
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct SnippetEditor {
-    active_snippet: Snippet,
+    selected_snippet: Snippet,
     word_editor: Option<WordEditor>,
-    active_word_index: Option<usize>,
+    selected_word_index: Option<usize>,
 }
 
 impl SnippetEditor {
     pub fn new(snippet: Snippet) -> Self {
         Self {
-            active_snippet: snippet,
+            selected_snippet: snippet,
             word_editor: None,
-            active_word_index: None,
+            selected_word_index: None,
         }
     }
 
@@ -33,14 +33,14 @@ impl SnippetEditor {
     }
 
     pub fn with_word_selected(self, index: usize) -> Self {
-        let words = self.active_snippet.words.clone();
+        let words = self.selected_snippet.words.clone();
 
         if let Some(word) = words.get(index) {
             let editor = WordEditor::new(word.clone()).with_glyph_selected(0);
 
             SnippetEditor {
                 word_editor: Some(editor),
-                active_word_index: Some(index),
+                selected_word_index: Some(index),
                 ..self
             }
         } else {
@@ -49,8 +49,8 @@ impl SnippetEditor {
     }
 
     pub fn with_word_selection_moved_forward(self, amount: usize) -> Self {
-        if let Some(active_word_index) = self.active_word_index {
-            let index = cmp::min(self.active_snippet.words.len(), active_word_index + amount);
+        if let Some(selected_word_index) = self.selected_word_index {
+            let index = cmp::min(self.selected_snippet.words.len(), selected_word_index + amount);
             self.with_word_selected(index)
         } else {
             self
@@ -58,9 +58,9 @@ impl SnippetEditor {
     }
 
     pub fn with_word_selection_moved_backward(self, amount: usize) -> Self {
-        if let Some(active_word_index) = self.active_word_index {
-            let index = if active_word_index >= amount {
-                active_word_index - amount
+        if let Some(selected_word_index) = self.selected_word_index {
+            let index = if selected_word_index >= amount {
+                selected_word_index - amount
             } else {
                 0
             };
@@ -79,16 +79,16 @@ impl SnippetEditor {
                 if let Some(editor) = self.word_editor {
                     let word_editor = editor.apply(event);
 
-                    let mut snippet = self.active_snippet.clone();
+                    let mut snippet = self.selected_snippet.clone();
 
-                    if let Some(index) = self.active_word_index {
+                    if let Some(index) = self.selected_word_index {
                         if let Some(word) = snippet.words.get_mut(index) {
                             *word = word_editor.selected_word();
                         }
                     }
 
                     Self {
-                        active_snippet: snippet,
+                        selected_snippet: snippet,
                         word_editor: Some(word_editor),
                         ..self
                     }
@@ -104,13 +104,13 @@ impl SnippetEditor {
         R: FnMut(SnippetView, usize),
     {
         let word_views: Vec<WordView> = self
-            .active_snippet
+            .selected_snippet
             .words
             .iter()
             .enumerate()
             .map(|(word_index, word)| {
-                let selected = if let Some(active_word_index) = self.active_word_index {
-                    word_index == active_word_index
+                let selected = if let Some(selected_word_index) = self.selected_word_index {
+                    word_index == selected_word_index
                 } else {
                     false
                 };
@@ -127,7 +127,7 @@ impl SnippetEditor {
             .collect();
 
         let view = SnippetView {
-            snippet: self.active_snippet.clone(),
+            snippet: self.selected_snippet.clone(),
             word_views,
             selected: true,
         };

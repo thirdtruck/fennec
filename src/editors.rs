@@ -9,7 +9,7 @@ use crate::prelude::*;
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum EditorEvent {
     NoOp,
-    ToggleSegmentOnActiveGlyph(Segment),
+    ToggleSegmentOnSelectedGlyph(Segment),
     MoveGlyphCursorForward,
     MoveGlyphCursorBackward,
     MoveWordCursorForward,
