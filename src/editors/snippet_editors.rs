@@ -52,7 +52,10 @@ impl SnippetEditor {
 
     pub fn with_word_selection_moved_forward(self, amount: usize) -> Self {
         if let Some(selected_word_index) = self.selected_word_index {
-            let index = cmp::min(self.selected_snippet.words.len(), selected_word_index + amount);
+            let index = cmp::min(
+                self.selected_snippet.words.len(),
+                selected_word_index + amount,
+            );
             self.with_word_selected(index)
         } else {
             self
@@ -101,7 +104,8 @@ impl SnippetEditor {
         Self {
             selected_snippet,
             ..self
-        }.with_word_selected(new_index)
+        }
+        .with_word_selected(new_index)
     }
 
     pub fn apply(self, event: EditorEvent) -> Self {

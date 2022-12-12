@@ -29,7 +29,8 @@ impl WordEditor {
             glyph_editor: None,
             selected_glyph_index: None,
             state: WordEditorState::ModifySelectedGlyph,
-        }.with_glyph_selected(0)
+        }
+        .with_glyph_selected(0)
     }
 
     pub fn selected_word(&self) -> Word {
@@ -81,8 +82,9 @@ impl WordEditor {
                 Self {
                     selected_word: Word::Tunic(glyphs),
                     ..self
-                }.with_glyph_selected(new_index)
-            },
+                }
+                .with_glyph_selected(new_index)
+            }
             Word::English(_string) => todo!("Implement English language support"),
         }
     }
@@ -190,7 +192,8 @@ impl WordEditor {
                     .iter()
                     .enumerate()
                     .map(|(glyph_index, glyph)| {
-                        let selected = if let Some(selected_glyph_index) = self.selected_glyph_index {
+                        let selected = if let Some(selected_glyph_index) = self.selected_glyph_index
+                        {
                             glyph_index == selected_glyph_index
                         } else {
                             false
