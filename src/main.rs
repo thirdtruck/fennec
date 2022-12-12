@@ -1,4 +1,5 @@
 mod editors;
+mod gui;
 mod language;
 mod renderers;
 mod views;
@@ -10,6 +11,7 @@ mod prelude {
     pub use crate::editors::snippet_editors::*;
     pub use crate::editors::word_editors::*;
     pub use crate::editors::*;
+    pub use crate::gui::*;
     pub use crate::language::*;
     pub use crate::renderers::*;
     pub use crate::views::*;
@@ -41,95 +43,6 @@ impl State {
             snippet_editor: SnippetEditor::new(snippet).with_word_selected(0),
             ..Self::default()
         }
-    }
-}
-
-fn map_key_to_glyph_segment(key: VirtualKeyCode) -> Option<Segment> {
-    match key {
-        VirtualKeyCode::W => Some(0),
-        VirtualKeyCode::E => Some(1),
-        VirtualKeyCode::R => Some(2),
-
-        VirtualKeyCode::A => Some(3),
-        VirtualKeyCode::S => Some(4),
-        VirtualKeyCode::D => Some(5),
-        VirtualKeyCode::F => Some(6),
-
-        VirtualKeyCode::U => Some(7),
-        VirtualKeyCode::I => Some(8),
-        VirtualKeyCode::O => Some(9),
-        VirtualKeyCode::P => Some(10),
-
-        VirtualKeyCode::J => Some(11),
-        VirtualKeyCode::K => Some(12),
-        VirtualKeyCode::L => Some(13),
-        VirtualKeyCode::Semicolon => Some(14),
-        VirtualKeyCode::Q => Some(15),
-
-        _ => None,
-    }
-}
-
-fn on_modify_selected_glyph(_editor: &GlyphEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
-    if let Some(key) = key {
-        if let Some(segment) = map_key_to_glyph_segment(key) {
-            EditorEvent::ToggleSegmentOnSelectedGlyph(segment)
-        } else {
-            match key {
-                VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
-                VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
-                VirtualKeyCode::Return => EditorEvent::AddNewTunicWord,
-                VirtualKeyCode::Space => EditorEvent::AddNewGlyphToTunicWord,
-
-                _ => EditorEvent::NoOp,
-            }
-        }
-    } else {
-        EditorEvent::NoOp
-    }
-}
-
-fn on_modify_glyph_set(_editor: &WordEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
-    if let Some(key) = key {
-        if let Some(segment) = map_key_to_glyph_segment(key) {
-            EditorEvent::ToggleSegmentOnSelectedGlyph(segment)
-        } else {
-            match key {
-                VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
-                VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
-                VirtualKeyCode::Return => EditorEvent::AddNewTunicWord,
-                VirtualKeyCode::Space => EditorEvent::AddNewGlyphToTunicWord,
-
-                _ => EditorEvent::NoOp,
-            }
-        }
-    } else {
-        EditorEvent::NoOp
-    }
-}
-
-fn on_editor_input(editor: &SnippetEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
-    if let Some(key) = key {
-        match key {
-            VirtualKeyCode::Up => EditorEvent::MoveWordCursorBackward,
-            VirtualKeyCode::Down => EditorEvent::MoveWordCursorForward,
-            VirtualKeyCode::Q => EditorEvent::ToggleGlyphEditingMode,
-
-            _ => {
-                let callbacks = WordEditorCallbacks {
-                    on_modify_selected_glyph: Box::new(move |glyph_editor| {
-                        on_modify_selected_glyph(glyph_editor, Some(key))
-                    }),
-                    on_modify_glyph_set: Box::new(move |word_editor| {
-                        on_modify_glyph_set(word_editor, Some(key))
-                    }),
-                };
-
-                editor.on_word_editor_input(callbacks)
-            }
-        }
-    } else {
-        EditorEvent::NoOp
     }
 }
 
