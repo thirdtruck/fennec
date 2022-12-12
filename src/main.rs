@@ -52,12 +52,11 @@ impl GameState for State {
 
         let mut map = GlyphMap::new(10, 10);
 
-        let mut ctx = ctx.clone();
-        let key = ctx.key;
+        let ctx_clone = ctx.clone();
 
         let editor = self.snippet_editor.clone();
 
-        let event = editor.on_input(Box::new(move |editor| on_editor_input(editor, key)));
+        let event = editor.on_input(Box::new(move |editor| on_editor_input(editor, &ctx_clone)));
 
         if event != EditorEvent::NoOp {
             let editor = editor.apply(event);
@@ -68,7 +67,7 @@ impl GameState for State {
         self.snippet_editor
             .render_with(|view, _index| map.render_snippet_on(&view, 1, 1));
 
-        map.draw_on(&mut ctx, 1, 1);
+        map.draw_on(ctx, 1, 1);
 
         ctx.set_active_console(16);
         ctx.cls();
@@ -78,7 +77,7 @@ impl GameState for State {
         ctx.cls();
         ctx.print_color(1, 11, WHITE, BLACK, "This is a test of the other new font!");
 
-        render_draw_buffer(&mut ctx).expect("Render error");
+        render_draw_buffer(ctx).expect("Render error");
     }
 }
 

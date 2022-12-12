@@ -64,13 +64,12 @@ pub fn on_modify_glyph_set(_editor: &WordEditor, key: Option<VirtualKeyCode>) ->
     }
 }
 
-pub fn on_editor_input(editor: &SnippetEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
-    if let Some(key) = key {
+pub fn on_editor_input(editor: &SnippetEditor, ctx: &BTerm) -> EditorEvent {
+    if let Some(key) = ctx.key {
         match key {
             VirtualKeyCode::Up => EditorEvent::MoveWordCursorBackward,
             VirtualKeyCode::Down => EditorEvent::MoveWordCursorForward,
             VirtualKeyCode::Q => EditorEvent::ToggleGlyphEditingMode,
-
             _ => {
                 let callbacks = WordEditorCallbacks {
                     on_modify_selected_glyph: Box::new(move |glyph_editor| {
