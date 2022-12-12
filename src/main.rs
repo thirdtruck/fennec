@@ -13,6 +13,7 @@ mod prelude {
     pub use crate::editors::*;
     pub use crate::gui::*;
     pub use crate::language::*;
+    pub use crate::language::notebook::*;
     pub use crate::renderers::*;
     pub use crate::views::*;
 

@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::convert::From;
 
+pub mod notebook;
+
 pub type Segment = usize;
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
