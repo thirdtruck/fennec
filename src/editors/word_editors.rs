@@ -55,6 +55,24 @@ impl WordEditor {
         }
     }
 
+    // TODO: Refactor this into with_new_glyph_at(index) and move the logic for word placement
+    // into the UI layer
+    pub fn with_new_glyph(self) -> Self {
+        match self.selected_word {
+            Word::Tunic(glyphs) => {
+                let new_glyph: u16 = 0x10;
+                let mut glyphs = glyphs.clone();
+                glyphs.push(new_glyph.into());
+
+                Self {
+                    selected_word: Word::Tunic(glyphs),
+                    ..self
+                }.with_glyph_selected(0)
+            },
+            Word::English(_string) => todo!("Implement English language support"),
+        }
+    }
+
     pub fn with_glyph_selected(self, index: usize) -> Self {
         let mut glyph_editor = self.glyph_editor.clone();
         let mut selected_glyph_index = self.selected_glyph_index;
@@ -121,6 +139,7 @@ impl WordEditor {
             EditorEvent::ToggleGlyphEditingMode => self.with_glyph_editing_mode_toggled(),
             EditorEvent::MoveGlyphCursorBackward => self.with_glyph_selection_moved_backward(1),
             EditorEvent::MoveGlyphCursorForward => self.with_glyph_selection_moved_forward(1),
+            EditorEvent::AddNewGlyphToTunicWord => self.with_new_glyph(),
             _ => {
                 if let Some(editor) = self.glyph_editor {
                     let glyph_editor = editor.apply(event);

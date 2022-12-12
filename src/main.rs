@@ -79,6 +79,7 @@ fn on_modify_selected_glyph(_editor: &GlyphEditor, key: Option<VirtualKeyCode>) 
                 VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
                 VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
                 VirtualKeyCode::Return => EditorEvent::AddNewTunicWord,
+                VirtualKeyCode::Space => EditorEvent::AddNewGlyphToTunicWord,
 
                 _ => EditorEvent::NoOp,
             }
@@ -97,6 +98,7 @@ fn on_modify_glyph_set(_editor: &WordEditor, key: Option<VirtualKeyCode>) -> Edi
                 VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
                 VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
                 VirtualKeyCode::Return => EditorEvent::AddNewTunicWord,
+                VirtualKeyCode::Space => EditorEvent::AddNewGlyphToTunicWord,
 
                 _ => EditorEvent::NoOp,
             }

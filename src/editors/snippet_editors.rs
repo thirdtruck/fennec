@@ -75,7 +75,7 @@ impl SnippetEditor {
     // into the UI layer
     pub fn with_new_tunic_word(self) -> Self {
         let mut words = self.selected_snippet.words.clone();
-        let new_word: Word = vec![0x10].into(); // TOD: arbitrary starting value
+        let new_word: Word = vec![0x10].into(); // TODO: arbitrary starting value
 
         let new_index = if let Some(selected_word_index) = self.selected_word_index {
             if selected_word_index + 1 == words.len() {
