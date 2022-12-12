@@ -8,6 +8,7 @@ mod prelude {
     pub use bracket_lib::prelude::*;
 
     pub use crate::editors::glyph_editors::*;
+    pub use crate::editors::notebook_editors::*;
     pub use crate::editors::snippet_editors::*;
     pub use crate::editors::word_editors::*;
     pub use crate::editors::*;
@@ -57,7 +58,7 @@ impl GameState for State {
 
         let editor = self.snippet_editor.clone();
 
-        let event = editor.on_input(Box::new(move |editor| on_editor_input(editor, &ctx_clone)));
+        let event = editor.on_input(Box::new(move |editor| on_snippet_editor_input(editor, &ctx_clone)));
 
         if event != EditorEvent::NoOp {
             let editor = editor.apply(event);

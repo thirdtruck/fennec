@@ -64,7 +64,7 @@ pub fn on_modify_glyph_set(_editor: &WordEditor, key: Option<VirtualKeyCode>) ->
     }
 }
 
-pub fn on_editor_input(editor: &SnippetEditor, ctx: &BTerm) -> EditorEvent {
+pub fn on_snippet_editor_input(editor: &SnippetEditor, ctx: &BTerm) -> EditorEvent {
     if let Some(key) = ctx.key {
         match key {
             VirtualKeyCode::Up => EditorEvent::MoveWordCursorBackward,
