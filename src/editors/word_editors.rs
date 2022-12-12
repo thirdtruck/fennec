@@ -61,13 +61,27 @@ impl WordEditor {
         match self.selected_word {
             Word::Tunic(glyphs) => {
                 let new_glyph: u16 = 0x10;
+                let new_glyph: Glyph = new_glyph.into();
                 let mut glyphs = glyphs.clone();
-                glyphs.push(new_glyph.into());
+
+                let new_index = if let Some(selected_glyph_index) = self.selected_glyph_index {
+                    if selected_glyph_index + 1 == glyphs.len() {
+                        glyphs.push(new_glyph);
+                    } else {
+                        glyphs.insert(selected_glyph_index + 1, new_glyph);
+                    }
+
+                    selected_glyph_index + 1
+                } else {
+                    glyphs.push(new_glyph);
+
+                    glyphs.len() - 1
+                };
 
                 Self {
                     selected_word: Word::Tunic(glyphs),
                     ..self
-                }.with_glyph_selected(0)
+                }.with_glyph_selected(new_index)
             },
             Word::English(_string) => todo!("Implement English language support"),
         }

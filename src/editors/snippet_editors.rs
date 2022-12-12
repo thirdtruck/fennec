@@ -84,7 +84,7 @@ impl SnippetEditor {
                 words.insert(selected_word_index + 1, new_word);
             }
 
-            selected_word_index
+            selected_word_index + 1
         } else {
             words.push(new_word);
 
