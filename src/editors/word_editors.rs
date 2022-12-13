@@ -177,42 +177,6 @@ impl WordEditor {
         Self { state, ..self }
     }
 
-    pub fn apply(self, event: EditorEvent) -> Self {
-        match event {
-            EditorEvent::ToggleGlyphEditingMode => self.with_glyph_editing_mode_toggled(),
-            EditorEvent::MoveGlyphCursorBackward => self.with_glyph_selection_moved_backward(1),
-            EditorEvent::MoveGlyphCursorForward => self.with_glyph_selection_moved_forward(1),
-            EditorEvent::AddNewGlyphToTunicWordAtCursor => self.with_new_glyph_at_cursor(),
-            EditorEvent::DeleteGlyphAtCursor => self.with_glyph_at_cursor_deleted(),
-            _ => {
-                if let Some(editor) = self.glyph_editor {
-                    let glyph_editor = editor.apply(event);
-
-                    let new_word = match self.selected_word.clone() {
-                        Word::Tunic(mut glyphs) => {
-                            if let Some(index) = self.selected_glyph_index {
-                                if let Some(glyph) = glyphs.get_mut(index) {
-                                    *glyph = glyph_editor.glyph;
-                                }
-                            }
-
-                            Word::Tunic(glyphs)
-                        }
-                        _ => todo!("Add support for other word types"),
-                    };
-
-                    Self {
-                        selected_word: new_word,
-                        glyph_editor: Some(glyph_editor),
-                        ..self
-                    }
-                } else {
-                    self
-                }
-            }
-        }
-    }
-
     pub fn to_view(&self, selected: bool) -> WordView {
         match &self.selected_word {
             Word::Tunic(glyphs) => {
@@ -246,6 +210,44 @@ impl WordEditor {
                 }
             }
             Word::English(_) => todo!("Add support for English words"),
+        }
+    }
+}
+
+impl AppliesEditorEvents for WordEditor {
+    fn apply(self, event: EditorEvent) -> Self {
+        match event {
+            EditorEvent::ToggleGlyphEditingMode => self.with_glyph_editing_mode_toggled(),
+            EditorEvent::MoveGlyphCursorBackward => self.with_glyph_selection_moved_backward(1),
+            EditorEvent::MoveGlyphCursorForward => self.with_glyph_selection_moved_forward(1),
+            EditorEvent::AddNewGlyphToTunicWordAtCursor => self.with_new_glyph_at_cursor(),
+            EditorEvent::DeleteGlyphAtCursor => self.with_glyph_at_cursor_deleted(),
+            _ => {
+                if let Some(editor) = self.glyph_editor {
+                    let glyph_editor = editor.apply(event);
+
+                    let new_word = match self.selected_word.clone() {
+                        Word::Tunic(mut glyphs) => {
+                            if let Some(index) = self.selected_glyph_index {
+                                if let Some(glyph) = glyphs.get_mut(index) {
+                                    *glyph = glyph_editor.glyph;
+                                }
+                            }
+
+                            Word::Tunic(glyphs)
+                        }
+                        _ => todo!("Add support for other word types"),
+                    };
+
+                    Self {
+                        selected_word: new_word,
+                        glyph_editor: Some(glyph_editor),
+                        ..self
+                    }
+                } else {
+                    self
+                }
+            }
         }
     }
 }

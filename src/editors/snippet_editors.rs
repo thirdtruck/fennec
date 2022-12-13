@@ -141,36 +141,6 @@ impl SnippetEditor {
         }
     }
 
-    pub fn apply(self, event: EditorEvent) -> Self {
-        match event {
-            EditorEvent::MoveWordCursorBackward => self.with_word_selection_moved_backward(1),
-            EditorEvent::MoveWordCursorForward => self.with_word_selection_moved_forward(1),
-            EditorEvent::AddNewTunicWordAtCursor => self.with_new_tunic_word_at_cursor(),
-            EditorEvent::DeleteWordAtCursor => self.with_word_at_cursor_deleted(),
-            _ => {
-                if let Some(editor) = self.word_editor {
-                    let word_editor = editor.apply(event);
-
-                    let mut snippet = self.selected_snippet.clone();
-
-                    if let Some(index) = self.selected_word_index {
-                        if let Some(word) = snippet.words.get_mut(index) {
-                            *word = word_editor.selected_word();
-                        }
-                    }
-
-                    Self {
-                        selected_snippet: snippet,
-                        word_editor: Some(word_editor),
-                        ..self
-                    }
-                } else {
-                    self
-                }
-            }
-        }
-    }
-
     pub fn to_view(&self, selected: bool) -> SnippetView {
         let word_views: Vec<WordView> = self
             .selected_snippet
@@ -207,5 +177,37 @@ impl SnippetEditor {
         R: FnMut(SnippetView, usize),
     {
         renderer(self.to_view(true), 0)
+    }
+}
+
+impl AppliesEditorEvents for SnippetEditor {
+    fn apply(self, event: EditorEvent) -> Self {
+        match event {
+            EditorEvent::MoveWordCursorBackward => self.with_word_selection_moved_backward(1),
+            EditorEvent::MoveWordCursorForward => self.with_word_selection_moved_forward(1),
+            EditorEvent::AddNewTunicWordAtCursor => self.with_new_tunic_word_at_cursor(),
+            EditorEvent::DeleteWordAtCursor => self.with_word_at_cursor_deleted(),
+            _ => {
+                if let Some(editor) = self.word_editor {
+                    let word_editor = editor.apply(event);
+
+                    let mut snippet = self.selected_snippet.clone();
+
+                    if let Some(index) = self.selected_word_index {
+                        if let Some(word) = snippet.words.get_mut(index) {
+                            *word = word_editor.selected_word();
+                        }
+                    }
+
+                    Self {
+                        selected_snippet: snippet,
+                        word_editor: Some(word_editor),
+                        ..self
+                    }
+                } else {
+                    self
+                }
+            }
+        }
     }
 }

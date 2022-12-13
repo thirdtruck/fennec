@@ -18,19 +18,21 @@ impl GlyphEditor {
         }
     }
 
-    pub fn apply(self, event: EditorEvent) -> Self {
+    pub fn to_view(&self, selected: bool) -> GlyphView {
+        GlyphView {
+            glyph: self.glyph,
+            selected,
+        }
+    }
+}
+
+impl AppliesEditorEvents for GlyphEditor {
+    fn apply(self, event: EditorEvent) -> Self {
         match event {
             EditorEvent::ToggleSegmentOnSelectedGlyph(segment) => {
                 self.with_segment_toggled(segment)
             }
             _ => self,
-        }
-    }
-
-    pub fn to_view(&self, selected: bool) -> GlyphView {
-        GlyphView {
-            glyph: self.glyph,
-            selected,
         }
     }
 }
