@@ -59,6 +59,17 @@ impl GameState for State {
 
         let editor = self.snippet_editor.clone();
 
+        if let Some(key) = &ctx_clone.key {
+            match key {
+                VirtualKeyCode::F2 => {
+                    let view = self.snippet_editor.to_view(true);
+                    let output = serde_yaml::to_string(&view).unwrap();
+                    println!("YAML output: {}", output);
+                }
+                _ => (),
+            }
+        }
+
         let event = editor.on_input(Box::new(move |editor| {
             on_snippet_editor_input(editor, &ctx_clone)
         }));
