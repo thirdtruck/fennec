@@ -13,4 +13,5 @@ pub enum EditorEvent {
     ToggleGlyphEditingMode,
     AddNewTunicWordAtCursor,
     AddNewGlyphToTunicWordAtCursor,
+    DeleteGlyphAtCursor,
 }

@@ -139,6 +139,35 @@ impl WordEditor {
         }
     }
 
+    pub fn with_glyph_at_cursor_deleted(self) -> Self {
+        if let Word::Tunic(glyphs) = &self.selected_word {
+            if let Some(selected_glyph_index) = self.selected_glyph_index {
+                if glyphs.len() > 0 {
+                    let mut glyphs = glyphs.clone();
+                    glyphs.remove(selected_glyph_index);
+
+                    let new_index = if selected_glyph_index > 0 {
+                        selected_glyph_index - 1
+                    } else {
+                        0
+                    };
+
+                    Self {
+                        selected_word: Word::Tunic(glyphs),
+                        ..self
+                    }
+                    .with_glyph_selected(new_index)
+                } else {
+                    self
+                }
+            } else {
+                self
+            }
+        } else {
+            self
+        }
+    }
+
     pub fn with_glyph_editing_mode_toggled(self) -> Self {
         let state = match &self.state {
             WordEditorState::ModifyGlyphSet => WordEditorState::ModifySelectedGlyph,
@@ -154,6 +183,7 @@ impl WordEditor {
             EditorEvent::MoveGlyphCursorBackward => self.with_glyph_selection_moved_backward(1),
             EditorEvent::MoveGlyphCursorForward => self.with_glyph_selection_moved_forward(1),
             EditorEvent::AddNewGlyphToTunicWordAtCursor => self.with_new_glyph_at_cursor(),
+            EditorEvent::DeleteGlyphAtCursor => self.with_glyph_at_cursor_deleted(),
             _ => {
                 if let Some(editor) = self.glyph_editor {
                     let glyph_editor = editor.apply(event);

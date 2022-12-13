@@ -36,6 +36,7 @@ pub fn on_modify_selected_glyph(_editor: &GlyphEditor, key: Option<VirtualKeyCod
                 VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
                 VirtualKeyCode::Return => EditorEvent::AddNewTunicWordAtCursor,
                 VirtualKeyCode::Space => EditorEvent::AddNewGlyphToTunicWordAtCursor,
+                VirtualKeyCode::Back => EditorEvent::DeleteGlyphAtCursor,
 
                 _ => EditorEvent::NoOp,
             }
@@ -55,6 +56,7 @@ pub fn on_modify_glyph_set(_editor: &WordEditor, key: Option<VirtualKeyCode>) ->
                 VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
                 VirtualKeyCode::Return => EditorEvent::AddNewTunicWordAtCursor,
                 VirtualKeyCode::Space => EditorEvent::AddNewGlyphToTunicWordAtCursor,
+                VirtualKeyCode::Back => EditorEvent::DeleteGlyphAtCursor,
 
                 _ => EditorEvent::NoOp,
             }

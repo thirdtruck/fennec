@@ -14,8 +14,8 @@ mod prelude {
     pub use crate::editors::word_editors::*;
     pub use crate::editors::*;
     pub use crate::gui::*;
-    pub use crate::language::*;
     pub use crate::language::notebook::*;
+    pub use crate::language::*;
     pub use crate::renderers::*;
     pub use crate::views::*;
 
@@ -59,7 +59,9 @@ impl GameState for State {
 
         let editor = self.snippet_editor.clone();
 
-        let event = editor.on_input(Box::new(move |editor| on_snippet_editor_input(editor, &ctx_clone)));
+        let event = editor.on_input(Box::new(move |editor| {
+            on_snippet_editor_input(editor, &ctx_clone)
+        }));
 
         if event != EditorEvent::NoOp {
             let editor = editor.apply(event);
