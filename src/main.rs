@@ -17,6 +17,7 @@ mod prelude {
     pub use crate::language::notebook::*;
     pub use crate::language::*;
     pub use crate::renderers::*;
+    pub use crate::renderers::glyph_map_renderers::*;
     pub use crate::views::*;
 
     pub const SCREEN_WIDTH: i32 = 80;
