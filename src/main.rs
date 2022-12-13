@@ -18,6 +18,7 @@ mod prelude {
     pub use crate::language::*;
     pub use crate::renderers::*;
     pub use crate::renderers::glyph_map_renderers::*;
+    pub use crate::renderers::snippet_source_renderers::*;
     pub use crate::views::*;
 
     pub const SCREEN_WIDTH: i32 = 80;
@@ -93,22 +94,8 @@ impl GameState for State {
                 .iter()
                 .find(|snippet_view| snippet_view.selected);
 
-            if let Some(snippet_view) = selected_snippet_view {
-                let source_text: String = if let Some(source) = &snippet_view.snippet.source {
-                    match source {
-                        Source::ManualPageNumber(number) => format!("Manual: Page {}", number),
-                        Source::ScreenshotFilename(filename) => format!("Screenshot: {}", filename), 
-                        Source::Other(string) => format!("Other: {}", string),
-                    }
-                } else {
-                    "(Unknown)".into()
-                };
-
-                let source_text = format!("Source -> {}", source_text);
-
-                ctx.set_active_console(16);
-                ctx.cls();
-                ctx.print_color(1, SCREEN_HEIGHT - 2, WHITE, BLACK, source_text);
+            if let Some(view) = selected_snippet_view {
+                render_snippet_source_on(&view, ctx, 1, (SCREEN_HEIGHT - 2).try_into().unwrap());
             }
         });
 
