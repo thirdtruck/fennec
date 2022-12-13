@@ -34,8 +34,8 @@ pub fn on_modify_selected_glyph(_editor: &GlyphEditor, key: Option<VirtualKeyCod
             match key {
                 VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
                 VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
-                VirtualKeyCode::Return => EditorEvent::AddNewTunicWord,
-                VirtualKeyCode::Space => EditorEvent::AddNewGlyphToTunicWord,
+                VirtualKeyCode::Return => EditorEvent::AddNewTunicWordAtCursor,
+                VirtualKeyCode::Space => EditorEvent::AddNewGlyphToTunicWordAtCursor,
 
                 _ => EditorEvent::NoOp,
             }
@@ -53,8 +53,8 @@ pub fn on_modify_glyph_set(_editor: &WordEditor, key: Option<VirtualKeyCode>) ->
             match key {
                 VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
                 VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
-                VirtualKeyCode::Return => EditorEvent::AddNewTunicWord,
-                VirtualKeyCode::Space => EditorEvent::AddNewGlyphToTunicWord,
+                VirtualKeyCode::Return => EditorEvent::AddNewTunicWordAtCursor,
+                VirtualKeyCode::Space => EditorEvent::AddNewGlyphToTunicWordAtCursor,
 
                 _ => EditorEvent::NoOp,
             }

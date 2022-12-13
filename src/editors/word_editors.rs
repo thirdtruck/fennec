@@ -56,9 +56,7 @@ impl WordEditor {
         }
     }
 
-    // TODO: Refactor this into with_new_glyph_at(index) and move the logic for word placement
-    // into the UI layer
-    pub fn with_new_glyph(self) -> Self {
+    pub fn with_new_glyph_at_cursor(self) -> Self {
         match self.selected_word {
             Word::Tunic(glyphs) => {
                 let new_glyph: u16 = 0x10;
@@ -155,7 +153,7 @@ impl WordEditor {
             EditorEvent::ToggleGlyphEditingMode => self.with_glyph_editing_mode_toggled(),
             EditorEvent::MoveGlyphCursorBackward => self.with_glyph_selection_moved_backward(1),
             EditorEvent::MoveGlyphCursorForward => self.with_glyph_selection_moved_forward(1),
-            EditorEvent::AddNewGlyphToTunicWord => self.with_new_glyph(),
+            EditorEvent::AddNewGlyphToTunicWordAtCursor => self.with_new_glyph_at_cursor(),
             _ => {
                 if let Some(editor) = self.glyph_editor {
                     let glyph_editor = editor.apply(event);

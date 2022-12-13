@@ -16,6 +16,6 @@ pub enum EditorEvent {
     MoveWordCursorForward,
     MoveWordCursorBackward,
     ToggleGlyphEditingMode,
-    AddNewTunicWord, // TODO: Add an index property, e.g. AddNewTunicWord(usize)
-    AddNewGlyphToTunicWord, // TODO: Add an index property, e.g. AddNewTunicWord(usize)
+    AddNewTunicWordAtCursor,
+    AddNewGlyphToTunicWordAtCursor,
 }

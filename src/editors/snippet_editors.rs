@@ -76,9 +76,7 @@ impl SnippetEditor {
         }
     }
 
-    // TODO: Refactor this into with_new_tunic_word_at(index) and move the logic for word placement
-    // into the UI layer
-    pub fn with_new_tunic_word(self) -> Self {
+    pub fn with_new_tunic_word_at_cursor(self) -> Self {
         let mut words = self.selected_snippet.words.clone();
         let new_word: Word = vec![0x10].into(); // TODO: arbitrary starting value
 
@@ -112,7 +110,7 @@ impl SnippetEditor {
         match event {
             EditorEvent::MoveWordCursorBackward => self.with_word_selection_moved_backward(1),
             EditorEvent::MoveWordCursorForward => self.with_word_selection_moved_forward(1),
-            EditorEvent::AddNewTunicWord => self.with_new_tunic_word(),
+            EditorEvent::AddNewTunicWordAtCursor => self.with_new_tunic_word_at_cursor(),
             _ => {
                 if let Some(editor) = self.word_editor {
                     let word_editor = editor.apply(event);
