@@ -116,6 +116,15 @@ pub enum Word {
     English(String),
 }
 
+impl Word {
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Word::Tunic(glyphs) => glyphs.len() == 0,
+            Word::English(string) => string.len() == 0,
+        }
+    }
+}
+
 impl Default for Word {
     fn default() -> Self {
         Self::Tunic(vec![])

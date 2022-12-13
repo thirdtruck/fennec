@@ -14,4 +14,5 @@ pub enum EditorEvent {
     AddNewTunicWordAtCursor,
     AddNewGlyphToTunicWordAtCursor,
     DeleteGlyphAtCursor,
+    DeleteWordAtCursor,
 }

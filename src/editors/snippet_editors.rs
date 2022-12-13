@@ -28,7 +28,11 @@ impl SnippetEditor {
 
     pub fn on_word_editor_input(&self, callbacks: WordEditorCallbacks) -> EditorEvent {
         if let Some(editor) = &self.word_editor {
-            editor.on_input(callbacks)
+            if editor.selected_word().is_empty() {
+                EditorEvent::DeleteWordAtCursor
+            } else {
+                editor.on_input(callbacks)
+            }
         } else {
             EditorEvent::NoOp
         }
@@ -106,11 +110,43 @@ impl SnippetEditor {
         .with_word_selected(new_index)
     }
 
+    pub fn with_word_at_cursor_deleted(self) -> Self {
+        if let Some(selected_word_index) = self.selected_word_index {
+            let mut words = self.selected_snippet.words.clone();
+
+            if words.len() > 0 {
+                words.remove(selected_word_index);
+
+                let new_index = if selected_word_index > 0 {
+                    selected_word_index - 1
+                } else {
+                    0
+                };
+
+                let selected_snippet = Snippet {
+                    words,
+                    ..self.selected_snippet
+                };
+
+                Self {
+                    selected_snippet,
+                    ..self
+                }
+                .with_word_selected(new_index)
+            } else {
+                self
+            }
+        } else {
+            self
+        }
+    }
+
     pub fn apply(self, event: EditorEvent) -> Self {
         match event {
             EditorEvent::MoveWordCursorBackward => self.with_word_selection_moved_backward(1),
             EditorEvent::MoveWordCursorForward => self.with_word_selection_moved_forward(1),
             EditorEvent::AddNewTunicWordAtCursor => self.with_new_tunic_word_at_cursor(),
+            EditorEvent::DeleteWordAtCursor => self.with_word_at_cursor_deleted(),
             _ => {
                 if let Some(editor) = self.word_editor {
                     let word_editor = editor.apply(event);
