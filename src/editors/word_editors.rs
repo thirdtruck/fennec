@@ -177,21 +177,21 @@ impl WordEditor {
         Self { state, ..self }
     }
 
-    pub fn to_view(&self, selected: bool) -> WordView {
+    pub fn to_view(&self, selected_word: bool) -> WordView {
         match &self.selected_word {
             Word::Tunic(glyphs) => {
                 let glyph_views: Vec<GlyphView> = glyphs
                     .iter()
                     .enumerate()
                     .map(|(glyph_index, glyph)| {
-                        let selected = if let Some(selected_glyph_index) = self.selected_glyph_index
+                        let selected_glyph = if let Some(selected_glyph_index) = self.selected_glyph_index
                         {
                             glyph_index == selected_glyph_index
                         } else {
                             false
                         };
 
-                        if selected {
+                        if selected_word && selected_glyph {
                             self.glyph_editor
                                 .as_ref()
                                 .expect("Missing GlyphEditor")
@@ -205,7 +205,7 @@ impl WordEditor {
                 WordView {
                     word: self.selected_word.clone(),
                     glyph_views,
-                    selected,
+                    selected: selected_word,
                     state: self.state,
                 }
             }

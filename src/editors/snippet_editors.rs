@@ -146,20 +146,20 @@ impl SnippetEditor {
         }
     }
 
-    pub fn to_view(&self, selected: bool) -> SnippetView {
+    pub fn to_view(&self, selected_snippet: bool) -> SnippetView {
         let word_views: Vec<WordView> = self
             .selected_snippet
             .words
             .iter()
             .enumerate()
             .map(|(word_index, word)| {
-                let selected = if let Some(selected_word_index) = self.selected_word_index {
+                let selected_word = if let Some(selected_word_index) = self.selected_word_index {
                     word_index == selected_word_index
                 } else {
                     false
                 };
 
-                if selected {
+                if selected_snippet && selected_word {
                     self.word_editor
                         .as_ref()
                         .expect("Missing WordEditor")
@@ -171,7 +171,7 @@ impl SnippetEditor {
             .collect();
 
         SnippetView {
-            selected,
+            selected: selected_snippet,
             snippet: self.selected_snippet.clone(),
             word_views,
         }
