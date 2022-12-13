@@ -60,8 +60,22 @@ impl NotebookEditor {
             .selected_notebook
             .snippets
             .iter()
-            .map(|snippet| {
-                SnippetEditor::new(snippet.clone()).to_view(false)
+            .enumerate()
+            .map(|(snippet_index, snippet)| {
+                let selected = if let Some(selected_snippet_index) = self.selected_snippet_index {
+                    snippet_index == selected_snippet_index
+                } else {
+                    false
+                };
+
+                if selected {
+                    self.snippet_editor
+                        .as_ref()
+                        .expect("Missing SnippetEditor")
+                        .to_view(true)
+                } else {
+                    SnippetEditor::new(snippet.clone()).to_view(false)
+                }
             })
             .collect();
 

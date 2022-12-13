@@ -175,13 +175,6 @@ impl SnippetEditor {
             word_views,
         }
     }
-
-    pub fn render_with<R>(&self, mut renderer: R)
-    where
-        R: FnMut(SnippetView, usize),
-    {
-        renderer(self.to_view(true), 0)
-    }
 }
 
 impl AppliesEditorEvents for SnippetEditor {

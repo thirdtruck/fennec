@@ -89,3 +89,13 @@ pub fn on_snippet_editor_input(editor: &SnippetEditor, ctx: &BTerm) -> EditorEve
         EditorEvent::NoOp
     }
 }
+
+pub fn on_notebook_editor_input(editor: &NotebookEditor, ctx: &BTerm) -> EditorEvent {
+    let ctx = ctx.clone();
+
+    let callback: Box<dyn Fn(&SnippetEditor) -> EditorEvent> = Box::new(move |snippet_editor| {
+        on_snippet_editor_input(snippet_editor, &ctx)
+    });
+
+    editor.on_snippet_editor_input(callback)
+}

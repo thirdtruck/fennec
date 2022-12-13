@@ -37,13 +37,16 @@ use prelude::*;
 #[derive(Default)]
 struct State {
     tick_count: usize,
-    snippet_editor: SnippetEditor,
+    notebook_editor: NotebookEditor,
 }
 
 impl State {
     fn new(snippet: Snippet) -> Self {
+        let notebook: Notebook = vec![snippet].into();
+        let notebook_editor = NotebookEditor::new(notebook).with_snippet_selected(0);
+
         Self {
-            snippet_editor: SnippetEditor::new(snippet).with_word_selected(0),
+            notebook_editor,
             ..Self::default()
         }
     }
@@ -57,12 +60,12 @@ impl GameState for State {
 
         let ctx_clone = ctx.clone();
 
-        let editor = self.snippet_editor.clone();
+        let editor = self.notebook_editor.clone();
 
         if let Some(key) = &ctx_clone.key {
             match key {
                 VirtualKeyCode::F2 => {
-                    self.snippet_editor
+                    self.notebook_editor
                         .render_with(|view, _index| {
                             let output = serde_yaml::to_string(&view).unwrap();
                             println!("YAML output: {}", output);
@@ -73,17 +76,17 @@ impl GameState for State {
         }
 
         let event = editor.on_input(Box::new(move |editor| {
-            on_snippet_editor_input(editor, &ctx_clone)
+            on_notebook_editor_input(editor, &ctx_clone)
         }));
 
         if event != EditorEvent::NoOp {
             let editor = editor.apply(event);
 
-            self.snippet_editor = editor;
+            self.notebook_editor = editor;
         }
 
-        self.snippet_editor
-            .render_with(|view, _index| map.render_snippet_on(&view, 1, 1));
+        self.notebook_editor
+            .render_with(|view, _index| map.render_notebook_on(&view, 1, 1));
 
         map.draw_on(ctx, 1, 1);
 
@@ -113,7 +116,7 @@ fn main() -> BError {
 
     let state = State::new(starting_snippet);
 
-    let output = serde_yaml::to_string(&state.snippet_editor).unwrap();
+    let output = serde_yaml::to_string(&state.notebook_editor).unwrap();
     println!("Output: {}", output);
 
     let context = BTermBuilder::new()
