@@ -206,35 +206,6 @@ impl SnippetEditor {
     where
         R: FnMut(SnippetView, usize),
     {
-        let word_views: Vec<WordView> = self
-            .selected_snippet
-            .words
-            .iter()
-            .enumerate()
-            .map(|(word_index, word)| {
-                let selected = if let Some(selected_word_index) = self.selected_word_index {
-                    word_index == selected_word_index
-                } else {
-                    false
-                };
-
-                if selected {
-                    self.word_editor
-                        .as_ref()
-                        .expect("Missing WordEditor")
-                        .to_view(true)
-                } else {
-                    WordEditor::new(word.clone()).to_view(false)
-                }
-            })
-            .collect();
-
-        let view = SnippetView {
-            snippet: self.selected_snippet.clone(),
-            word_views,
-            selected: true,
-        };
-
-        renderer(view, 0)
+        renderer(self.to_view(true), 0)
     }
 }
