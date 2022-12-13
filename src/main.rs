@@ -62,9 +62,11 @@ impl GameState for State {
         if let Some(key) = &ctx_clone.key {
             match key {
                 VirtualKeyCode::F2 => {
-                    let view = self.snippet_editor.to_view(true);
-                    let output = serde_yaml::to_string(&view).unwrap();
-                    println!("YAML output: {}", output);
+                    self.snippet_editor
+                        .render_with(|view, _index| {
+                            let output = serde_yaml::to_string(&view).unwrap();
+                            println!("YAML output: {}", output);
+                        });
                 }
                 _ => (),
             }
