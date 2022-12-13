@@ -184,12 +184,12 @@ impl WordEditor {
                     .iter()
                     .enumerate()
                     .map(|(glyph_index, glyph)| {
-                        let selected_glyph = if let Some(selected_glyph_index) = self.selected_glyph_index
-                        {
-                            glyph_index == selected_glyph_index
-                        } else {
-                            false
-                        };
+                        let selected_glyph =
+                            if let Some(selected_glyph_index) = self.selected_glyph_index {
+                                glyph_index == selected_glyph_index
+                            } else {
+                                false
+                            };
 
                         if selected_word && selected_glyph {
                             self.glyph_editor

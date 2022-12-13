@@ -16,9 +16,9 @@ mod prelude {
     pub use crate::gui::*;
     pub use crate::language::notebook::*;
     pub use crate::language::*;
-    pub use crate::renderers::*;
     pub use crate::renderers::glyph_map_renderers::*;
     pub use crate::renderers::snippet_source_renderers::*;
+    pub use crate::renderers::*;
     pub use crate::views::*;
 
     pub const SCREEN_WIDTH: i32 = 80;
@@ -90,7 +90,8 @@ impl GameState for State {
             .render_with(|view, _index| map.render_notebook_on(&view, 1, 1));
 
         self.notebook_editor.render_with(|view, _index| {
-            let selected_snippet_view = view.snippet_views
+            let selected_snippet_view = view
+                .snippet_views
                 .iter()
                 .find(|snippet_view| snippet_view.selected);
 
