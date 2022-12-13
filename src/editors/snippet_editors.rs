@@ -22,13 +22,17 @@ impl SnippetEditor {
         }
     }
 
+    pub fn selected_snippet(&self) -> Snippet {
+        self.selected_snippet.clone()
+    }
+
     pub fn on_input(&self, callback: Box<dyn Fn(&SnippetEditor) -> EditorEvent>) -> EditorEvent {
         callback(self)
     }
 
     pub fn on_word_editor_input(&self, callbacks: WordEditorCallbacks) -> EditorEvent {
         if let Some(editor) = &self.word_editor {
-            if editor.selected_word().is_empty() {
+            if editor.selected_word().is_empty() { // TODO: What other conditions should apply here?
                 EditorEvent::DeleteWordAtCursor
             } else {
                 editor.on_input(callbacks)
