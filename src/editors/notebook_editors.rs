@@ -40,7 +40,10 @@ impl NotebookEditor {
         callback(self)
     }
 
-    pub fn on_snippet_editor_input(&self, callback: Box<dyn Fn(&SnippetEditor) -> EditorEvent>) -> EditorEvent {
+    pub fn on_snippet_editor_input(
+        &self,
+        callback: Box<dyn Fn(&SnippetEditor) -> EditorEvent>,
+    ) -> EditorEvent {
         if let Some(editor) = &self.snippet_editor {
             editor.on_input(callback)
         } else {
@@ -79,9 +82,7 @@ impl NotebookEditor {
             })
             .collect();
 
-        NotebookView {
-            snippet_views,
-        }
+        NotebookView { snippet_views }
     }
 }
 

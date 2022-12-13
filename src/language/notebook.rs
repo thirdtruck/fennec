@@ -9,8 +9,6 @@ pub struct Notebook {
 
 impl From<Vec<Snippet>> for Notebook {
     fn from(items: Vec<Snippet>) -> Self {
-        Self {
-            snippets: items,
-        }
+        Self { snippets: items }
     }
 }

@@ -32,7 +32,8 @@ impl SnippetEditor {
 
     pub fn on_word_editor_input(&self, callbacks: WordEditorCallbacks) -> EditorEvent {
         if let Some(editor) = &self.word_editor {
-            if editor.selected_word().is_empty() { // TODO: What other conditions should apply here?
+            // TODO: What if any other conditions should apply here?
+            if editor.selected_word().is_empty() {
                 EditorEvent::DeleteWordAtCursor
             } else {
                 editor.on_input(callbacks)
