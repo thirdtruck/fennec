@@ -7,6 +7,7 @@ mod views;
 mod prelude {
     pub use bracket_lib::prelude::*;
 
+    pub use crate::editors::events::*;
     pub use crate::editors::glyph_editors::*;
     pub use crate::editors::notebook_editors::*;
     pub use crate::editors::snippet_editors::*;
