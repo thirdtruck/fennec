@@ -87,15 +87,31 @@ impl GameState for State {
         self.notebook_editor
             .render_with(|view, _index| map.render_notebook_on(&view, 1, 1));
 
+        self.notebook_editor.render_with(|view, _index| {
+            let selected_snippet_view = view.snippet_views
+                .iter()
+                .find(|snippet_view| snippet_view.selected);
+
+            if let Some(snippet_view) = selected_snippet_view {
+                let source_text: String = if let Some(source) = &snippet_view.snippet.source {
+                    match source {
+                        Source::ManualPageNumber(number) => format!("Manual: Page {}", number),
+                        Source::ScreenshotFilename(filename) => format!("Screenshot: {}", filename), 
+                        Source::Other(string) => format!("Other: {}", string),
+                    }
+                } else {
+                    "(Unknown)".into()
+                };
+
+                let source_text = format!("Source -> {}", source_text);
+
+                ctx.set_active_console(16);
+                ctx.cls();
+                ctx.print_color(1, SCREEN_HEIGHT - 2, WHITE, BLACK, source_text);
+            }
+        });
+
         map.draw_on(ctx, 1, 1);
-
-        ctx.set_active_console(16);
-        ctx.cls();
-        ctx.print_color(1, 10, WHITE, BLACK, "This is a test of the new font!");
-
-        ctx.set_active_console(17);
-        ctx.cls();
-        ctx.print_color(1, 11, WHITE, BLACK, "This is a test of the other new font!");
 
         render_draw_buffer(ctx).expect("Render error");
     }
