@@ -59,6 +59,12 @@ impl GlyphMap {
         }
     }
 
+    pub fn render_notebook_on(&mut self, view: &NotebookView, x: usize, y: usize) {
+        for (index, snippet_view) in view.snippet_views.iter().enumerate() {
+            self.render_snippet_on(snippet_view, x, y + index);
+        }
+    }
+
     pub fn render_snippet_on(&mut self, view: &SnippetView, x: usize, y: usize) {
         for (index, word_view) in view.word_views.iter().enumerate() {
             self.render_word_on(word_view, x, y + index);
