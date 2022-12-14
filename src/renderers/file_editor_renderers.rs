@@ -1,4 +1,3 @@
-
 use crate::prelude::*;
 
 pub fn render_file_editor_view_onto(view: &FileEditorView, ctx: &mut BTerm) {
@@ -31,13 +30,19 @@ pub fn render_file_editor_view_onto(view: &FileEditorView, ctx: &mut BTerm) {
             ctx.print_color(x, y, WHITE, BLACK, error.to_string());
         }
         FileEditorState::ConfirmingLoadRequest => {
-            let text = format!("Load the notebook from {}? Press Enter to confirm", view.target_file);
+            let text = format!(
+                "Load the notebook from {}? Press Enter to confirm",
+                view.target_file
+            );
             ctx.print_color(x, y, WHITE, BLACK, text);
         }
         FileEditorState::ConfirmingSaveRequest => {
-            let text = format!("Save the notebook to {}? Press Enter to confirm", view.target_file);
+            let text = format!(
+                "Save the notebook to {}? Press Enter to confirm",
+                view.target_file
+            );
             ctx.print_color(x, y, WHITE, BLACK, text);
         }
-        FileEditorState::Idle => ()
+        FileEditorState::Idle => (),
     };
 }

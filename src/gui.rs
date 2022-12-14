@@ -103,17 +103,25 @@ pub fn on_file_editor_input(editor: &FileEditor, ctx: &BTerm) -> EditorEvent {
     let ctx = ctx.clone();
 
     if let Some(key) = ctx.key {
-        match key {
-            VirtualKeyCode::F2 => EditorEvent::RequestSaveToFile,
-            VirtualKeyCode::F3 => EditorEvent::RequestLoadFromFile,
-            _ => {
-                let callback: Box<dyn Fn(&NotebookEditor) -> EditorEvent> =
-                    Box::new(move |notebook_editor| {
-                        on_notebook_editor_input(notebook_editor, &ctx)
-                    });
+        match editor.state() {
+            FileEditorState::LoadRequestSucceeded => EditorEvent::ResetFileEditorToIdle,
+            FileEditorState::LoadRequestFailed(_) => EditorEvent::ResetFileEditorToIdle,
+            FileEditorState::SaveRequestSucceeded => EditorEvent::ResetFileEditorToIdle,
+            FileEditorState::SaveRequestFailed(_) => EditorEvent::ResetFileEditorToIdle,
+            FileEditorState::ConfirmingLoadRequest => todo!("Implement confirmation for loading"),
+            FileEditorState::ConfirmingSaveRequest => todo!("Implement confirmation for saving"),
+            FileEditorState::Idle => match key {
+                VirtualKeyCode::F2 => EditorEvent::RequestSaveToFile,
+                VirtualKeyCode::F3 => EditorEvent::RequestLoadFromFile,
+                _ => {
+                    let callback: Box<dyn Fn(&NotebookEditor) -> EditorEvent> =
+                        Box::new(move |notebook_editor| {
+                            on_notebook_editor_input(notebook_editor, &ctx)
+                        });
 
-                editor.on_notebook_editor_input(callback)
-            }
+                    editor.on_notebook_editor_input(callback)
+                }
+            },
         }
     } else {
         EditorEvent::NoOp

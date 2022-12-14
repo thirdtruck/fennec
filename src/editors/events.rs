@@ -17,4 +17,5 @@ pub enum EditorEvent {
     DeleteWordAtCursor,
     RequestSaveToFile,
     RequestLoadFromFile,
+    ResetFileEditorToIdle,
 }

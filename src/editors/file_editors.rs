@@ -69,6 +69,14 @@ impl FileEditor {
         }
     }
 
+    pub fn state(&self) -> FileEditorState {
+        self.state.clone()
+    }
+
+    pub fn with_state(self, state: FileEditorState) -> Self {
+        Self { state, ..self }
+    }
+
     pub fn on_input(&self, callback: Box<dyn Fn(&Self) -> EditorEvent>) -> EditorEvent {
         callback(self)
     }
@@ -197,6 +205,7 @@ impl AppliesEditorEvents for FileEditor {
         match event {
             EditorEvent::RequestSaveToFile => self.with_file_save_attempted(),
             EditorEvent::RequestLoadFromFile => self.with_file_load_attempted(),
+            EditorEvent::ResetFileEditorToIdle => self.with_state(FileEditorState::Idle),
             _ => {
                 let notebook_editor = self.notebook_editor.apply(event);
 
