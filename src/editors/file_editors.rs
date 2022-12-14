@@ -96,6 +96,7 @@ impl FileEditor {
     }
 
     pub fn with_file_load_attempted(self) -> Self {
+        // TODO: Replace these println calls with proper logging
         println!("Loading notebook from: {}", &self.target_file);
 
         match &self.notebook_from_yaml_file() {
@@ -142,7 +143,7 @@ impl FileEditor {
     }
 
     pub fn with_file_save_attempted(self) -> Self {
-        // TODO: Move these printlns out of the editor and into the GUI layer
+        // TODO: Replace these println calls with proper logging
         println!("Saving notebook to: {}", &self.target_file);
 
         match &self.notebook_to_yaml_file() {
