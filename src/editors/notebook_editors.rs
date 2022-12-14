@@ -82,6 +82,10 @@ impl NotebookEditor {
 
         NotebookView { snippet_views }
     }
+
+    pub fn to_source(&self) -> Notebook {
+        self.selected_notebook.clone()
+    }
 }
 
 impl AppliesEditorEvents for NotebookEditor {

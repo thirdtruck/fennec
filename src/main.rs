@@ -70,10 +70,9 @@ impl GameState for State {
         if let Some(key) = &ctx_clone.key {
             match key {
                 VirtualKeyCode::F2 => {
-                    self.notebook_editor.render_with(|view, _index| {
-                        let output = serde_yaml::to_string(&view).unwrap();
-                        println!("YAML output: {}", output);
-                    });
+                    let notebook = self.notebook_editor.to_source();
+                    let output = serde_yaml::to_string(&notebook).unwrap();
+                    println!("YAML output: {}", output);
                 }
                 _ => (),
             }
