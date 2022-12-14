@@ -14,7 +14,10 @@ mod prelude {
     pub use crate::editors::word_editors::*;
     pub use crate::editors::*;
     pub use crate::gui::*;
-    pub use crate::language::notebook::*;
+    pub use crate::language::glyphs::*;
+    pub use crate::language::notebooks::*;
+    pub use crate::language::snippets::*;
+    pub use crate::language::words::*;
     pub use crate::language::*;
     pub use crate::renderers::glyph_map_renderers::*;
     pub use crate::renderers::snippet_source_renderers::*;
