@@ -24,7 +24,7 @@ impl NotebookEditor {
         if let Some(snippet) = snippets.get(index) {
             let editor = SnippetEditor::new(snippet.clone()).with_word_selected(0);
 
-            NotebookEditor {
+            Self {
                 snippet_editor: Some(editor),
                 selected_snippet_index: Some(index),
                 ..self
@@ -34,7 +34,7 @@ impl NotebookEditor {
         }
     }
 
-    pub fn on_input(&self, callback: Box<dyn Fn(&NotebookEditor) -> EditorEvent>) -> EditorEvent {
+    pub fn on_input(&self, callback: Box<dyn Fn(&Self) -> EditorEvent>) -> EditorEvent {
         callback(self)
     }
 
