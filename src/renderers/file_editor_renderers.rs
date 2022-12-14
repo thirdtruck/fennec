@@ -31,14 +31,14 @@ pub fn render_file_editor_view_onto(view: &FileEditorView, ctx: &mut BTerm) {
         }
         FileEditorState::ConfirmingLoadRequest => {
             let text = format!(
-                "Load the notebook from {}? Press Enter to confirm",
+                "Load the notebook from {}? Press Enter/Return to confirm or Escape to cancel",
                 view.target_file
             );
             ctx.print_color(x, y, WHITE, BLACK, text);
         }
         FileEditorState::ConfirmingSaveRequest => {
             let text = format!(
-                "Save the notebook to {}? Press Enter to confirm",
+                "Save the notebook to {}? Press Enter/Return to confirm or Escape to cancel",
                 view.target_file
             );
             ctx.print_color(x, y, WHITE, BLACK, text);

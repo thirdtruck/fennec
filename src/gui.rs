@@ -108,8 +108,16 @@ pub fn on_file_editor_input(editor: &FileEditor, ctx: &BTerm) -> EditorEvent {
             FileEditorState::LoadRequestFailed(_) => EditorEvent::ResetFileEditorToIdle,
             FileEditorState::SaveRequestSucceeded => EditorEvent::ResetFileEditorToIdle,
             FileEditorState::SaveRequestFailed(_) => EditorEvent::ResetFileEditorToIdle,
-            FileEditorState::ConfirmingLoadRequest => todo!("Implement confirmation for loading"),
-            FileEditorState::ConfirmingSaveRequest => todo!("Implement confirmation for saving"),
+            FileEditorState::ConfirmingLoadRequest => match key {
+                VirtualKeyCode::Return => EditorEvent::ConfirmLoadFromFileRequest,
+                VirtualKeyCode::Escape => EditorEvent::ResetFileEditorToIdle,
+                _ => EditorEvent::NoOp,
+            },
+            FileEditorState::ConfirmingSaveRequest => match key {
+                VirtualKeyCode::Return => EditorEvent::ConfirmSaveToFileRequest,
+                VirtualKeyCode::Escape => EditorEvent::ResetFileEditorToIdle,
+                _ => EditorEvent::NoOp,
+            },
             FileEditorState::Idle => match key {
                 VirtualKeyCode::F2 => EditorEvent::RequestSaveToFile,
                 VirtualKeyCode::F3 => EditorEvent::RequestLoadFromFile,

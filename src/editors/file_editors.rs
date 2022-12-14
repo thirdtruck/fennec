@@ -203,8 +203,14 @@ impl FileEditor {
 impl AppliesEditorEvents for FileEditor {
     fn apply(self, event: EditorEvent) -> Self {
         match event {
-            EditorEvent::RequestSaveToFile => self.with_file_save_attempted(),
-            EditorEvent::RequestLoadFromFile => self.with_file_load_attempted(),
+            EditorEvent::RequestLoadFromFile => {
+                self.with_state(FileEditorState::ConfirmingLoadRequest)
+            }
+            EditorEvent::RequestSaveToFile => {
+                self.with_state(FileEditorState::ConfirmingSaveRequest)
+            }
+            EditorEvent::ConfirmLoadFromFileRequest => self.with_file_load_attempted(),
+            EditorEvent::ConfirmSaveToFileRequest => self.with_file_save_attempted(),
             EditorEvent::ResetFileEditorToIdle => self.with_state(FileEditorState::Idle),
             _ => {
                 let notebook_editor = self.notebook_editor.apply(event);
