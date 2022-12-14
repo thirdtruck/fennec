@@ -29,7 +29,7 @@ pub struct NotebookView {
 }
 
 #[derive(Clone, Debug)]
-pub struct FileView {
+pub struct FileEditorView {
     pub notebook_view: NotebookView,
     pub state: FileEditorState,
     pub target_file: String,

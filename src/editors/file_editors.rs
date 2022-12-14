@@ -5,7 +5,7 @@ use std::fs;
 use crate::prelude::*;
 
 #[allow(dead_code)]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum FileEditorState {
     Idle,
     ConfirmingSaveRequest,
@@ -25,7 +25,7 @@ pub enum FileEditorErrorType {
     Other,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FileEditorError {
     description: String,
     error_type: FileEditorErrorType,
@@ -82,7 +82,7 @@ impl FileEditor {
 
     pub fn render_with<R>(&self, mut renderer: R)
     where
-        R: FnMut(FileView),
+        R: FnMut(FileEditorView),
     {
         renderer(self.to_view())
     }
@@ -168,8 +168,8 @@ impl FileEditor {
         }
     }
 
-    pub fn to_view(&self) -> FileView {
-        FileView {
+    pub fn to_view(&self) -> FileEditorView {
+        FileEditorView {
             notebook_view: self.notebook_editor.to_view(),
             state: self.state.clone(),
             target_file: self.target_file.clone(),

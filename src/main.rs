@@ -20,6 +20,7 @@ mod prelude {
     pub use crate::language::snippets::*;
     pub use crate::language::words::*;
     pub use crate::language::*;
+    pub use crate::renderers::file_editor_renderers::*;
     pub use crate::renderers::glyph_map_renderers::*;
     pub use crate::renderers::snippet_source_renderers::*;
     pub use crate::renderers::*;
@@ -76,9 +77,9 @@ impl GameState for State {
         };
 
         self.file_editor.render_with(|file_editor_view| {
-            let notebook_view = file_editor_view.notebook_view;
+            let notebook_view = &file_editor_view.notebook_view;
 
-            map.render_notebook_on(&notebook_view, 1, 1);
+            map.render_notebook_on(notebook_view, 1, 1);
 
             let selected_snippet_view = notebook_view
                 .snippet_views
@@ -93,6 +94,8 @@ impl GameState for State {
                     (SCREEN_HEIGHT - 2).try_into().unwrap(),
                 );
             }
+
+            render_file_editor_view_onto(&file_editor_view, ctx);
         });
 
         map.draw_on(ctx, 1, 1);
