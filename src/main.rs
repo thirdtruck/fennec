@@ -83,14 +83,13 @@ impl GameState for State {
                         Ok(yaml) => {
                             println!("Saved notebook to YAML.");
                             println!("YAML output: {}", yaml);
-                        },
+                        }
                         Err(error) => {
                             println!("Unable to save notebook to YAML.");
                             println!("Error: {}", error);
-                        },
+                        }
                     };
-
-                },
+                }
                 VirtualKeyCode::F3 => {
                     println!("Loading notebook from YAML...");
                     println!("Filename: {}", DEFAULT_NOTEBOOK_FILE);
@@ -99,12 +98,12 @@ impl GameState for State {
                         Ok(notebook) => {
                             editor = NotebookEditor::new(notebook).with_snippet_selected(0);
                             println!("Loaded notebook from YAML");
-                        },
+                        }
                         Err(error) => {
                             println!("Unable to load notebook from YAML.");
                             println!("Filename: {}", DEFAULT_NOTEBOOK_FILE);
                             println!("Error: {}", error);
-                        },
+                        }
                     };
                 }
                 _ => (),
