@@ -1,8 +1,6 @@
-use serde::{Deserialize, Serialize};
-
 use crate::prelude::*;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum EditorEvent {
     NoOp,
     ToggleSegmentOnSelectedGlyph(Segment),
@@ -19,5 +17,9 @@ pub enum EditorEvent {
     RequestSaveToFile,
     ConfirmLoadFromFileRequest,
     ConfirmSaveToFileRequest,
+    ReportLoadedFromFile(Notebook),
+    ReportSavedToFile,
+    ReportFailedToLoadFromFile(FileEditorError),
+    ReportFailedToSaveToFile(FileEditorError),
     ResetFileEditorToIdle,
 }

@@ -43,6 +43,8 @@ pub fn render_file_editor_view_onto(view: &FileEditorView, ctx: &mut BTerm) {
             );
             ctx.print_color(x, y, WHITE, BLACK, text);
         }
+        FileEditorState::LoadRequestConfirmed => (),
+        FileEditorState::SaveRequestConfirmed => (),
         FileEditorState::Idle => (),
     };
 }

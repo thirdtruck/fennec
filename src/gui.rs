@@ -1,3 +1,6 @@
+use std::error::Error;
+use std::fs;
+
 use crate::prelude::*;
 
 pub fn map_key_to_glyph_segment(key: VirtualKeyCode) -> Option<Segment> {
@@ -102,36 +105,131 @@ pub fn on_notebook_editor_input(editor: &NotebookEditor, ctx: &BTerm) -> EditorE
 pub fn on_file_editor_input(editor: &FileEditor, ctx: &BTerm) -> EditorEvent {
     let ctx = ctx.clone();
 
-    if let Some(key) = ctx.key {
-        match editor.state() {
-            FileEditorState::LoadRequestSucceeded => EditorEvent::ResetFileEditorToIdle,
-            FileEditorState::LoadRequestFailed(_) => EditorEvent::ResetFileEditorToIdle,
-            FileEditorState::SaveRequestSucceeded => EditorEvent::ResetFileEditorToIdle,
-            FileEditorState::SaveRequestFailed(_) => EditorEvent::ResetFileEditorToIdle,
-            FileEditorState::ConfirmingLoadRequest => match key {
-                VirtualKeyCode::Return => EditorEvent::ConfirmLoadFromFileRequest,
-                VirtualKeyCode::Escape => EditorEvent::ResetFileEditorToIdle,
-                _ => EditorEvent::NoOp,
-            },
-            FileEditorState::ConfirmingSaveRequest => match key {
-                VirtualKeyCode::Return => EditorEvent::ConfirmSaveToFileRequest,
-                VirtualKeyCode::Escape => EditorEvent::ResetFileEditorToIdle,
-                _ => EditorEvent::NoOp,
-            },
-            FileEditorState::Idle => match key {
-                VirtualKeyCode::F2 => EditorEvent::RequestSaveToFile,
-                VirtualKeyCode::F3 => EditorEvent::RequestLoadFromFile,
-                _ => {
-                    let callback: Box<dyn Fn(&NotebookEditor) -> EditorEvent> =
-                        Box::new(move |notebook_editor| {
-                            on_notebook_editor_input(notebook_editor, &ctx)
-                        });
+    match editor.state() {
+        FileEditorState::LoadRequestConfirmed => on_attempt_to_load_file(editor, &ctx),
+        FileEditorState::SaveRequestConfirmed => on_attempt_to_save_file(editor, &ctx),
+        _ => {
+            if let Some(key) = ctx.key {
+                match editor.state() {
+                    FileEditorState::LoadRequestSucceeded => EditorEvent::ResetFileEditorToIdle,
+                    FileEditorState::LoadRequestFailed(_) => EditorEvent::ResetFileEditorToIdle,
+                    FileEditorState::SaveRequestSucceeded => EditorEvent::ResetFileEditorToIdle,
+                    FileEditorState::SaveRequestFailed(_) => EditorEvent::ResetFileEditorToIdle,
+                    FileEditorState::ConfirmingLoadRequest => match key {
+                        VirtualKeyCode::Return => EditorEvent::ConfirmLoadFromFileRequest,
+                        VirtualKeyCode::Escape => EditorEvent::ResetFileEditorToIdle,
+                        _ => EditorEvent::NoOp,
+                    },
+                    FileEditorState::ConfirmingSaveRequest => match key {
+                        VirtualKeyCode::Return => EditorEvent::ConfirmSaveToFileRequest,
+                        VirtualKeyCode::Escape => EditorEvent::ResetFileEditorToIdle,
+                        _ => EditorEvent::NoOp,
+                    },
+                    FileEditorState::Idle => match key {
+                        VirtualKeyCode::F2 => EditorEvent::RequestSaveToFile,
+                        VirtualKeyCode::F3 => EditorEvent::RequestLoadFromFile,
+                        _ => {
+                            let callback: Box<dyn Fn(&NotebookEditor) -> EditorEvent> =
+                                Box::new(move |notebook_editor| {
+                                    on_notebook_editor_input(notebook_editor, &ctx)
+                                });
 
-                    editor.on_notebook_editor_input(callback)
+                            editor.on_notebook_editor_input(callback)
+                        }
+                    },
+                    _ => EditorEvent::NoOp,
                 }
-            },
+            } else {
+                EditorEvent::NoOp
+            }
         }
-    } else {
-        EditorEvent::NoOp
+    }
+}
+
+fn notebook_from_yaml_file(target_file: &str) -> Result<(Notebook, String), Box<dyn Error>> {
+    let yaml = fs::read_to_string(target_file)?;
+    let notebook: Notebook = serde_yaml::from_str(&yaml)?;
+
+    Ok((notebook, yaml))
+}
+
+fn notebook_to_yaml_file(notebook: &Notebook, target_file: &str) -> Result<String, Box<dyn Error>> {
+    let yaml = serde_yaml::to_string(notebook)?;
+
+    fs::write(target_file, &yaml)?;
+
+    Ok(yaml)
+}
+
+pub fn on_attempt_to_load_file(editor: &FileEditor, _ctx: &BTerm) -> EditorEvent {
+    let file = editor.target_file();
+
+    // TODO: Replace these println calls with proper logging
+    println!("Loading notebook from: {}", &file);
+
+    match notebook_from_yaml_file(&file) {
+        Ok((notebook, yaml)) => {
+            println!("Saved notebook to file: {}", &file);
+            println!("YAML output:");
+            println!("{}", yaml);
+
+            EditorEvent::ReportLoadedFromFile(notebook)
+        }
+        Err(error) => {
+            println!("Unable to load notebook from file");
+
+            let error: FileEditorError = if error.is::<serde_yaml::Error>() {
+                FileEditorError::new(
+                    "Unable to parse YAML for the notebook".into(),
+                    FileEditorErrorType::ParsingError,
+                    file.clone(),
+                    Some(&error),
+                )
+            } else {
+                FileEditorError::new(
+                    "Unable to load notebook from file".into(),
+                    FileEditorErrorType::FileReadError,
+                    file.clone(),
+                    Some(&error),
+                )
+            };
+
+            println!("{:?}", &error);
+
+            EditorEvent::ReportFailedToLoadFromFile(error)
+        }
+    }
+}
+
+pub fn on_attempt_to_save_file(editor: &FileEditor, _ctx: &BTerm) -> EditorEvent {
+    let file = editor.target_file();
+
+    // TODO: Replace these println calls with proper logging
+    println!("Saving notebook to: {}", &file);
+
+    let notebook = editor.to_source();
+
+    match notebook_to_yaml_file(&notebook, &file) {
+        Ok(yaml) => {
+            println!("Saved notebook to file");
+            println!("YAML output:");
+            println!("{}", yaml);
+
+            EditorEvent::ReportSavedToFile
+        }
+        Err(error) => {
+            println!("Unable to save notebook to file");
+
+            let error = FileEditorError::new(
+                "Unable to save notebook to file".into(),
+                FileEditorErrorType::FileWriteError,
+                file.clone(),
+                Some(&error),
+            );
+
+            println!("{:?}", &error);
+
+            EditorEvent::ReportFailedToSaveToFile(error)
+        }
     }
 }

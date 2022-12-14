@@ -1,6 +1,5 @@
 use std::error::Error;
 use std::fmt;
-use std::fs;
 
 use crate::prelude::*;
 
@@ -9,6 +8,8 @@ pub enum FileEditorState {
     Idle,
     ConfirmingSaveRequest,
     ConfirmingLoadRequest,
+    SaveRequestConfirmed,
+    LoadRequestConfirmed,
     SaveRequestSucceeded,
     LoadRequestSucceeded,
     SaveRequestFailed(FileEditorError),
@@ -30,6 +31,28 @@ pub struct FileEditorError {
     error_type: FileEditorErrorType,
     filename: String,
     inner_error_description: Option<String>,
+}
+
+impl FileEditorError {
+    pub fn new(
+        description: String,
+        error_type: FileEditorErrorType,
+        filename: String,
+        inner_error: Option<&Box<dyn Error>>,
+    ) -> Self {
+        let inner_error_description = if let Some(inner_error) = inner_error {
+            Some(inner_error.to_string())
+        } else {
+            None
+        };
+
+        Self {
+            description,
+            error_type,
+            filename,
+            inner_error_description,
+        }
+    }
 }
 
 impl fmt::Display for FileEditorError {
@@ -68,8 +91,21 @@ impl FileEditor {
         }
     }
 
+    pub fn with_notebook(self, notebook: Notebook) -> Self {
+        let notebook_editor = NotebookEditor::new(notebook).with_snippet_selected(0);
+
+        Self {
+            notebook_editor,
+            ..self
+        }
+    }
+
     pub fn state(&self) -> FileEditorState {
         self.state.clone()
+    }
+
+    pub fn target_file(&self) -> String {
+        self.target_file.clone()
     }
 
     pub fn with_state(self, state: FileEditorState) -> Self {
@@ -94,88 +130,6 @@ impl FileEditor {
         renderer(self.to_view())
     }
 
-    pub fn with_file_load_attempted(self) -> Self {
-        // TODO: Replace these println calls with proper logging
-        println!("Loading notebook from: {}", &self.target_file);
-
-        match &self.notebook_from_yaml_file() {
-            Ok((notebook, yaml)) => {
-                println!("Saved notebook to file: {}", &self.target_file);
-                println!("YAML output:");
-                println!("{}", yaml);
-
-                Self {
-                    state: FileEditorState::LoadRequestSucceeded,
-                    notebook_editor: NotebookEditor::new(notebook.clone()).with_snippet_selected(0),
-                    ..self
-                }
-            }
-            Err(error) => {
-                println!("Unable to load notebook from file");
-
-                let parse_error = error.downcast_ref::<serde_yaml::Error>();
-
-                let error: FileEditorError = if let Some(parse_error) = parse_error {
-                    FileEditorError {
-                        description: "Unable to parse YAML for the notebook".into(),
-                        error_type: FileEditorErrorType::ParsingError,
-                        filename: self.target_file.clone(),
-                        inner_error_description: Some(parse_error.to_string()),
-                    }
-                } else {
-                    FileEditorError {
-                        description: "Unable to load notebook from file".into(),
-                        error_type: FileEditorErrorType::FileReadError,
-                        filename: self.target_file.clone(),
-                        inner_error_description: Some(error.to_string()),
-                    }
-                };
-
-                println!("{:?}", error);
-
-                Self {
-                    state: FileEditorState::LoadRequestFailed(error),
-                    ..self
-                }
-            }
-        }
-    }
-
-    pub fn with_file_save_attempted(self) -> Self {
-        // TODO: Replace these println calls with proper logging
-        println!("Saving notebook to: {}", &self.target_file);
-
-        match &self.notebook_to_yaml_file() {
-            Ok(yaml) => {
-                println!("Saved notebook to file");
-                println!("YAML output:");
-                println!("{}", yaml);
-
-                Self {
-                    state: FileEditorState::SaveRequestSucceeded,
-                    ..self
-                }
-            }
-            Err(error) => {
-                println!("Unable to save notebook to file");
-
-                let error = FileEditorError {
-                    description: "Unable to save notebook to file".into(),
-                    error_type: FileEditorErrorType::FileWriteError,
-                    filename: self.target_file.clone(),
-                    inner_error_description: Some(error.to_string()),
-                };
-
-                println!("{:?}", error);
-
-                Self {
-                    state: FileEditorState::SaveRequestFailed(error),
-                    ..self
-                }
-            }
-        }
-    }
-
     pub fn to_view(&self) -> FileEditorView {
         FileEditorView {
             notebook_view: self.notebook_editor.to_view(),
@@ -184,19 +138,8 @@ impl FileEditor {
         }
     }
 
-    fn notebook_to_yaml_file(&self) -> Result<String, Box<dyn Error>> {
-        let yaml = serde_yaml::to_string(&self.notebook_editor.to_source())?;
-
-        fs::write(&self.target_file, &yaml)?;
-
-        Ok(yaml)
-    }
-
-    fn notebook_from_yaml_file(&self) -> Result<(Notebook, String), Box<dyn Error>> {
-        let yaml = fs::read_to_string(&self.target_file)?;
-        let notebook: Notebook = serde_yaml::from_str(&yaml)?;
-
-        Ok((notebook, yaml))
+    pub fn to_source(&self) -> Notebook {
+        self.notebook_editor.to_source()
     }
 }
 
@@ -209,8 +152,24 @@ impl AppliesEditorEvents for FileEditor {
             EditorEvent::RequestSaveToFile => {
                 self.with_state(FileEditorState::ConfirmingSaveRequest)
             }
-            EditorEvent::ConfirmLoadFromFileRequest => self.with_file_load_attempted(),
-            EditorEvent::ConfirmSaveToFileRequest => self.with_file_save_attempted(),
+            EditorEvent::ConfirmLoadFromFileRequest => {
+                self.with_state(FileEditorState::LoadRequestConfirmed)
+            }
+            EditorEvent::ConfirmSaveToFileRequest => {
+                self.with_state(FileEditorState::SaveRequestConfirmed)
+            }
+            EditorEvent::ReportLoadedFromFile(notebook) => self
+                .with_notebook(notebook)
+                .with_state(FileEditorState::LoadRequestSucceeded),
+            EditorEvent::ReportSavedToFile => {
+                self.with_state(FileEditorState::SaveRequestSucceeded)
+            }
+            EditorEvent::ReportFailedToLoadFromFile(error) => {
+                self.with_state(FileEditorState::LoadRequestFailed(error))
+            }
+            EditorEvent::ReportFailedToSaveToFile(error) => {
+                self.with_state(FileEditorState::SaveRequestFailed(error))
+            }
             EditorEvent::ResetFileEditorToIdle => self.with_state(FileEditorState::Idle),
             _ => {
                 let notebook_editor = self.notebook_editor.apply(event);
