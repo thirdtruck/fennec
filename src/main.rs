@@ -1,4 +1,5 @@
 mod editors;
+mod files;
 mod gui;
 mod language;
 mod renderers;
@@ -13,6 +14,7 @@ mod prelude {
     pub use crate::editors::snippet_editors::*;
     pub use crate::editors::word_editors::*;
     pub use crate::editors::*;
+    pub use crate::files::*;
     pub use crate::gui::*;
     pub use crate::language::glyphs::*;
     pub use crate::language::notebooks::*;
@@ -35,6 +37,8 @@ mod prelude {
         b: 0.0,
         a: 0.0,
     };
+
+    pub static DEFAULT_NOTEBOOK_FILE: &str = "notebook.yaml";
 }
 
 use prelude::*;
@@ -73,6 +77,19 @@ impl GameState for State {
                     let notebook = self.notebook_editor.to_source();
                     let output = serde_yaml::to_string(&notebook).unwrap();
                     println!("YAML output: {}", output);
+                },
+                VirtualKeyCode::F3 => {
+                    match notebook_from_yaml_file(DEFAULT_NOTEBOOK_FILE) {
+                        Ok(notebook) => {
+                            self.notebook_editor = NotebookEditor::new(notebook);
+                            println!("Loaded notebook from YAML");
+                        },
+                        Err(error) => {
+                            println!("Unable to load notebook from YAML.");
+                            println!("Filename: {}", DEFAULT_NOTEBOOK_FILE);
+                            println!("Error: {}", error);
+                        },
+                    }
                 }
                 _ => (),
             }
