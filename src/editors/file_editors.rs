@@ -4,7 +4,6 @@ use std::fs;
 
 use crate::prelude::*;
 
-#[allow(dead_code)]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum FileEditorState {
     Idle,
@@ -16,12 +15,12 @@ pub enum FileEditorState {
     LoadRequestFailed(FileEditorError),
 }
 
-#[allow(dead_code)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum FileEditorErrorType {
     FileReadError,
     FileWriteError,
     ParsingError,
+    #[allow(dead_code)]
     Other,
 }
 
@@ -125,8 +124,8 @@ impl FileEditor {
                     }
                 } else {
                     FileEditorError {
-                        description: "Unable to save notebook to file".into(),
-                        error_type: FileEditorErrorType::FileWriteError,
+                        description: "Unable to load notebook from file".into(),
+                        error_type: FileEditorErrorType::FileReadError,
                         filename: self.target_file.clone(),
                         inner_error_description: Some(error.to_string()),
                     }
