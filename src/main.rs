@@ -69,19 +69,35 @@ impl GameState for State {
 
         let ctx_clone = ctx.clone();
 
-        let editor = self.notebook_editor.clone();
+        let mut editor = self.notebook_editor.clone();
 
         if let Some(key) = &ctx_clone.key {
             match key {
                 VirtualKeyCode::F2 => {
-                    let notebook = self.notebook_editor.to_source();
-                    let output = serde_yaml::to_string(&notebook).unwrap();
-                    println!("YAML output: {}", output);
+                    println!("Saving notebook to YAML...");
+                    println!("Filename: {}", DEFAULT_NOTEBOOK_FILE);
+
+                    let notebook = editor.to_source();
+
+                    match notebook_to_yaml_file(&notebook, DEFAULT_NOTEBOOK_FILE) {
+                        Ok(yaml) => {
+                            println!("Saved notebook to YAML.");
+                            println!("YAML output: {}", yaml);
+                        },
+                        Err(error) => {
+                            println!("Unable to save notebook to YAML.");
+                            println!("Error: {}", error);
+                        },
+                    };
+
                 },
                 VirtualKeyCode::F3 => {
+                    println!("Loading notebook from YAML...");
+                    println!("Filename: {}", DEFAULT_NOTEBOOK_FILE);
+
                     match notebook_from_yaml_file(DEFAULT_NOTEBOOK_FILE) {
                         Ok(notebook) => {
-                            self.notebook_editor = NotebookEditor::new(notebook);
+                            editor = NotebookEditor::new(notebook).with_snippet_selected(0);
                             println!("Loaded notebook from YAML");
                         },
                         Err(error) => {
@@ -89,7 +105,7 @@ impl GameState for State {
                             println!("Filename: {}", DEFAULT_NOTEBOOK_FILE);
                             println!("Error: {}", error);
                         },
-                    }
+                    };
                 }
                 _ => (),
             }
@@ -100,10 +116,10 @@ impl GameState for State {
         }));
 
         if event != EditorEvent::NoOp {
-            let editor = editor.apply(event);
-
-            self.notebook_editor = editor;
+            editor = editor.apply(event);
         }
+
+        self.notebook_editor = editor;
 
         self.notebook_editor
             .render_with(|view, _index| map.render_notebook_on(&view, 1, 1));
