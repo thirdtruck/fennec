@@ -9,6 +9,7 @@ mod prelude {
     pub use bracket_lib::prelude::*;
 
     pub use crate::editors::events::*;
+    pub use crate::editors::file_editors::*;
     pub use crate::editors::glyph_editors::*;
     pub use crate::editors::notebook_editors::*;
     pub use crate::editors::snippet_editors::*;
@@ -43,82 +44,45 @@ mod prelude {
 
 use prelude::*;
 
-#[derive(Default)]
 struct State {
-    tick_count: usize,
     notebook_editor: NotebookEditor,
+    file_editor: FileEditor,
 }
 
 impl State {
     fn new(snippet: Snippet) -> Self {
         let notebook: Notebook = vec![snippet].into();
-        let notebook_editor = NotebookEditor::new(notebook).with_snippet_selected(0);
+        let notebook_editor = NotebookEditor::new(notebook.clone()).with_snippet_selected(0);
+        let file_editor = FileEditor::new(notebook.clone(), DEFAULT_NOTEBOOK_FILE);
 
         Self {
             notebook_editor,
-            ..Self::default()
+            file_editor,
         }
     }
 }
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
-        self.tick_count += 1;
-
         let mut map = GlyphMap::new(10, 10);
 
         let ctx_clone = ctx.clone();
 
-        let mut editor = self.notebook_editor.clone();
+        self.notebook_editor = {
+            let file_editor = self.file_editor.clone();
 
-        if let Some(key) = &ctx_clone.key {
-            match key {
-                VirtualKeyCode::F2 => {
-                    println!("Saving notebook to YAML...");
-                    println!("Filename: {}", DEFAULT_NOTEBOOK_FILE);
+            let notebook_editor = self.notebook_editor.clone();
 
-                    let notebook = editor.to_source();
+            let event = notebook_editor.on_input(Box::new(move |editor| {
+                on_notebook_editor_input(editor, &ctx_clone)
+            }));
 
-                    match notebook_to_yaml_file(&notebook, DEFAULT_NOTEBOOK_FILE) {
-                        Ok(yaml) => {
-                            println!("Saved notebook to YAML.");
-                            println!("YAML output: {}", yaml);
-                        }
-                        Err(error) => {
-                            println!("Unable to save notebook to YAML.");
-                            println!("Error: {}", error);
-                        }
-                    };
-                }
-                VirtualKeyCode::F3 => {
-                    println!("Loading notebook from YAML...");
-                    println!("Filename: {}", DEFAULT_NOTEBOOK_FILE);
-
-                    match notebook_from_yaml_file(DEFAULT_NOTEBOOK_FILE) {
-                        Ok(notebook) => {
-                            editor = NotebookEditor::new(notebook).with_snippet_selected(0);
-                            println!("Loaded notebook from YAML");
-                        }
-                        Err(error) => {
-                            println!("Unable to load notebook from YAML.");
-                            println!("Filename: {}", DEFAULT_NOTEBOOK_FILE);
-                            println!("Error: {}", error);
-                        }
-                    };
-                }
-                _ => (),
+            if event != EditorEvent::NoOp {
+                notebook_editor.apply(event)
+            } else {
+                notebook_editor
             }
-        }
-
-        let event = editor.on_input(Box::new(move |editor| {
-            on_notebook_editor_input(editor, &ctx_clone)
-        }));
-
-        if event != EditorEvent::NoOp {
-            editor = editor.apply(event);
-        }
-
-        self.notebook_editor = editor;
+        };
 
         self.notebook_editor
             .render_with(|view, _index| map.render_notebook_on(&view, 1, 1));

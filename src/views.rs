@@ -27,3 +27,10 @@ pub struct SnippetView {
 pub struct NotebookView {
     pub snippet_views: Vec<SnippetView>,
 }
+
+#[derive(Clone, Debug)]
+pub struct FileView {
+    pub notebook_view: NotebookView,
+    pub state: FileEditorState,
+    pub target_file: String,
+}

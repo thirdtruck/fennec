@@ -98,3 +98,22 @@ pub fn on_notebook_editor_input(editor: &NotebookEditor, ctx: &BTerm) -> EditorE
 
     editor.on_snippet_editor_input(callback)
 }
+
+pub fn on_file_editor_input(editor: &FileEditor, ctx: &BTerm) -> EditorEvent {
+    let ctx = ctx.clone();
+
+    if let Some(key) = ctx.key {
+        match key {
+            VirtualKeyCode::F2 => EditorEvent::RequestSaveToFile,
+            VirtualKeyCode::F3 => EditorEvent::RequestLoadFromFile,
+            _ => {
+                let callback: Box<dyn Fn(&NotebookEditor) -> EditorEvent> =
+                    Box::new(move |notebook_editor| on_notebook_editor_input(notebook_editor, &ctx));
+
+                editor.on_notebook_editor_input(callback)
+            }
+        }
+    } else {
+        EditorEvent::NoOp
+    }
+}

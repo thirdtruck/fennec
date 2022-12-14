@@ -1,4 +1,5 @@
 pub mod events;
+pub mod file_editors;
 pub mod glyph_editors;
 pub mod notebook_editors;
 pub mod snippet_editors;
