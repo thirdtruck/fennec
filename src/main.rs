@@ -1,5 +1,4 @@
 mod editors;
-mod files;
 mod gui;
 mod language;
 mod renderers;
@@ -15,7 +14,6 @@ mod prelude {
     pub use crate::editors::snippet_editors::*;
     pub use crate::editors::word_editors::*;
     pub use crate::editors::*;
-    pub use crate::files::*;
     pub use crate::gui::*;
     pub use crate::language::glyphs::*;
     pub use crate::language::notebooks::*;
@@ -45,20 +43,15 @@ mod prelude {
 use prelude::*;
 
 struct State {
-    notebook_editor: NotebookEditor,
     file_editor: FileEditor,
 }
 
 impl State {
     fn new(snippet: Snippet) -> Self {
         let notebook: Notebook = vec![snippet].into();
-        let notebook_editor = NotebookEditor::new(notebook.clone()).with_snippet_selected(0);
         let file_editor = FileEditor::new(notebook.clone(), DEFAULT_NOTEBOOK_FILE);
 
-        Self {
-            notebook_editor,
-            file_editor,
-        }
+        Self { file_editor }
     }
 }
 
@@ -68,33 +61,37 @@ impl GameState for State {
 
         let ctx_clone = ctx.clone();
 
-        self.notebook_editor = {
+        self.file_editor = {
             let file_editor = self.file_editor.clone();
 
-            let notebook_editor = self.notebook_editor.clone();
-
-            let event = notebook_editor.on_input(Box::new(move |editor| {
-                on_notebook_editor_input(editor, &ctx_clone)
+            let event = file_editor.on_input(Box::new(move |editor| {
+                on_file_editor_input(editor, &ctx_clone)
             }));
 
             if event != EditorEvent::NoOp {
-                notebook_editor.apply(event)
+                file_editor.apply(event)
             } else {
-                notebook_editor
+                file_editor
             }
         };
 
-        self.notebook_editor
-            .render_with(|view, _index| map.render_notebook_on(&view, 1, 1));
+        self.file_editor.render_with(|file_editor_view| {
+            let notebook_view = file_editor_view.notebook_view;
 
-        self.notebook_editor.render_with(|view, _index| {
-            let selected_snippet_view = view
+            map.render_notebook_on(&notebook_view, 1, 1);
+
+            let selected_snippet_view = notebook_view
                 .snippet_views
                 .iter()
                 .find(|snippet_view| snippet_view.selected);
 
-            if let Some(view) = selected_snippet_view {
-                render_snippet_source_on(&view, ctx, 1, (SCREEN_HEIGHT - 2).try_into().unwrap());
+            if let Some(snippet_view) = selected_snippet_view {
+                render_snippet_source_on(
+                    &snippet_view,
+                    ctx,
+                    1,
+                    (SCREEN_HEIGHT - 2).try_into().unwrap(),
+                );
             }
         });
 
@@ -118,7 +115,7 @@ fn main() -> BError {
 
     let state = State::new(starting_snippet);
 
-    let output = serde_yaml::to_string(&state.notebook_editor).unwrap();
+    let output = serde_yaml::to_string(&state.file_editor.to_view().notebook_view).unwrap();
     println!("Output: {}", output);
 
     let context = BTermBuilder::new()

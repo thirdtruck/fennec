@@ -108,7 +108,9 @@ pub fn on_file_editor_input(editor: &FileEditor, ctx: &BTerm) -> EditorEvent {
             VirtualKeyCode::F3 => EditorEvent::RequestLoadFromFile,
             _ => {
                 let callback: Box<dyn Fn(&NotebookEditor) -> EditorEvent> =
-                    Box::new(move |notebook_editor| on_notebook_editor_input(notebook_editor, &ctx));
+                    Box::new(move |notebook_editor| {
+                        on_notebook_editor_input(notebook_editor, &ctx)
+                    });
 
                 editor.on_notebook_editor_input(callback)
             }

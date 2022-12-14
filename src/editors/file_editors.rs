@@ -4,6 +4,7 @@ use std::fs;
 
 use crate::prelude::*;
 
+#[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub enum FileEditorState {
     Idle,
@@ -15,6 +16,7 @@ pub enum FileEditorState {
     LoadRequestFailed(FileEditorError),
 }
 
+#[allow(dead_code)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum FileEditorErrorType {
     FileReadError,
@@ -33,7 +35,11 @@ pub struct FileEditorError {
 
 impl fmt::Display for FileEditorError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "FileEditorError: {}", &self.description)
+        write!(
+            f,
+            "FileEditorError({:?}): {}\nFile: {:?}\nInner error: {:?}",
+            &self.error_type, &self.description, &self.filename, &self.inner_error_description,
+        )
     }
 }
 
@@ -57,7 +63,7 @@ pub struct FileEditor {
 impl FileEditor {
     pub fn new(notebook: Notebook, filename: &str) -> Self {
         Self {
-            notebook_editor: NotebookEditor::new(notebook),
+            notebook_editor: NotebookEditor::new(notebook).with_snippet_selected(0),
             target_file: filename.into(),
             state: FileEditorState::Idle,
         }
@@ -95,18 +101,29 @@ impl FileEditor {
                     notebook_editor: NotebookEditor::new(notebook.clone()).with_snippet_selected(0),
                     ..self
                 }
-            },
+            }
             Err(error) => {
                 println!("Unable to load notebook from file");
-                println!("Error:");
-                println!("{:?}", error);
 
-                let error: FileEditorError = FileEditorError {
-                    description: "Unable to load notebook from file".into(),
-                    error_type: FileEditorErrorType::FileReadError,
-                    filename: self.target_file.clone(),
-                    inner_error_description: Some(error.to_string()),
+                let parse_error = error.downcast_ref::<serde_yaml::Error>();
+
+                let error: FileEditorError = if let Some(parse_error) = parse_error {
+                    FileEditorError {
+                        description: "Unable to parse YAML for the notebook".into(),
+                        error_type: FileEditorErrorType::ParsingError,
+                        filename: self.target_file.clone(),
+                        inner_error_description: Some(parse_error.to_string()),
+                    }
+                } else {
+                    FileEditorError {
+                        description: "Unable to save notebook to file".into(),
+                        error_type: FileEditorErrorType::FileWriteError,
+                        filename: self.target_file.clone(),
+                        inner_error_description: Some(error.to_string()),
+                    }
                 };
+
+                println!("{:?}", error);
 
                 Self {
                     state: FileEditorState::LoadRequestFailed(error),
@@ -133,15 +150,15 @@ impl FileEditor {
             }
             Err(error) => {
                 println!("Unable to save notebook to file");
-                println!("Error:");
-                println!("{:?}", error);
 
-                let error: FileEditorError = FileEditorError {
+                let error = FileEditorError {
                     description: "Unable to save notebook to file".into(),
                     error_type: FileEditorErrorType::FileWriteError,
                     filename: self.target_file.clone(),
                     inner_error_description: Some(error.to_string()),
                 };
+
+                println!("{:?}", error);
 
                 Self {
                     state: FileEditorState::SaveRequestFailed(error),
@@ -177,6 +194,17 @@ impl FileEditor {
 
 impl AppliesEditorEvents for FileEditor {
     fn apply(self, event: EditorEvent) -> Self {
-        self
+        match event {
+            EditorEvent::RequestSaveToFile => self.with_file_save_attempted(),
+            EditorEvent::RequestLoadFromFile => self.with_file_load_attempted(),
+            _ => {
+                let notebook_editor = self.notebook_editor.apply(event);
+
+                Self {
+                    notebook_editor,
+                    ..self
+                }
+            }
+        }
     }
 }

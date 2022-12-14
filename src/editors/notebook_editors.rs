@@ -49,6 +49,7 @@ impl NotebookEditor {
         }
     }
 
+    #[allow(dead_code)]
     pub fn render_with<R>(&self, mut renderer: R)
     where
         R: FnMut(NotebookView, usize),
