@@ -32,10 +32,7 @@ impl NotebookEditor {
     }
 
     pub fn with_state(self, state: NotebookEditorState) -> Self {
-        Self {
-            state,
-            ..self
-        }
+        Self { state, ..self }
     }
 
     pub fn with_snippet_selected(self, index: usize) -> Self {
@@ -130,7 +127,10 @@ impl NotebookEditor {
             })
             .collect();
 
-        NotebookView { state: self.state, snippet_views }
+        NotebookView {
+            state: self.state,
+            snippet_views,
+        }
     }
 
     pub fn to_source(&self) -> Notebook {
@@ -141,8 +141,12 @@ impl NotebookEditor {
 impl AppliesEditorEvents for NotebookEditor {
     fn apply(self, event: EditorEvent) -> Self {
         match &event {
-            EditorEvent::EnableSnippetEditingMode => self.with_state(NotebookEditorState::EditingSnippet),
-            EditorEvent::EnableSnippetNavigationMode => self.with_state(NotebookEditorState::SelectingSnippet),
+            EditorEvent::EnableSnippetEditingMode => {
+                self.with_state(NotebookEditorState::EditingSnippet)
+            }
+            EditorEvent::EnableSnippetNavigationMode => {
+                self.with_state(NotebookEditorState::SelectingSnippet)
+            }
             EditorEvent::MoveSnippetCursorBackward => self.with_snippet_selection_moved_backward(1),
             EditorEvent::MoveSnippetCursorForward => self.with_snippet_selection_moved_forward(1),
             _ => {

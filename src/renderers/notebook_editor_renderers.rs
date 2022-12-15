@@ -1,6 +1,12 @@
 use crate::prelude::*;
 
-pub fn render_notebook_on(notebook_view: &NotebookView, map: &mut GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
+pub fn render_notebook_on(
+    notebook_view: &NotebookView,
+    map: &mut GlyphMap,
+    ctx: &mut BTerm,
+    x: usize,
+    y: usize,
+) {
     ctx.set_active_console(17);
     ctx.cls();
 
@@ -19,11 +25,19 @@ pub fn render_notebook_on(notebook_view: &NotebookView, map: &mut GlyphMap, ctx:
                 ctx.print_color(x, y, WHITE, BLACK, source_label);
             }
         }
-        NotebookEditorState::EditingSnippet => render_selected_snippet_on(notebook_view, map, ctx, x, y),
+        NotebookEditorState::EditingSnippet => {
+            render_selected_snippet_on(notebook_view, map, ctx, x, y)
+        }
     }
 }
 
-pub fn render_selected_snippet_on(notebook_view: &NotebookView, map: &mut GlyphMap, ctx: &mut BTerm, x: usize, y: usize) {
+pub fn render_selected_snippet_on(
+    notebook_view: &NotebookView,
+    map: &mut GlyphMap,
+    ctx: &mut BTerm,
+    x: usize,
+    y: usize,
+) {
     let selected_snippet_view = notebook_view
         .snippet_views
         .iter()
