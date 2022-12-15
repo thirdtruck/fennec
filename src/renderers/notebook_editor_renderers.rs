@@ -13,16 +13,20 @@ pub fn render_notebook_on(
     match notebook_view.state {
         NotebookEditorState::SelectingSnippet => {
             for (index, snippet_view) in notebook_view.snippet_views.iter().enumerate() {
-                let y = y + index;
+                let y = y + (index * 2);
 
-                let source_label = snippet_source_to_label(snippet_view);
-                let source_label = if snippet_view.selected {
-                    format!("-> {:3}) {}", index, source_label)
+                let description_label = snippet_view.snippet.description.clone();
+                let description_label = if snippet_view.selected {
+                    format!("-> {:3}) {}", index, description_label)
                 } else {
-                    format!("{:6}) {}", index, source_label)
+                    format!("{:6}) {}", index, description_label)
                 };
 
-                ctx.print_color(x, y, WHITE, BLACK, source_label);
+                let source_label = snippet_source_to_label(snippet_view);
+                let source_label = format!("        Source: {}", source_label);
+
+                ctx.print_color(x, y, WHITE, BLACK, description_label);
+                ctx.print_color(x, y + 1, WHITE, BLACK, source_label);
             }
         }
         NotebookEditorState::EditingSnippet => {
