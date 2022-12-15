@@ -6,6 +6,7 @@ use crate::prelude::*;
 pub struct Snippet {
     pub words: Vec<Word>,
     pub source: Option<Source>,
+    pub description: String,
 }
 
 impl Snippet {
@@ -14,7 +15,8 @@ impl Snippet {
         let glyph: Glyph = (0x10).into();
         let words = vec![Word::Tunic(vec![glyph])];
         let source = Some(Source::Other("ADD_SOURCE_HERE".into()));
+        let description = "ADD_DESCRIPTION_HERE".into();
 
-        Self { words, source }
+        Self { words, source, description }
     }
 }
