@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::convert::From;
 
 use crate::prelude::*;
 
@@ -17,14 +16,5 @@ impl Snippet {
         let source = Some(Source::Other("ADD_SOURCE_HERE".into()));
 
         Self { words, source }
-    }
-}
-
-impl From<Vec<Word>> for Snippet {
-    fn from(words: Vec<Word>) -> Self {
-        Self {
-            words,
-            source: None,
-        }
     }
 }

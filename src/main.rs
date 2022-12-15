@@ -98,14 +98,7 @@ fn main() -> BError {
     let small_text_font = "dbyte_1x.png";
     let large_text_font = "dbyte_2x.png";
 
-    let starting_snippet: Snippet =
-        vec![vec![0xAF, 0x13, 0xFF].into(), vec![0x03, 0x55, 0x78].into()].into();
-    let starting_snippet = Snippet {
-        source: Some(Source::Other("Example snippet".into())),
-        ..starting_snippet
-    };
-
-    let state = State::new(starting_snippet);
+    let state = State::new(Snippet::starting_snippet());
 
     let output = serde_yaml::to_string(&state.file_editor.to_view().notebook_view).unwrap();
     println!("Output: {}", output);
