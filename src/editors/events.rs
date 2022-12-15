@@ -8,6 +8,8 @@ pub enum EditorEvent {
     MoveGlyphCursorBackward,
     MoveWordCursorForward,
     MoveWordCursorBackward,
+    MoveSnippetCursorForward,
+    MoveSnippetCursorBackward,
     ToggleGlyphEditingMode,
     AddNewTunicWordAtCursor,
     AddNewGlyphToTunicWordAtCursor,

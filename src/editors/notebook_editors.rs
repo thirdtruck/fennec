@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::cmp;
 
 use crate::prelude::*;
 
@@ -51,6 +52,30 @@ impl NotebookEditor {
         } else {
             self
         }
+    }
+
+    pub fn with_snippet_selection_moved_forward(self, amount: usize) -> Self {
+        let new_index = if let Some(index) = self.selected_snippet_index {
+            cmp::min(self.selected_notebook.snippets.len(), index + amount)
+        } else {
+            0
+        };
+
+        self.with_snippet_selected(new_index)
+    }
+
+    pub fn with_snippet_selection_moved_backward(self, amount: usize) -> Self {
+        let new_index = if let Some(index) = self.selected_snippet_index {
+            if index >= amount {
+                index - amount
+            } else {
+                0
+            }
+        } else {
+            0
+        };
+
+        self.with_snippet_selected(new_index)
     }
 
     pub fn on_input(&self, callback: Box<dyn Fn(&Self) -> EditorEvent>) -> EditorEvent {
@@ -118,6 +143,8 @@ impl AppliesEditorEvents for NotebookEditor {
         match &event {
             EditorEvent::EnableSnippetEditingMode => self.with_state(NotebookEditorState::EditingSnippet),
             EditorEvent::EnableSnippetNavigationMode => self.with_state(NotebookEditorState::SelectingSnippet),
+            EditorEvent::MoveSnippetCursorBackward => self.with_snippet_selection_moved_backward(1),
+            EditorEvent::MoveSnippetCursorForward => self.with_snippet_selection_moved_forward(1),
             _ => {
                 if let Some(editor) = self.snippet_editor {
                     let snippet_editor = editor.apply(event);
