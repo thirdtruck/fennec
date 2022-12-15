@@ -100,6 +100,7 @@ impl GameState for State {
 
         map.draw_on(ctx, 1, 1);
 
+        // TODO: Auto-save to a backup file if this encounters an error
         render_draw_buffer(ctx).expect("Render error");
     }
 }

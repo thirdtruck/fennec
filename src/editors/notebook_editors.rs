@@ -71,10 +71,15 @@ impl NotebookEditor {
                 };
 
                 if selected {
-                    self.snippet_editor
-                        .as_ref()
-                        .expect("Missing SnippetEditor")
-                        .to_view(true)
+                    match self.snippet_editor.as_ref() {
+                        Some(editor) => editor.to_view(true),
+                        None => {
+                            dbg!("Missing SnippetEditor");
+                            dbg!(&self.snippet_editor);
+
+                            SnippetEditor::new(snippet.clone()).to_view(false)
+                        }
+                    }
                 } else {
                     SnippetEditor::new(snippet.clone()).to_view(false)
                 }

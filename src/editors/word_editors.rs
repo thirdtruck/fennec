@@ -192,10 +192,15 @@ impl WordEditor {
                             };
 
                         if selected_word && selected_glyph {
-                            self.glyph_editor
-                                .as_ref()
-                                .expect("Missing GlyphEditor")
-                                .to_view(true)
+                            match self.glyph_editor.as_ref() {
+                                Some(editor) => editor.to_view(true),
+                                None => {
+                                    dbg!("Missing GlyphEditor");
+                                    dbg!(&self.glyph_editor);
+
+                                    GlyphEditor::new(glyph.clone()).to_view(false)
+                                }
+                            }
                         } else {
                             GlyphEditor::new(*glyph).to_view(false)
                         }

@@ -158,10 +158,15 @@ impl SnippetEditor {
                 };
 
                 if selected_snippet && selected_word {
-                    self.word_editor
-                        .as_ref()
-                        .expect("Missing WordEditor")
-                        .to_view(true)
+                    match self.word_editor.as_ref() {
+                        Some(editor) => editor.to_view(true),
+                        None => {
+                            dbg!("Missing WordEditor");
+                            dbg!(&self.word_editor);
+
+                            WordEditor::new(word.clone()).to_view(false)
+                        }
+                    }
                 } else {
                     WordEditor::new(word.clone()).to_view(false)
                 }
