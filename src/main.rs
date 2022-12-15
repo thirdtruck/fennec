@@ -52,6 +52,7 @@ impl State {
     fn new(snippet: Snippet) -> Self {
         let notebook: Notebook = vec![snippet].into();
         let file_editor = FileEditor::new(notebook.clone(), DEFAULT_NOTEBOOK_FILE);
+        let file_editor = file_editor.apply(EditorEvent::ConfirmLoadFromFileRequest);
 
         Self { file_editor }
     }
