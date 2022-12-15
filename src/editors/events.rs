@@ -13,6 +13,7 @@ pub enum EditorEvent {
     ToggleGlyphEditingMode,
     AddNewTunicWordAtCursor,
     AddNewGlyphToTunicWordAtCursor,
+    AddNewSnippetAtCursor,
     DeleteGlyphAtCursor,
     DeleteWordAtCursor,
     RequestLoadFromFile,

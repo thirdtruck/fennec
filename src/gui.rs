@@ -107,6 +107,7 @@ pub fn on_notebook_editor_input(editor: &NotebookEditor, ctx: &BTerm) -> EditorE
                     VirtualKeyCode::Return => EditorEvent::EnableSnippetEditingMode,
                     VirtualKeyCode::Up => EditorEvent::MoveSnippetCursorBackward,
                     VirtualKeyCode::Down => EditorEvent::MoveSnippetCursorForward,
+                    VirtualKeyCode::Plus => EditorEvent::AddNewSnippetAtCursor,
                     _ => EditorEvent::NoOp,
                 }
             } else {

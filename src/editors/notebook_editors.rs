@@ -75,6 +75,36 @@ impl NotebookEditor {
         self.with_snippet_selected(new_index)
     }
 
+    pub fn with_new_snippet_at_cursor(self) -> Self {
+        let mut snippets = self.selected_notebook.snippets.clone();
+        let new_snippet: Snippet = Snippet::starting_snippet();
+
+        let new_index = if let Some(selected_snippet_index) = self.selected_snippet_index {
+            if selected_snippet_index + 1 == snippets.len() {
+                snippets.push(new_snippet);
+            } else {
+                snippets.insert(selected_snippet_index + 1, new_snippet);
+            }
+
+            selected_snippet_index + 1
+        } else {
+            snippets.push(new_snippet);
+
+            snippets.len() - 1
+        };
+
+        let selected_notebook = Notebook {
+            snippets,
+            ..self.selected_notebook
+        };
+
+        Self {
+            selected_notebook,
+            ..self
+        }
+        .with_snippet_selected(new_index)
+    }
+
     pub fn on_input(&self, callback: Box<dyn Fn(&Self) -> EditorEvent>) -> EditorEvent {
         callback(self)
     }
@@ -149,6 +179,7 @@ impl AppliesEditorEvents for NotebookEditor {
             }
             EditorEvent::MoveSnippetCursorBackward => self.with_snippet_selection_moved_backward(1),
             EditorEvent::MoveSnippetCursorForward => self.with_snippet_selection_moved_forward(1),
+            EditorEvent::AddNewSnippetAtCursor => self.with_new_snippet_at_cursor(),
             _ => {
                 if let Some(editor) = self.snippet_editor {
                     let snippet_editor = editor.apply(event);
