@@ -22,4 +22,6 @@ pub enum EditorEvent {
     ReportFailedToLoadFromFile(FileEditorError),
     ReportFailedToSaveToFile(FileEditorError),
     ResetFileEditorToIdle,
+    EnableSnippetNavigationMode,
+    EnableSnippetEditingMode,
 }

@@ -95,11 +95,33 @@ pub fn on_snippet_editor_input(editor: &SnippetEditor, ctx: &BTerm) -> EditorEve
 
 pub fn on_notebook_editor_input(editor: &NotebookEditor, ctx: &BTerm) -> EditorEvent {
     let ctx = ctx.clone();
+    let callback_ctx = ctx.clone();
 
     let callback: Box<dyn Fn(&SnippetEditor) -> EditorEvent> =
-        Box::new(move |snippet_editor| on_snippet_editor_input(snippet_editor, &ctx));
+        Box::new(move |snippet_editor| on_snippet_editor_input(snippet_editor, &callback_ctx));
 
-    editor.on_snippet_editor_input(callback)
+    match editor.state() {
+        NotebookEditorState::SelectingSnippet => {
+            if let Some(key) = ctx.key {
+                match key {
+                    VirtualKeyCode::Return => EditorEvent::EnableSnippetEditingMode,
+                    _ => EditorEvent::NoOp,
+                }
+            } else {
+                EditorEvent::NoOp
+            }
+        }
+        NotebookEditorState::EditingSnippet => {
+            if let Some(key) = ctx.key {
+                match key {
+                    VirtualKeyCode::Escape => EditorEvent::EnableSnippetNavigationMode,
+                    _ => editor.on_snippet_editor_input(callback),
+                }
+            } else {
+                editor.on_snippet_editor_input(callback)
+            }
+        }
+    }
 }
 
 pub fn on_file_editor_input(editor: &FileEditor, ctx: &BTerm) -> EditorEvent {

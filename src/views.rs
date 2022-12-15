@@ -25,6 +25,7 @@ pub struct SnippetView {
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct NotebookView {
+    pub state: NotebookEditorState,
     pub snippet_views: Vec<SnippetView>,
 }
 

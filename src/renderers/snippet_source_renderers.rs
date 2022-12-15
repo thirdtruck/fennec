@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
-pub fn render_snippet_source_on(snippet_view: &SnippetView, ctx: &mut BTerm, x: usize, y: usize) {
-    let source_text: String = if let Some(source) = &snippet_view.snippet.source {
+pub fn snippet_source_to_label(snippet_view: &SnippetView) -> String {
+    if let Some(source) = &snippet_view.snippet.source {
         match source {
             Source::ManualPageNumber(number) => format!("Manual: Page {}", number),
             Source::ScreenshotFilename(filename) => format!("Screenshot: {}", filename),
@@ -9,7 +9,11 @@ pub fn render_snippet_source_on(snippet_view: &SnippetView, ctx: &mut BTerm, x: 
         }
     } else {
         "(Unknown)".into()
-    };
+    }
+}
+
+pub fn render_snippet_source_on(snippet_view: &SnippetView, ctx: &mut BTerm, x: usize, y: usize) {
+    let source_text = snippet_source_to_label(snippet_view);
 
     let source_text = format!("Source -> {}", source_text);
 

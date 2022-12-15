@@ -2,11 +2,18 @@ use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum NotebookEditorState {
+    EditingSnippet,
+    SelectingSnippet,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct NotebookEditor {
     selected_notebook: Notebook,
     snippet_editor: Option<SnippetEditor>,
     selected_snippet_index: Option<usize>,
+    state: NotebookEditorState,
 }
 
 impl NotebookEditor {
@@ -15,6 +22,18 @@ impl NotebookEditor {
             selected_notebook: notebook,
             snippet_editor: None,
             selected_snippet_index: None,
+            state: NotebookEditorState::EditingSnippet,
+        }
+    }
+
+    pub fn state(&self) -> NotebookEditorState {
+        self.state
+    }
+
+    pub fn with_state(self, state: NotebookEditorState) -> Self {
+        Self {
+            state,
+            ..self
         }
     }
 
@@ -86,7 +105,7 @@ impl NotebookEditor {
             })
             .collect();
 
-        NotebookView { snippet_views }
+        NotebookView { state: self.state, snippet_views }
     }
 
     pub fn to_source(&self) -> Notebook {
@@ -96,24 +115,30 @@ impl NotebookEditor {
 
 impl AppliesEditorEvents for NotebookEditor {
     fn apply(self, event: EditorEvent) -> Self {
-        if let Some(editor) = self.snippet_editor {
-            let snippet_editor = editor.apply(event);
+        match &event {
+            EditorEvent::EnableSnippetEditingMode => self.with_state(NotebookEditorState::EditingSnippet),
+            EditorEvent::EnableSnippetNavigationMode => self.with_state(NotebookEditorState::SelectingSnippet),
+            _ => {
+                if let Some(editor) = self.snippet_editor {
+                    let snippet_editor = editor.apply(event);
 
-            let mut notebook = self.selected_notebook.clone();
+                    let mut notebook = self.selected_notebook.clone();
 
-            if let Some(index) = self.selected_snippet_index {
-                if let Some(snippet) = notebook.snippets.get_mut(index) {
-                    *snippet = snippet_editor.selected_snippet();
+                    if let Some(index) = self.selected_snippet_index {
+                        if let Some(snippet) = notebook.snippets.get_mut(index) {
+                            *snippet = snippet_editor.selected_snippet();
+                        }
+                    }
+
+                    Self {
+                        selected_notebook: notebook,
+                        snippet_editor: Some(snippet_editor),
+                        ..self
+                    }
+                } else {
+                    self
                 }
             }
-
-            Self {
-                selected_notebook: notebook,
-                snippet_editor: Some(snippet_editor),
-                ..self
-            }
-        } else {
-            self
         }
     }
 }
