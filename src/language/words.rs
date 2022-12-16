@@ -56,3 +56,9 @@ impl From<&str> for Word {
         Self::English(string.to_string())
     }
 }
+
+impl From<String> for Word {
+    fn from(string: String) -> Self {
+        Self::English(string)
+    }
+}
