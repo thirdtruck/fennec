@@ -19,5 +19,5 @@ pub fn render_snippet_source_on(snippet_view: &SnippetView, ctx: &mut BTerm, x: 
 
     ctx.set_active_console(16);
     ctx.cls();
-    ctx.print_color(x, y, WHITE, BLACK, source_text);
+    ctx.print_color(x, y, GREEN, BLACK, source_text);
 }

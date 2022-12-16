@@ -25,7 +25,7 @@ pub fn render_notebook_on(
                 let source_label = snippet_source_to_label(snippet_view);
                 let source_label = format!("        Source: {}", source_label);
 
-                ctx.print_color(x, y, WHITE, BLACK, description_label);
+                ctx.print_color(x, y, LIGHT_SALMON, BLACK, description_label);
                 ctx.print_color(x, y + 1, WHITE, BLACK, source_label);
             }
         }
