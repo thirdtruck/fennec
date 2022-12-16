@@ -174,14 +174,14 @@ pub fn on_file_editor_input(editor: &FileEditor, ctx: &BTerm) -> EditorEvent {
     }
 }
 
-fn notebook_from_yaml_file(target_file: &str) -> Result<(Notebook, String), Box<dyn Error>> {
+pub fn notebook_from_yaml_file(target_file: &str) -> Result<(Notebook, String), Box<dyn Error>> {
     let yaml = fs::read_to_string(target_file)?;
     let notebook: Notebook = serde_yaml::from_str(&yaml)?;
 
     Ok((notebook, yaml))
 }
 
-fn notebook_to_yaml_file(notebook: &Notebook, target_file: &str) -> Result<String, Box<dyn Error>> {
+pub fn notebook_to_yaml_file(notebook: &Notebook, target_file: &str) -> Result<String, Box<dyn Error>> {
     let yaml = serde_yaml::to_string(notebook)?;
 
     fs::write(target_file, &yaml)?;

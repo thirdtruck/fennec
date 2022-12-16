@@ -4,7 +4,7 @@ mod language;
 mod renderers;
 mod views;
 
-mod prelude {
+pub mod prelude {
     pub use bracket_lib::prelude::*;
 
     pub use crate::editors::events::*;
