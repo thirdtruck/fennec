@@ -53,7 +53,7 @@ struct Page {
     number: usize,
     description: String,
     // Required for English words
-    text: Option<String>,
+    word_text: Option<String>,
 }
 
 #[derive(Args)]
@@ -61,15 +61,15 @@ struct Screenshot {
     filename: String,
     description: String,
     // Required for English words
-    text: Option<String>,
+    word_text: Option<String>,
 }
 
 #[derive(Args)]
 struct Other {
-    string: String,
+    text: String,
     description: String,
     // Required for English words
-    text: Option<String>,
+    word_text: Option<String>,
 }
 
 fn main() {
@@ -112,26 +112,26 @@ fn main() {
 }
 
 fn english_word_snippet(args: &English) -> Snippet {
-    let (source, description, text) = match args {
+    let (source, description, word_text) = match args {
         English::Page(page) => (
             Source::ManualPageNumber(page.number),
             page.description.clone(),
-            page.text.clone(),
+            page.word_text.clone(),
         ),
         English::Screenshot(screenshot) => (
             Source::ScreenshotFilename(screenshot.filename.clone()),
             screenshot.description.clone(),
-            screenshot.text.clone(),
+            screenshot.word_text.clone(),
         ),
         English::Other(other) => (
-            Source::Other(other.string.clone()),
+            Source::Other(other.text.clone()),
             other.description.clone(),
-            other.text.clone(),
+            other.word_text.clone(),
         ),
     };
 
-    let word = match text {
-        Some(text) => text.into(),
+    let word = match word_text {
+        Some(word_text) => word_text.into(),
         // TODO: Make this required more gracefully via clap
         None => panic!("Missing text argument"),
     };
@@ -160,7 +160,7 @@ fn tunic_word_snippet(args: &Tunic) -> Snippet {
             screenshot.description.clone()
         ),
         Tunic::Other(other) => (
-            Source::Other(other.string.clone()),
+            Source::Other(other.text.clone()),
             other.description.clone()
         ),
     };
