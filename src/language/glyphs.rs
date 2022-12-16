@@ -1,8 +1,41 @@
 use serde::{Deserialize, Serialize};
+
 use std::convert::From;
+use std::error::Error;
+use std::fmt;
+
+#[derive(Clone, Debug)]
+pub struct GlyphError {
+    glyph: Glyph,
+    description: String,
+}
+
+impl GlyphError {
+    pub fn new(glyph: Glyph, description: String) -> Self {
+        Self { glyph, description }
+    }
+}
+
+impl fmt::Display for GlyphError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "GlyphError({}): {}", self.glyph, self.description)
+    }
+}
+
+impl Error for GlyphError {
+    fn description(&self) -> &str {
+        &self.description
+    }
+}
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Glyph(pub u16);
+
+impl fmt::Display for Glyph {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Glyph({})", self.0)
+    }
+}
 
 impl From<u16> for Glyph {
     fn from(item: u16) -> Self {
@@ -97,7 +130,7 @@ impl Glyph {
         }
     }
 
-    pub fn with_toggled_segment(&self, index: usize) -> Self {
+    pub fn with_toggled_segment(&self, index: usize) -> Result<Self, GlyphError> {
         // TODO: Use #or_else or like here for conciseness
 
         if let Some(mask) = Self::mask_from_usize(index) {
@@ -109,21 +142,15 @@ impl Glyph {
                         self.0 | mask
                     };
 
-                    Self(new_code)
+                    Ok(Self(new_code))
                 } else {
-                    dbg!("Unexpected segment index: {}", segment_index);
-
-                    *self
+                    Err(GlyphError::new(*self, format!("Unexpected segment index: {}", segment_index)))
                 }
             } else {
-                dbg!("Invalid segment mask: {}", mask);
-
-                *self
+                Err(GlyphError::new(*self, format!("Invalid segment mask: {}", mask)))
             }
         } else {
-            dbg!("Unexpected segment index: {}", index);
-
-            *self
+            Err(GlyphError::new(*self, format!("Unexpected segment index: {}", index)))
         }
     }
 }
