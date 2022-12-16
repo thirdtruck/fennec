@@ -42,20 +42,6 @@ impl From<u16> for Glyph {
     }
 }
 
-impl From<i32> for Glyph {
-    fn from(item: i32) -> Self {
-        let item: u16 = item.try_into().unwrap();
-        Self(item)
-    }
-}
-
-impl From<usize> for Glyph {
-    fn from(item: usize) -> Self {
-        let item: u16 = item.try_into().unwrap();
-        Self(item)
-    }
-}
-
 impl Glyph {
     pub fn includes_segment(&self, index: u16) -> Result<bool, GlyphError> {
         let mask: Option<u16> = match index {
