@@ -50,10 +50,13 @@ impl GlyphMap {
                         let color = glyph.color;
                         let glyph = glyph.glyph;
 
-                        if let Some(included) = glyph.includes_segment(segment) {
-                            if included {
-                                ctx.set(x + gx, y + gy, color, TRANSPARENT, segment);
+                        match glyph.includes_segment(segment) {
+                            Ok(included) => {
+                                if included {
+                                    ctx.set(x + gx, y + gy, color, TRANSPARENT, segment)
+                                }
                             }
+                            Err(error) => { dbg!(error); },
                         }
                     }
                 }

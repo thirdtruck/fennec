@@ -6,19 +6,18 @@ use std::fmt;
 
 #[derive(Clone, Debug)]
 pub struct GlyphError {
-    glyph: Glyph,
     description: String,
 }
 
 impl GlyphError {
-    pub fn new(glyph: Glyph, description: String) -> Self {
-        Self { glyph, description }
+    pub fn new(description: String) -> Self {
+        Self { description }
     }
 }
 
 impl fmt::Display for GlyphError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "GlyphError({}): {}", self.glyph, self.description)
+        write!(f, "GlyphError: {}", self.description)
     }
 }
 
@@ -58,8 +57,8 @@ impl From<usize> for Glyph {
 }
 
 impl Glyph {
-    pub fn includes_segment(&self, segment: u16) -> Option<bool> {
-        let mask: Option<u16> = match segment {
+    pub fn includes_segment(&self, index: u16) -> Result<bool, GlyphError> {
+        let mask: Option<u16> = match index {
             0 => Some(0b1000_0000_0000_0000),
             1 => Some(0b0100_0000_0000_0000),
             2 => Some(0b0010_0000_0000_0000),
@@ -80,77 +79,74 @@ impl Glyph {
         };
 
         if let Some(mask) = mask {
-            Some((mask & self.0) > 0)
+            Ok((mask & self.0) > 0)
         } else {
-            None
+            Err(GlyphError::new(format!("Unexpected segment index: {}", index)))
         }
     }
 
-    pub fn segment_index_from_mask(mask: u16) -> Option<u16> {
+    pub fn segment_index_from_mask(mask: u16) -> Result<u16, GlyphError> {
         match mask {
-            0b1000_0000_0000_0000 => Some(0),
-            0b0100_0000_0000_0000 => Some(1),
-            0b0010_0000_0000_0000 => Some(2),
-            0b0001_0000_0000_0000 => Some(3),
-            0b0000_1000_0000_0000 => Some(4),
-            0b0000_0100_0000_0000 => Some(5),
-            0b0000_0010_0000_0000 => Some(6),
-            0b0000_0001_0000_0000 => Some(7),
-            0b0000_0000_1000_0000 => Some(8),
-            0b0000_0000_0100_0000 => Some(9),
-            0b0000_0000_0010_0000 => Some(10),
-            0b0000_0000_0001_0000 => Some(11),
-            0b0000_0000_0000_1000 => Some(12),
-            0b0000_0000_0000_0100 => Some(13),
-            0b0000_0000_0000_0010 => Some(14),
-            0b0000_0000_0000_0001 => Some(15),
-            _ => None,
+            0b1000_0000_0000_0000 => Ok(0),
+            0b0100_0000_0000_0000 => Ok(1),
+            0b0010_0000_0000_0000 => Ok(2),
+            0b0001_0000_0000_0000 => Ok(3),
+            0b0000_1000_0000_0000 => Ok(4),
+            0b0000_0100_0000_0000 => Ok(5),
+            0b0000_0010_0000_0000 => Ok(6),
+            0b0000_0001_0000_0000 => Ok(7),
+            0b0000_0000_1000_0000 => Ok(8),
+            0b0000_0000_0100_0000 => Ok(9),
+            0b0000_0000_0010_0000 => Ok(10),
+            0b0000_0000_0001_0000 => Ok(11),
+            0b0000_0000_0000_1000 => Ok(12),
+            0b0000_0000_0000_0100 => Ok(13),
+            0b0000_0000_0000_0010 => Ok(14),
+            0b0000_0000_0000_0001 => Ok(15),
+            _ => Err(GlyphError::new(format!("Invalid segment mask: {}", mask))),
         }
     }
 
-    pub fn mask_from_usize(index: usize) -> Option<u16> {
+    pub fn mask_from_usize(index: usize) -> Result<u16, GlyphError> {
         match index {
-            0 => Some(0b1000_0000_0000_0000),
-            1 => Some(0b0100_0000_0000_0000),
-            2 => Some(0b0010_0000_0000_0000),
-            3 => Some(0b0001_0000_0000_0000),
-            4 => Some(0b0000_1000_0000_0000),
-            5 => Some(0b0000_0100_0000_0000),
-            6 => Some(0b0000_0010_0000_0000),
-            7 => Some(0b0000_0001_0000_0000),
-            8 => Some(0b0000_0000_1000_0000),
-            9 => Some(0b0000_0000_0100_0000),
-            10 => Some(0b0000_0000_0010_0000),
-            11 => Some(0b0000_0000_0001_0000),
-            12 => Some(0b0000_0000_0000_1000),
-            13 => Some(0b0000_0000_0000_0100),
-            14 => Some(0b0000_0000_0000_0010),
-            15 => Some(0b0000_0000_0000_0001),
-            _ => None,
+            0 => Ok(0b1000_0000_0000_0000),
+            1 => Ok(0b0100_0000_0000_0000),
+            2 => Ok(0b0010_0000_0000_0000),
+            3 => Ok(0b0001_0000_0000_0000),
+            4 => Ok(0b0000_1000_0000_0000),
+            5 => Ok(0b0000_0100_0000_0000),
+            6 => Ok(0b0000_0010_0000_0000),
+            7 => Ok(0b0000_0001_0000_0000),
+            8 => Ok(0b0000_0000_1000_0000),
+            9 => Ok(0b0000_0000_0100_0000),
+            10 => Ok(0b0000_0000_0010_0000),
+            11 => Ok(0b0000_0000_0001_0000),
+            12 => Ok(0b0000_0000_0000_1000),
+            13 => Ok(0b0000_0000_0000_0100),
+            14 => Ok(0b0000_0000_0000_0010),
+            15 => Ok(0b0000_0000_0000_0001),
+            _ => Err(GlyphError::new(format!("Unexpected segment index: {}", index))),
         }
+    }
+
+    fn with_mask_applied(&self, mask: u16, included: bool) -> Self {
+        let new_code = if included {
+            self.0 ^ mask
+        } else {
+            self.0 | mask
+        };
+
+        Self(new_code)
     }
 
     pub fn with_toggled_segment(&self, index: usize) -> Result<Self, GlyphError> {
-        // TODO: Use #or_else or like here for conciseness
+        let mask = Self::mask_from_usize(index);
 
-        if let Some(mask) = Self::mask_from_usize(index) {
-            if let Some(segment_index) = Self::segment_index_from_mask(mask) {
-                if let Some(new_code) = self.includes_segment(segment_index) {
-                    let new_code = if new_code {
-                        self.0 ^ mask
-                    } else {
-                        self.0 | mask
-                    };
+        let included = mask.clone()
+            .and_then(|m| Self::segment_index_from_mask(m))
+            .and_then(|si| self.includes_segment(si))
+            .map_or(false, |incld| incld);
 
-                    Ok(Self(new_code))
-                } else {
-                    Err(GlyphError::new(*self, format!("Unexpected segment index: {}", segment_index)))
-                }
-            } else {
-                Err(GlyphError::new(*self, format!("Invalid segment mask: {}", mask)))
-            }
-        } else {
-            Err(GlyphError::new(*self, format!("Unexpected segment index: {}", index)))
-        }
+        mask.map(|m| self.with_mask_applied(m, included))
     }
 }
