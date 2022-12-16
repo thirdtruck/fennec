@@ -17,3 +17,8 @@ path = "src/main.rs"
 
 [[bin]]
 name = "add-snippet"
+path = "src/bin/add-snippet.rs"
+
+[[bin]]
+name = "fennec"
+path = "src/bin/fennec.rs"
