@@ -39,25 +39,26 @@ impl GlyphMap {
             ctx.set_active_console(segment);
             ctx.cls();
 
-            let segment: u16 = match segment.try_into() {
-                Ok(seg) => seg,
-                Err(err) => panic!("Invalid segment index: {}", err),
-            };
+            let segment: u16 = segment.try_into().unwrap();
 
-            for gx in 0..self.width {
-                for gy in 0..self.height {
-                    if let Some(glyph) = self.get_glyph(gx, gy) {
-                        let color = glyph.color;
-                        let glyph = glyph.glyph;
+            self.draw_segments_on(ctx, x, y, segment);
+        }
+    }
 
-                        match glyph.includes_segment(segment) {
-                            Ok(included) => {
-                                if included {
-                                    ctx.set(x + gx, y + gy, color, TRANSPARENT, segment)
-                                }
+    fn draw_segments_on(&self, ctx: &mut BTerm, x: usize, y: usize, segment: u16) {
+        for gx in 0..self.width {
+            for gy in 0..self.height {
+                if let Some(glyph) = self.get_glyph(gx, gy) {
+                    let color = glyph.color;
+                    let glyph = glyph.glyph;
+
+                    match glyph.includes_segment(segment) {
+                        Ok(included) => {
+                            if included {
+                                ctx.set(x + gx, y + gy, color, TRANSPARENT, segment)
                             }
-                            Err(error) => { dbg!(error); },
                         }
+                        Err(error) => { dbg!(error); },
                     }
                 }
             }
