@@ -9,10 +9,6 @@ struct Cli {
     #[arg(short, long)]
     append: bool,
 
-    // Include this description with the new snippet
-    #[arg(short, long)]
-    description: Option<String>,
-
     #[command(subcommand)]
     command: Option<Commands>,
 }
@@ -24,6 +20,7 @@ enum Commands {
     Tunic(Tunic),
 
     // Include an English word
+    #[command(subcommand)]
     English(English),
 }
 
@@ -39,24 +36,40 @@ enum Tunic {
     Other(Other),
 }
 
-#[derive(Args)]
-struct Page {
-    number: usize,
+#[derive(Subcommand)]
+enum English {
+    // Manual page number
+    Page(Page),
+
+    // Screenshot filename
+    Screenshot(Screenshot),
+
+    // Other source
+    Other(Other),
 }
 
 #[derive(Args)]
-struct English {
-    string: String,
+struct Page {
+    number: usize,
+    description: String,
+    // Required for English words
+    text: Option<String>,
 }
 
 #[derive(Args)]
 struct Screenshot {
     filename: String,
+    description: String,
+    // Required for English words
+    text: Option<String>,
 }
 
 #[derive(Args)]
 struct Other {
     string: String,
+    description: String,
+    // Required for English words
+    text: Option<String>,
 }
 
 fn main() {
@@ -71,17 +84,6 @@ fn main() {
                 Some(Commands::Tunic(args)) => tunic_word_snippet(args),
                 Some(Commands::English(args)) => english_word_snippet(args),
                 None => panic!("Missing command"), // Make this required by definition
-            };
-
-            let description = if let Some(description) = cli.description {
-                description
-            } else {
-                "ADD_DESCRIPTION_HERE".into()
-            };
-
-            let snippet = Snippet {
-                description,
-                ..snippet
             };
 
             println!("New snippet: {:?}", snippet);
@@ -110,10 +112,37 @@ fn main() {
 }
 
 fn english_word_snippet(args: &English) -> Snippet {
+    let (source, description, text) = match args {
+        English::Page(page) => (
+            Source::ManualPageNumber(page.number),
+            page.description.clone(),
+            page.text.clone(),
+        ),
+        English::Screenshot(screenshot) => (
+            Source::ScreenshotFilename(screenshot.filename.clone()),
+            screenshot.description.clone(),
+            screenshot.text.clone(),
+        ),
+        English::Other(other) => (
+            Source::Other(other.string.clone()),
+            other.description.clone(),
+            other.text.clone(),
+        ),
+    };
+
+    let word = match text {
+        Some(text) => text.into(),
+        // TODO: Make this required more gracefully via clap
+        None => panic!("Missing text argument"),
+    };
+    let words = vec![word];
+
+    let source = Some(source);
+
     Snippet {
-        words: vec![args.string.clone().into()],
-        source: Some(Source::Other("WIP".into())),
-        description: "WIP".into(),
+        words,
+        source,
+        description,
     }
 }
 
@@ -121,15 +150,25 @@ fn tunic_word_snippet(args: &Tunic) -> Snippet {
     let word = vec![0x99].into();
     let words = vec![word].into();
 
-    let source = Some(match args {
-        Tunic::Page(page) => Source::ManualPageNumber(page.number),
-        Tunic::Screenshot(screenshot) => Source::ScreenshotFilename(screenshot.filename.clone()),
-        Tunic::Other(other) => Source::Other(other.string.clone()),
-    });
+    let (source, description) = match args {
+        Tunic::Page(page) => (
+            Source::ManualPageNumber(page.number),
+            page.description.clone()
+        ),
+        Tunic::Screenshot(screenshot) => (
+            Source::ScreenshotFilename(screenshot.filename.clone()),
+            screenshot.description.clone()
+        ),
+        Tunic::Other(other) => (
+            Source::Other(other.string.clone()),
+            other.description.clone()
+        ),
+    };
+    let source = Some(source);
 
     Snippet {
         words,
         source,
-        description: "WIP".into(),
+        description,
     }
 }
