@@ -104,9 +104,12 @@ pub fn on_notebook_editor_input(editor: &NotebookEditor, ctx: &BTerm) -> EditorE
         NotebookEditorState::SelectingSnippet => {
             if let Some(key) = ctx.key {
                 match key {
+                    VirtualKeyCode::Escape => EditorEvent::EnableSnippetEditingMode,
                     VirtualKeyCode::Return => EditorEvent::EnableSnippetEditingMode,
                     VirtualKeyCode::Up => EditorEvent::MoveSnippetCursorBackward,
+                    VirtualKeyCode::K => EditorEvent::MoveSnippetCursorBackward,
                     VirtualKeyCode::Down => EditorEvent::MoveSnippetCursorForward,
+                    VirtualKeyCode::J => EditorEvent::MoveSnippetCursorForward,
                     VirtualKeyCode::Plus => EditorEvent::AddNewSnippetAtCursor,
                     _ => EditorEvent::NoOp,
                 }
