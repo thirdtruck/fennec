@@ -1,10 +1,10 @@
-use clap::{Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 
 use fennec::prelude::*;
 
-#[derive(Debug, Parser)]
+#[derive(Parser)]
 #[command(author, version, about)]
-struct Args {
+struct Cli {
     // Append the new snippet to the end of the notebook [default: prepend]
     #[arg(short, long)]
     append: bool,
@@ -17,42 +17,76 @@ struct Args {
     command: Option<Commands>,
 }
 
-#[derive(Debug)]
 #[derive(Subcommand)]
 enum Commands {
-    Tunic,
-    English,
+    // Include a Tunic word
+    #[command(subcommand)]
+    Tunic(Tunic),
+
+    // Include an English word
+    English(English),
+}
+
+#[derive(Subcommand)]
+enum Tunic {
+    // Manual page number
+    Page(Page),
+
+    // Screenshot filename
+    Screenshot(Screenshot),
+
+    // Other source
+    Other(Other),
+}
+
+#[derive(Args)]
+struct Page {
+    number: usize,
+}
+
+#[derive(Args)]
+struct English {
+    string: String,
+}
+
+#[derive(Args)]
+struct Screenshot {
+    filename: String,
+}
+
+#[derive(Args)]
+struct Other {
+    string: String,
 }
 
 fn main() {
-    let args = Args::parse();
+    let cli = Cli::parse();
 
     println!("Loading notebook...");
     match notebook_from_yaml_file(DEFAULT_NOTEBOOK_FILE) {
         Ok((mut notebook, _yaml)) => {
             println!("Prepending snippet...");
 
-            let starting_word = match &args.command {
-                Some(Commands::Tunic) => vec![0x99].into(),
-                Some(Commands::English) => "SomeEnglish".into(),
-                None => vec![0x99].into(),
+            let snippet = match &cli.command {
+                Some(Commands::Tunic(args)) => tunic_word_snippet(args),
+                Some(Commands::English(args)) => english_word_snippet(args),
+                None => panic!("Missing command"), // Make this required by definition
             };
 
-            let words: Vec<Word> = vec![starting_word].into();
-
-            let description = if let Some(description) = args.description {
+            let description = if let Some(description) = cli.description {
                 description
             } else {
                 "ADD_DESCRIPTION_HERE".into()
             };
 
             let snippet = Snippet {
-                words,
-                source: Some(Source::ManualPageNumber(0)),
                 description,
+                ..snippet
             };
+
+            println!("New snippet: {:?}", snippet);
                 
-            if args.append {
+            if cli.append {
                 notebook.snippets.push(snippet);
             } else {
                 notebook.snippets.insert(0, snippet);
@@ -73,4 +107,29 @@ fn main() {
             println!("{:?}", error);
         }
     };
+}
+
+fn english_word_snippet(args: &English) -> Snippet {
+    Snippet {
+        words: vec![args.string.clone().into()],
+        source: Some(Source::Other("WIP".into())),
+        description: "WIP".into(),
+    }
+}
+
+fn tunic_word_snippet(args: &Tunic) -> Snippet {
+    let word = vec![0x99].into();
+    let words = vec![word].into();
+
+    let source = Some(match args {
+        Tunic::Page(page) => Source::ManualPageNumber(page.number),
+        Tunic::Screenshot(screenshot) => Source::ScreenshotFilename(screenshot.filename.clone()),
+        Tunic::Other(other) => Source::Other(other.string.clone()),
+    });
+
+    Snippet {
+        words,
+        source,
+        description: "WIP".into(),
+    }
 }
