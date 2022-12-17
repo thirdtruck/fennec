@@ -1,7 +1,7 @@
 snippets:
 - words:
   - !Tunic
-    - 153
+    - 1
   source: !ManualPageNumber 6
   description: Left side, above the hexagons and locks
   notes:

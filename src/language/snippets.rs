@@ -13,10 +13,7 @@ pub struct Snippet {
 
 impl Snippet {
     pub fn starting_snippet() -> Self {
-        // Arbitrary starting glyph value
-        let code: u16 = 0x10;
-        let glyph: Glyph = code.into();
-        let words = vec![Word::Tunic(vec![glyph])];
+        let words = vec![Word::Tunic(vec![DEFAULT_GLYPH])];
         let source = Some(Source::Other("ADD_SOURCE_HERE".into()));
         let description = "ADD_DESCRIPTION_HERE".into();
         let note: Note = "ADD_NOTE_HERE".into();

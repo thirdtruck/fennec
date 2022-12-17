@@ -59,8 +59,7 @@ impl WordEditor {
     pub fn with_new_glyph_at_cursor(self) -> Self {
         match self.selected_word {
             Word::Tunic(glyphs) => {
-                let new_glyph: u16 = 0x10;
-                let new_glyph: Glyph = new_glyph.into();
+                let new_glyph: Glyph = DEFAULT_GLYPH;
                 let mut glyphs = glyphs.clone();
 
                 let new_index = if let Some(selected_glyph_index) = self.selected_glyph_index {
