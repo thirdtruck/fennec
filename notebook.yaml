@@ -6,7 +6,7 @@ snippets:
   description: Left side, above the hexagons and locks
   notes:
   - ADD_NOTE_HERE
-  transcribed: true
+  transcribed: false
 - words:
   - !Tunic
     - 29300

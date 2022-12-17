@@ -16,7 +16,7 @@ pub fn render_notebook_on(
         NotebookEditorState::SelectingSnippet => {
             for (index, snippet_view) in notebook_view.snippet_views.iter().enumerate() {
                 let index: u32 = index.try_into()?;
-                let y = y + (index * 2);
+                let y = y + (index * 3);
 
                 let description_label = snippet_view.snippet.description.clone();
                 let description_label = if snippet_view.selected {
@@ -28,8 +28,28 @@ pub fn render_notebook_on(
                 let source_label = snippet_source_to_label(snippet_view);
                 let source_label = format!("        Source: {}", source_label);
 
-                ctx.print_color(x, y, LIGHT_SALMON, BLACK, description_label);
-                ctx.print_color(x, y + 1, WHITE, BLACK, source_label);
+                let description_color = if snippet_view.selected && snippet_view.transcribed {
+                    YELLOW
+                } else if snippet_view.selected {
+                    GREEN
+                } else if snippet_view.transcribed {
+                    GRAY15
+                } else {
+                    WHITE
+                };
+
+                let source_color = if snippet_view.selected && snippet_view.transcribed {
+                    GRAY20
+                } else if snippet_view.selected {
+                    WHITE
+                } else if snippet_view.transcribed {
+                    GRAY10
+                } else {
+                    WHITE
+                };
+
+                ctx.print_color(x, y, description_color, BLACK, description_label);
+                ctx.print_color(x, y + 1, source_color, BLACK, source_label);
             }
         }
         NotebookEditorState::EditingSnippet => {

@@ -21,6 +21,7 @@ pub struct SnippetView {
     pub snippet: Snippet,
     pub selected: bool,
     pub word_views: Vec<WordView>,
+    pub transcribed: bool,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]

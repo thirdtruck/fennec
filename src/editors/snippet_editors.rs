@@ -173,10 +173,13 @@ impl SnippetEditor {
             })
             .collect();
 
+        let transcribed = self.selected_snippet.transcribed;
+
         SnippetView {
             selected: selected_snippet,
             snippet: self.selected_snippet.clone(),
             word_views,
+            transcribed,
         }
     }
 }
