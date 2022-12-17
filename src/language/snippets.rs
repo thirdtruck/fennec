@@ -8,6 +8,7 @@ pub struct Snippet {
     pub source: Option<Source>,
     pub description: String,
     pub notes: Vec<Note>,
+    pub transcribed: bool,
 }
 
 impl Snippet {
@@ -25,6 +26,7 @@ impl Snippet {
             source,
             description,
             notes: vec![note],
+            transcribed: false,
         }
     }
 }

@@ -1,6 +1,14 @@
 snippets:
 - words:
   - !Tunic
+    - 153
+  source: !ManualPageNumber 6
+  description: Left side, above the hexagons and locks
+  notes:
+  - ADD_NOTE_HERE
+  transcribed: true
+- words:
+  - !Tunic
     - 29300
     - 20846
     - 24054
@@ -8,6 +16,7 @@ snippets:
   description: Points to page 41
   notes:
   - ADD_NOTE_HERE
+  transcribed: true
 - words:
   - !Tunic
     - 292
@@ -17,6 +26,7 @@ snippets:
   description: Points to page 23
   notes:
   - ADD_NOTE_HERE
+  transcribed: true
 - words:
   - !Tunic
     - 29466
@@ -26,3 +36,4 @@ snippets:
   description: Points to page 20
   notes:
   - ADD_NOTE_HERE
+  transcribed: true
