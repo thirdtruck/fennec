@@ -16,7 +16,7 @@ impl State {
 
 impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
-        let mut map = GlyphMap::new(10, 10);
+        let mut map = GlyphMap::new(10, 10).expect("Invalid map dimensions");
 
         let ctx_clone = ctx.clone();
 
@@ -37,12 +37,13 @@ impl GameState for State {
         self.file_editor.render_with(|file_editor_view| {
             let notebook_view = &file_editor_view.notebook_view;
 
-            render_notebook_on(notebook_view, &mut map, ctx, 1, 1);
+            render_notebook_on(notebook_view, &mut map, ctx, 1, 1)
+                .expect("Notebook rendering error");
 
             render_file_editor_view_onto(&file_editor_view, ctx);
         });
 
-        map.draw_on(ctx, 1, 1);
+        map.draw_on(ctx, 1, 1).expect("Map drawing error");
 
         // TODO: Auto-save to a backup file if this encounters an error
         render_draw_buffer(ctx).expect("Render error");

@@ -35,7 +35,10 @@ impl AppliesEditorEvents for GlyphEditor {
 
                 match self.with_segment_toggled(segment) {
                     Ok(editor) => editor.clone(),
-                    Err(error) => { dbg!(error); editor }
+                    Err(error) => {
+                        dbg!(error);
+                        editor
+                    }
                 }
             }
             _ => self.clone(),

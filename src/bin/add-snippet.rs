@@ -87,7 +87,7 @@ fn main() {
             };
 
             println!("New snippet: {:?}", snippet);
-                
+
             if cli.append {
                 notebook.snippets.push(snippet);
             } else {
@@ -103,7 +103,7 @@ fn main() {
                     println!("{:?}", error);
                 }
             };
-        },
+        }
         Err(error) => {
             println!("Unable to load notebook file: {}", DEFAULT_NOTEBOOK_FILE);
             println!("{:?}", error);
@@ -153,16 +153,13 @@ fn tunic_word_snippet(args: &Tunic) -> Snippet {
     let (source, description) = match args {
         Tunic::Page(page) => (
             Source::ManualPageNumber(page.number),
-            page.description.clone()
+            page.description.clone(),
         ),
         Tunic::Screenshot(screenshot) => (
             Source::ScreenshotFilename(screenshot.filename.clone()),
-            screenshot.description.clone()
+            screenshot.description.clone(),
         ),
-        Tunic::Other(other) => (
-            Source::Other(other.text.clone()),
-            other.description.clone()
-        ),
+        Tunic::Other(other) => (Source::Other(other.text.clone()), other.description.clone()),
     };
     let source = Some(source);
 

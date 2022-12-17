@@ -67,7 +67,10 @@ impl Glyph {
         if let Some(mask) = mask {
             Ok((mask & self.0) > 0)
         } else {
-            Err(GlyphError::new(format!("Unexpected segment index: {}", index)))
+            Err(GlyphError::new(format!(
+                "Unexpected segment index: {}",
+                index
+            )))
         }
     }
 
@@ -111,7 +114,10 @@ impl Glyph {
             13 => Ok(0b0000_0000_0000_0100),
             14 => Ok(0b0000_0000_0000_0010),
             15 => Ok(0b0000_0000_0000_0001),
-            _ => Err(GlyphError::new(format!("Unexpected segment index: {}", index))),
+            _ => Err(GlyphError::new(format!(
+                "Unexpected segment index: {}",
+                index
+            ))),
         }
     }
 
@@ -128,7 +134,8 @@ impl Glyph {
     pub fn with_toggled_segment(&self, index: usize) -> Result<Self, GlyphError> {
         let mask = Self::mask_from_usize(index);
 
-        let included = mask.clone()
+        let included = mask
+            .clone()
             .and_then(|m| Self::segment_index_from_mask(m))
             .and_then(|si| self.includes_segment(si))
             .map_or(false, |incld| incld);

@@ -18,6 +18,10 @@ impl Snippet {
         let source = Some(Source::Other("ADD_SOURCE_HERE".into()));
         let description = "ADD_DESCRIPTION_HERE".into();
 
-        Self { words, source, description }
+        Self {
+            words,
+            source,
+            description,
+        }
     }
 }
