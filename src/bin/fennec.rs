@@ -28,9 +28,25 @@ impl State {
 
         map.draw_on(ctx, 1, 1)?;
 
-        render_draw_buffer(ctx).expect("TBD");
-
         Ok(())
+    }
+
+    fn emergency_backup_and_abort(&self, error: Box<dyn Error>) {
+        println!("Rendering error");
+        dbg!(error);
+
+        let file = self.file_editor.target_file();
+        let file = format!("{}~", file);
+
+        println!("Trying to save notebook backup to: {}", &file);
+
+        let notebook = self.file_editor.to_source();
+
+        notebook_to_yaml_file(&notebook, &file).expect("Failed to save notebook backup");
+
+        println!("Saved notebook backup");
+
+        panic!("Aborting!");
     }
 }
 
@@ -54,7 +70,13 @@ impl GameState for State {
             }
         };
 
-        self.render(&mut map, ctx).unwrap();
+        self.render(&mut map, ctx)
+            .map_err(|error| self.emergency_backup_and_abort(error))
+            .unwrap();
+
+        render_draw_buffer(ctx)
+            .map_err(|error| self.emergency_backup_and_abort(error))
+            .unwrap();
     }
 }
 
