@@ -1,0 +1,8 @@
+snippets:
+- words:
+  - !Tunic
+    - 153
+  source: !ManualPageNumber 2
+  description: Placeholder
+  notes:
+  - ADD_NOTE_HERE

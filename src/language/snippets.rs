@@ -7,6 +7,7 @@ pub struct Snippet {
     pub words: Vec<Word>,
     pub source: Option<Source>,
     pub description: String,
+    pub notes: Vec<Note>,
 }
 
 impl Snippet {
@@ -17,11 +18,13 @@ impl Snippet {
         let words = vec![Word::Tunic(vec![glyph])];
         let source = Some(Source::Other("ADD_SOURCE_HERE".into()));
         let description = "ADD_DESCRIPTION_HERE".into();
+        let note: Note = "ADD_NOTE_HERE".into();
 
         Self {
             words,
             source,
             description,
+            notes: vec![note],
         }
     }
 }

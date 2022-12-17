@@ -143,6 +143,7 @@ fn english_word_snippet(args: &English) -> Snippet {
         words,
         source,
         description,
+        ..Snippet::starting_snippet()
     }
 }
 
@@ -167,5 +168,6 @@ fn tunic_word_snippet(args: &Tunic) -> Snippet {
         words,
         source,
         description,
+        ..Snippet::starting_snippet()
     }
 }

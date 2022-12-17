@@ -13,3 +13,12 @@ pub enum Source {
     ScreenshotFilename(String),
     Other(String),
 }
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct Note(String);
+
+impl From<&str> for Note {
+    fn from(text: &str) -> Self {
+        Note(text.to_string())
+    }
+}
