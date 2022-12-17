@@ -5,25 +5,24 @@ use crate::prelude::*;
 
 pub fn map_key_to_glyph_segment(key: VirtualKeyCode) -> Option<Segment> {
     match key {
-        VirtualKeyCode::W => Some(0),
-        VirtualKeyCode::E => Some(1),
-        VirtualKeyCode::R => Some(2),
+        VirtualKeyCode::W => Some(1),
+        VirtualKeyCode::E => Some(2),
+        VirtualKeyCode::R => Some(3),
 
-        VirtualKeyCode::A => Some(3),
-        VirtualKeyCode::S => Some(4),
-        VirtualKeyCode::D => Some(5),
-        VirtualKeyCode::F => Some(6),
+        VirtualKeyCode::A => Some(4),
+        VirtualKeyCode::S => Some(5),
+        VirtualKeyCode::D => Some(6),
+        VirtualKeyCode::F => Some(7),
 
-        VirtualKeyCode::U => Some(7),
-        VirtualKeyCode::I => Some(8),
-        VirtualKeyCode::O => Some(9),
-        VirtualKeyCode::P => Some(10),
+        VirtualKeyCode::U => Some(8),
+        VirtualKeyCode::I => Some(9),
+        VirtualKeyCode::O => Some(10),
+        VirtualKeyCode::P => Some(11),
 
-        VirtualKeyCode::J => Some(11),
-        VirtualKeyCode::K => Some(12),
-        VirtualKeyCode::L => Some(13),
-        VirtualKeyCode::Semicolon => Some(14),
-        VirtualKeyCode::Q => Some(15),
+        VirtualKeyCode::J => Some(12),
+        VirtualKeyCode::K => Some(13),
+        VirtualKeyCode::L => Some(14),
+        VirtualKeyCode::Semicolon => Some(15),
 
         _ => None,
     }

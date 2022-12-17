@@ -52,7 +52,7 @@ impl GlyphMap {
     }
 
     pub fn draw_on(&self, ctx: &mut BTerm, x: u32, y: u32) -> Result<(), Box<dyn Error>> {
-        for segment in 0..15 {
+        for segment in 0..16 {
             ctx.set_active_console(segment);
             ctx.cls();
 
