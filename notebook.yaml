@@ -3,6 +3,24 @@ snippets:
   - !Tunic
     - 153
   source: !ManualPageNumber 2
-  description: Placeholder
+  description: WIP_Placeholder
+  notes:
+  - ADD_NOTE_HERE
+- words:
+  - !Tunic
+    - 292
+    - 25380
+    - 10111
+  source: !ManualPageNumber 1
+  description: Points to page 23
+  notes:
+  - ADD_NOTE_HERE
+- words:
+  - !Tunic
+    - 29466
+    - 8784
+    - 9780
+  source: !ManualPageNumber 1
+  description: Points to page 20
   notes:
   - ADD_NOTE_HERE
