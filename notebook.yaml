@@ -1,9 +1,11 @@
 snippets:
 - words:
   - !Tunic
-    - 153
-  source: !ManualPageNumber 2
-  description: WIP_Placeholder
+    - 29300
+    - 20846
+    - 24054
+  source: !ManualPageNumber 1
+  description: Points to page 41
   notes:
   - ADD_NOTE_HERE
 - words:
