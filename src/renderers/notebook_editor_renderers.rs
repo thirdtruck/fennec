@@ -55,12 +55,7 @@ pub fn render_selected_snippet_on(
     if let Some(snippet_view) = selected_snippet_view {
         map.render_snippet_on(snippet_view, x, y)?;
 
-        render_snippet_source_on(
-            &snippet_view,
-            ctx,
-            1,
-            (SCREEN_HEIGHT - 2).try_into()?,
-        );
+        render_snippet_source_on(&snippet_view, ctx, 1, (SCREEN_HEIGHT - 2).try_into()?);
     }
 
     Ok(())

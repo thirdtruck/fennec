@@ -38,9 +38,10 @@ impl GameState for State {
             let notebook_view = &file_editor_view.notebook_view;
 
             render_notebook_on(notebook_view, &mut map, ctx, 1, 1)
-                .expect("Notebook rendering error");
+                .expect("Notebook editor rendering error");
 
-            render_file_editor_view_onto(&file_editor_view, ctx);
+            render_file_editor_view_onto(&file_editor_view, ctx)
+                .expect("File editor rendering error");
         });
 
         map.draw_on(ctx, 1, 1).expect("Map drawing error");

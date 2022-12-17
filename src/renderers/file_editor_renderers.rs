@@ -1,6 +1,11 @@
+use std::error::Error;
+
 use crate::prelude::*;
 
-pub fn render_file_editor_view_onto(view: &FileEditorView, ctx: &mut BTerm) {
+pub fn render_file_editor_view_onto(
+    view: &FileEditorView,
+    ctx: &mut BTerm,
+) -> Result<(), Box<dyn Error>> {
     ctx.set_active_console(16);
 
     if view.state != FileEditorState::Idle {
@@ -8,7 +13,7 @@ pub fn render_file_editor_view_onto(view: &FileEditorView, ctx: &mut BTerm) {
     }
 
     let x: i32 = 1;
-    let y: i32 = (SCREEN_HEIGHT - 1).try_into().unwrap();
+    let y: i32 = (SCREEN_HEIGHT - 1).try_into()?;
 
     match &view.state {
         FileEditorState::LoadRequestSucceeded => {
@@ -47,4 +52,6 @@ pub fn render_file_editor_view_onto(view: &FileEditorView, ctx: &mut BTerm) {
         FileEditorState::SaveRequestConfirmed => (),
         FileEditorState::Idle => (),
     };
+
+    Ok(())
 }
