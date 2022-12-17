@@ -123,9 +123,9 @@ impl FileEditor {
         self.notebook_editor.on_input(callback)
     }
 
-    pub fn render_with<R>(&self, mut renderer: R)
+    pub fn render_with<R>(&self, mut renderer: R) -> Result<(), Box<dyn Error>>
     where
-        R: FnMut(FileEditorView),
+        R: FnMut(FileEditorView) -> Result<(), Box<dyn Error>>,
     {
         renderer(self.to_view())
     }

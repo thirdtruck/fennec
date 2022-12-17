@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use fennec::prelude::*;
 
 struct State {
@@ -11,6 +13,24 @@ impl State {
         let file_editor = file_editor.apply(EditorEvent::ConfirmLoadFromFileRequest);
 
         Self { file_editor }
+    }
+
+    fn render(&self, map: &mut GlyphMap, ctx: &mut BTerm) -> Result<(), Box<dyn Error>> {
+        self.file_editor.render_with(|file_editor_view| {
+            let notebook_view = &file_editor_view.notebook_view;
+
+            render_notebook_on(notebook_view, map, ctx, 1, 1)?;
+
+            render_file_editor_view_onto(&file_editor_view, ctx)?;
+
+            Ok(())
+        })?;
+
+        map.draw_on(ctx, 1, 1)?;
+
+        render_draw_buffer(ctx).expect("TBD");
+
+        Ok(())
     }
 }
 
@@ -34,20 +54,7 @@ impl GameState for State {
             }
         };
 
-        self.file_editor.render_with(|file_editor_view| {
-            let notebook_view = &file_editor_view.notebook_view;
-
-            render_notebook_on(notebook_view, &mut map, ctx, 1, 1)
-                .expect("Notebook editor rendering error");
-
-            render_file_editor_view_onto(&file_editor_view, ctx)
-                .expect("File editor rendering error");
-        });
-
-        map.draw_on(ctx, 1, 1).expect("Map drawing error");
-
-        // TODO: Auto-save to a backup file if this encounters an error
-        render_draw_buffer(ctx).expect("Render error");
+        self.render(&mut map, ctx).unwrap();
     }
 }
 
