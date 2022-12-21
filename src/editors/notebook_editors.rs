@@ -95,60 +95,57 @@ impl NotebookEditor {
             .collect()
     }
 
-    pub fn with_snippet_selection_moved_forward(self, amount: usize) -> Self {
-        let filter_outcomes = self.retained_snippet_outcomes();
+    fn absolute_index_from_relative_move(
+        selected_snippet_index: Option<usize>,
+        outcomes: Vec<SnippetFiltrationOutcome>,
+        mover: Box<dyn Fn(usize, usize) -> usize>,
+    ) -> usize {
+        let selected_snippet_index = selected_snippet_index.unwrap_or(0);
 
-        let selected_snippet_index = self.selected_snippet_index.unwrap_or(0);
-
-        let new_index = if let Some(outcome) = filter_outcomes.get(selected_snippet_index) {
+        if let Some(outcome) = outcomes.get(selected_snippet_index) {
             let SnippetFiltrationOutcome { relative_index, .. } = outcome;
             let relative_index = relative_index.unwrap_or(0);
 
-            let indices: Vec<(usize, usize)> = filter_outcomes
+            let indices: Vec<(usize, usize)> = outcomes
                 .iter()
                 .filter(|oc| oc.retained && oc.relative_index.is_some())
                 .map(|oc| (oc.absolute_index, oc.relative_index.unwrap_or(0)))
                 .collect();
 
-            let new_relative_index = cmp::min(indices.len() - 1, relative_index + amount);
+            let new_relative_index = mover(indices.len(), relative_index);
 
             indices
                 .get(new_relative_index)
                 .map_or(0, |(abs_index, _)| *abs_index)
         } else {
             0
-        };
+        }
+    }
+
+    pub fn with_snippet_selection_moved_forward(self, amount: usize) -> Self {
+        let mover = Box::new(move |relative_count, relative_index| {
+            cmp::min(relative_count - 1, relative_index + amount)
+        });
+
+        let new_index = Self::absolute_index_from_relative_move(
+            self.selected_snippet_index,
+            self.retained_snippet_outcomes(),
+            mover,
+        );
 
         self.with_snippet_selected(new_index)
     }
 
     pub fn with_snippet_selection_moved_backward(self, amount: usize) -> Self {
-        let filter_outcomes = self.retained_snippet_outcomes();
+        let mover = Box::new(move |_, relative_index| {
+            if relative_index >= amount { relative_index - amount } else { 0 }
+        });
 
-        let selected_snippet_index = self.selected_snippet_index.unwrap_or(0);
-
-        let new_index = if let Some(outcome) = filter_outcomes.get(selected_snippet_index) {
-            let SnippetFiltrationOutcome { relative_index, .. } = outcome;
-            let relative_index = relative_index.unwrap_or(0);
-
-            let indices: Vec<(usize, usize)> = filter_outcomes
-                .iter()
-                .filter(|oc| oc.retained && oc.relative_index.is_some())
-                .map(|oc| (oc.absolute_index, oc.relative_index.unwrap_or(0)))
-                .collect();
-
-            let new_relative_index = if relative_index >= amount {
-                relative_index - amount
-            } else {
-                0
-            };
-
-            indices
-                .get(new_relative_index)
-                .map_or(0, |(abs_index, _)| *abs_index)
-        } else {
-            0
-        };
+        let new_index = Self::absolute_index_from_relative_move(
+            self.selected_snippet_index,
+            self.retained_snippet_outcomes(),
+            mover,
+        );
 
         self.with_snippet_selected(new_index)
     }
