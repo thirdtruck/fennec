@@ -112,11 +112,9 @@ impl NotebookEditor {
 
             let new_relative_index = cmp::min(indices.len() - 1, relative_index + amount);
 
-            if let Some((absolute_index, _)) = indices.get(new_relative_index) {
-                *absolute_index
-            } else {
-                0
-            }
+            indices
+                .get(new_relative_index)
+                .map_or(0, |(abs_index, _)| *abs_index)
         } else {
             0
         };
@@ -145,11 +143,9 @@ impl NotebookEditor {
                 0
             };
 
-            if let Some((absolute_index, _)) = indices.get(new_relative_index) {
-                *absolute_index
-            } else {
-                0
-            }
+            indices
+                .get(new_relative_index)
+                .map_or(0, |(abs_index, _)| *abs_index)
         } else {
             0
         };
