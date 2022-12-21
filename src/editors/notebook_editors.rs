@@ -47,7 +47,10 @@ impl NotebookEditor {
     }
 
     pub fn with_state(self, state: NotebookEditorState) -> Self {
-        Self { state, ..self.clone() }
+        Self {
+            state,
+            ..self.clone()
+        }
     }
 
     pub fn with_snippet_selected(self, index: usize) -> Self {
@@ -75,11 +78,7 @@ impl NotebookEditor {
             .enumerate()
             .map(|(absolute_index, snippet)| {
                 let retained = snippet.transcribed;
-                let current_relative_index = if retained {
-                    Some(relative_index)
-                } else {
-                    None
-                };
+                let current_relative_index = if retained { Some(relative_index) } else { None };
 
                 if retained {
                     relative_index += 1
@@ -100,7 +99,8 @@ impl NotebookEditor {
         outcomes: Vec<SnippetFiltrationOutcome>,
         mover: M,
     ) -> usize
-        where M: Fn(usize, usize) -> usize
+    where
+        M: Fn(usize, usize) -> usize,
     {
         let selected_snippet_index = selected_snippet_index.unwrap_or(0);
 
@@ -128,9 +128,7 @@ impl NotebookEditor {
         let new_index = Self::absolute_index_from_relative_move(
             self.selected_snippet_index,
             self.retained_snippet_outcomes(),
-            |relative_count, relative_index| {
-                cmp::min(relative_count - 1, relative_index + amount)
-            },
+            |relative_count, relative_index| cmp::min(relative_count - 1, relative_index + amount),
         );
 
         self.with_snippet_selected(new_index)
@@ -141,8 +139,12 @@ impl NotebookEditor {
             self.selected_snippet_index,
             self.retained_snippet_outcomes(),
             |_, relative_index| {
-                if relative_index >= amount { relative_index - amount } else { 0 }
-            }
+                if relative_index >= amount {
+                    relative_index - amount
+                } else {
+                    0
+                }
+            },
         );
 
         self.with_snippet_selected(new_index)
