@@ -39,25 +39,8 @@ pub fn render_notebook_on(
                 let source_label = snippet_source_to_label(snippet_view);
                 let source_label = format!("        Source: {}", source_label);
 
-                let description_color = if snippet_view.selected && snippet_view.transcribed {
-                    YELLOW
-                } else if snippet_view.selected {
-                    GREEN
-                } else if snippet_view.transcribed {
-                    GRAY15
-                } else {
-                    WHITE
-                };
-
-                let source_color = if snippet_view.selected && snippet_view.transcribed {
-                    GRAY20
-                } else if snippet_view.selected {
-                    WHITE
-                } else if snippet_view.transcribed {
-                    GRAY10
-                } else {
-                    WHITE
-                };
+                let description_color = description_color_for(&snippet_view);
+                let source_color = source_color_for(&snippet_view);
 
                 ctx.print_color(x, y, description_color, BLACK, description_label);
                 ctx.print_color(x, y + 1, source_color, BLACK, source_label);
@@ -69,6 +52,34 @@ pub fn render_notebook_on(
     };
 
     Ok(())
+}
+
+fn description_color_for(view: &SnippetView) -> (u8, u8, u8) {
+    let SnippetView { selected, transcribed, .. } = view.clone();
+
+    if selected && transcribed {
+        YELLOW
+    } else if selected {
+        GREEN
+    } else if transcribed {
+        GRAY15
+    } else {
+        WHITE
+    }
+}
+
+fn source_color_for(view: &SnippetView) -> (u8, u8, u8) {
+    let SnippetView { selected, transcribed, .. } = view.clone();
+
+    if selected && transcribed {
+        GRAY20
+    } else if selected {
+        WHITE
+    } else if transcribed {
+        GRAY10
+    } else {
+        WHITE
+    }
 }
 
 pub fn render_selected_snippet_on(
