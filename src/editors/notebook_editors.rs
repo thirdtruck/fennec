@@ -3,7 +3,12 @@ use std::cmp;
 
 use crate::prelude::*;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum NotebookEditorFilter {
+    DraftSnippetsOnly,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum NotebookEditorState {
     EditingSnippet,
     SelectingSnippet,
@@ -15,6 +20,15 @@ pub struct NotebookEditor {
     snippet_editor: Option<SnippetEditor>,
     selected_snippet_index: Option<usize>,
     state: NotebookEditorState,
+    filters: Vec<NotebookEditorFilter>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct SnippetFiltrationOutcome {
+    snippet: Snippet,
+    absolute_index: usize,
+    relative_index: Option<usize>,
+    retained: bool,
 }
 
 impl NotebookEditor {
@@ -24,15 +38,16 @@ impl NotebookEditor {
             snippet_editor: None,
             selected_snippet_index: None,
             state: NotebookEditorState::EditingSnippet,
+            filters: vec![],
         }
     }
 
     pub fn state(&self) -> NotebookEditorState {
-        self.state
+        self.state.clone()
     }
 
     pub fn with_state(self, state: NotebookEditorState) -> Self {
-        Self { state, ..self }
+        Self { state, ..self.clone() }
     }
 
     pub fn with_snippet_selected(self, index: usize) -> Self {
@@ -51,9 +66,57 @@ impl NotebookEditor {
         }
     }
 
+    fn retained_snippet_outcomes(&self) -> Vec<SnippetFiltrationOutcome> {
+        let snippets = self.selected_notebook.snippets.clone();
+        let mut relative_index = 0;
+
+        snippets
+            .iter()
+            .enumerate()
+            .map(|(absolute_index, snippet)| {
+                let retained = snippet.transcribed;
+                let current_relative_index = if retained {
+                    Some(relative_index)
+                } else {
+                    None
+                };
+
+                if retained {
+                    relative_index += 1
+                }
+
+                SnippetFiltrationOutcome {
+                    snippet: snippet.clone(),
+                    absolute_index,
+                    relative_index: current_relative_index,
+                    retained,
+                }
+            })
+            .collect()
+    }
+
     pub fn with_snippet_selection_moved_forward(self, amount: usize) -> Self {
-        let new_index = if let Some(index) = self.selected_snippet_index {
-            cmp::min(self.selected_notebook.snippets.len(), index + amount)
+        let filter_outcomes = self.retained_snippet_outcomes();
+
+        let selected_snippet_index = self.selected_snippet_index.unwrap_or(0);
+
+        let new_index = if let Some(outcome) = filter_outcomes.get(selected_snippet_index) {
+            let SnippetFiltrationOutcome { relative_index, .. } = outcome;
+            let relative_index = relative_index.unwrap_or(0);
+
+            let indices: Vec<(usize, usize)> = filter_outcomes
+                .iter()
+                .filter(|oc| oc.retained && oc.relative_index.is_some())
+                .map(|oc| (oc.absolute_index, oc.relative_index.unwrap_or(0)))
+                .collect();
+
+            let new_relative_index = cmp::min(indices.len() - 1, relative_index + amount);
+
+            if let Some((absolute_index, _)) = indices.get(new_relative_index) {
+                *absolute_index
+            } else {
+                0
+            }
         } else {
             0
         };
@@ -62,9 +125,28 @@ impl NotebookEditor {
     }
 
     pub fn with_snippet_selection_moved_backward(self, amount: usize) -> Self {
-        let new_index = if let Some(index) = self.selected_snippet_index {
-            if index >= amount {
-                index - amount
+        let filter_outcomes = self.retained_snippet_outcomes();
+
+        let selected_snippet_index = self.selected_snippet_index.unwrap_or(0);
+
+        let new_index = if let Some(outcome) = filter_outcomes.get(selected_snippet_index) {
+            let SnippetFiltrationOutcome { relative_index, .. } = outcome;
+            let relative_index = relative_index.unwrap_or(0);
+
+            let indices: Vec<(usize, usize)> = filter_outcomes
+                .iter()
+                .filter(|oc| oc.retained && oc.relative_index.is_some())
+                .map(|oc| (oc.absolute_index, oc.relative_index.unwrap_or(0)))
+                .collect();
+
+            let new_relative_index = if relative_index >= amount {
+                relative_index - amount
+            } else {
+                0
+            };
+
+            if let Some((absolute_index, _)) = indices.get(new_relative_index) {
+                *absolute_index
             } else {
                 0
             }
@@ -158,7 +240,7 @@ impl NotebookEditor {
             .collect();
 
         NotebookView {
-            state: self.state,
+            state: self.state.clone(),
             snippet_views,
         }
     }

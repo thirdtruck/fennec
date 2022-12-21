@@ -14,15 +14,26 @@ pub fn render_notebook_on(
 
     match notebook_view.state {
         NotebookEditorState::SelectingSnippet => {
-            for (index, snippet_view) in notebook_view.snippet_views.iter().enumerate() {
-                let index: u32 = index.try_into()?;
-                let y = y + (index * 3);
+            let snippet_views: Vec<(usize, SnippetView)> = notebook_view
+                .snippet_views
+                .iter()
+                .enumerate()
+                .filter(|(_index, view)| view.transcribed)
+                .map(|(index, view)| (index, view.clone()))
+                .collect();
+
+            for (relative_index, snippet_view) in snippet_views.iter().enumerate() {
+                let (_, snippet_view) = snippet_view;
+
+                let relative_index: u32 = relative_index.try_into()?;
+
+                let y = y + (relative_index * 3);
 
                 let description_label = snippet_view.snippet.description.clone();
                 let description_label = if snippet_view.selected {
-                    format!("-> {:3}) {}", index, description_label)
+                    format!("-> {:3}) {}", relative_index, description_label)
                 } else {
-                    format!("{:6}) {}", index, description_label)
+                    format!("{:6}) {}", relative_index, description_label)
                 };
 
                 let source_label = snippet_source_to_label(snippet_view);
