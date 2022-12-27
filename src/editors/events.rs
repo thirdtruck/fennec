@@ -27,4 +27,5 @@ pub enum EditorEvent {
     ResetFileEditorToIdle,
     EnableSnippetNavigationMode,
     EnableSnippetEditingMode,
+    ToggleSnippetTranscriptionState,
 }

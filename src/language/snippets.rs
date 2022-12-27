@@ -26,4 +26,11 @@ impl Snippet {
             transcribed: false,
         }
     }
+
+    pub fn with_transcription_state_toggled(self) -> Self {
+        Self {
+            transcribed: !self.transcribed,
+            ..self
+        }
+    }
 }

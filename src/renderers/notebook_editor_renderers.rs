@@ -102,13 +102,16 @@ pub fn render_selected_snippet_on(
         let source_text = snippet_source_to_label(&snippet_view);
         let source_text = format!("     Source: {}", source_text);
 
-        let y_from_bottom: u32 = (SCREEN_HEIGHT - 3).try_into()?;
+        let transcribed_text = format!("Transcribed: {}", &snippet_view.transcribed);
+
+        let y_from_bottom: u32 = (SCREEN_HEIGHT - 4).try_into()?;
 
         ctx.set_active_console(16);
         ctx.cls();
 
         ctx.print_color(x, y_from_bottom, GREEN, BLACK, description_text);
         ctx.print_color(x, y_from_bottom + 1, GREEN, BLACK, source_text);
+        ctx.print_color(x, y_from_bottom + 2, GREEN, BLACK, transcribed_text);
     }
 
     Ok(())

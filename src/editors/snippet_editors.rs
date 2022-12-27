@@ -144,6 +144,13 @@ impl SnippetEditor {
         }
     }
 
+    fn with_transcription_state_toggled(self) -> Self {
+        Self {
+            selected_snippet: self.selected_snippet.with_transcription_state_toggled(),
+            ..self
+        }
+    }
+
     pub fn to_view(&self, selected_snippet: bool) -> SnippetView {
         let word_views: Vec<WordView> = self
             .selected_snippet
@@ -191,6 +198,7 @@ impl AppliesEditorEvents for SnippetEditor {
             EditorEvent::MoveWordCursorForward => self.with_word_selection_moved_forward(1),
             EditorEvent::AddNewTunicWordAtCursor => self.with_new_tunic_word_at_cursor(),
             EditorEvent::DeleteWordAtCursor => self.with_word_at_cursor_deleted(),
+            EditorEvent::ToggleSnippetTranscriptionState => self.with_transcription_state_toggled(),
             _ => {
                 if let Some(editor) = self.word_editor {
                     let word_editor = editor.apply(event);
