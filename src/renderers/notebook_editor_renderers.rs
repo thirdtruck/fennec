@@ -97,21 +97,29 @@ pub fn render_selected_snippet_on(
     if let Some(snippet_view) = selected_snippet_view {
         map.render_snippet_on(snippet_view, x, y)?;
 
-        let description_text = format!("Description: {}", &snippet_view.snippet.description);
-
-        let source_text = snippet_source_to_label(&snippet_view);
-        let source_text = format!("     Source: {}", source_text);
-
-        let transcribed_text = format!("Transcribed: {}", &snippet_view.transcribed);
-
         let y_from_bottom: u32 = (SCREEN_HEIGHT - 4).try_into()?;
+
+        let x_offset: u32 = 13;
 
         ctx.set_active_console(16);
         ctx.cls();
 
-        ctx.print_color(x, y_from_bottom, GREEN, BLACK, description_text);
-        ctx.print_color(x, y_from_bottom + 1, GREEN, BLACK, source_text);
-        ctx.print_color(x, y_from_bottom + 2, GREEN, BLACK, transcribed_text);
+        let description_text = &snippet_view.snippet.description;
+        ctx.print_color(x, y_from_bottom, GREEN, BLACK, "Description:");
+        ctx.print_color(x + x_offset, y_from_bottom, WHITE, BLACK, description_text);
+
+        let source_text = snippet_source_to_label(&snippet_view);
+        ctx.print_color(x, y_from_bottom + 1, GREEN, BLACK, "     Source:");
+        ctx.print_color(x + x_offset, y_from_bottom + 1, GRAY40, BLACK, source_text);
+
+        let transcribed_text = format!("{}", &snippet_view.transcribed);
+        let transcribed_text_color = if snippet_view.transcribed {
+            GRAY40
+        } else {
+            WHITE
+        };
+        ctx.print_color(x, y_from_bottom + 2, GREEN, BLACK, "Transcribed:");
+        ctx.print_color(x + x_offset, y_from_bottom + 2, transcribed_text_color, BLACK, transcribed_text);
     }
 
     Ok(())
