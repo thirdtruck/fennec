@@ -18,7 +18,7 @@ pub fn render_notebook_on(
                 .snippet_views
                 .iter()
                 .enumerate()
-                .filter(|(_index, view)| view.transcribed)
+                .filter(|(_index, view)| !view.transcribed)
                 .map(|(index, view)| (index, view.clone()))
                 .collect();
 
@@ -97,8 +97,31 @@ pub fn render_selected_snippet_on(
     if let Some(snippet_view) = selected_snippet_view {
         map.render_snippet_on(snippet_view, x, y)?;
 
-        render_snippet_source_on(&snippet_view, ctx, 1, (SCREEN_HEIGHT - 2).try_into()?);
+        let description_text = format!("Description: {}", &snippet_view.snippet.description);
+
+        let source_text = snippet_source_to_label(&snippet_view);
+        let source_text = format!("Source -> {}", source_text);
+
+        let y_from_bottom: u32 = (SCREEN_HEIGHT - 3).try_into()?;
+
+        ctx.set_active_console(16);
+        ctx.cls();
+
+        ctx.print_color(x, y_from_bottom, GREEN, BLACK, description_text);
+        ctx.print_color(x, y_from_bottom + 1, GREEN, BLACK, source_text);
     }
 
     Ok(())
+}
+
+fn snippet_source_to_label(snippet_view: &SnippetView) -> String {
+    if let Some(source) = &snippet_view.snippet.source {
+        match source {
+            Source::ManualPageNumber(number) => format!("Manual: Page {}", number),
+            Source::ScreenshotFilename(filename) => format!("Screenshot: {}", filename),
+            Source::Other(string) => format!("Other: {}", string),
+        }
+    } else {
+        "(Unknown)".into()
+    }
 }

@@ -77,7 +77,7 @@ impl NotebookEditor {
             .iter()
             .enumerate()
             .map(|(absolute_index, snippet)| {
-                let retained = snippet.transcribed;
+                let retained = !snippet.transcribed;
                 let current_relative_index = if retained { Some(relative_index) } else { None };
 
                 if retained {
