@@ -100,7 +100,7 @@ pub fn render_selected_snippet_on(
         let description_text = format!("Description: {}", &snippet_view.snippet.description);
 
         let source_text = snippet_source_to_label(&snippet_view);
-        let source_text = format!("Source -> {}", source_text);
+        let source_text = format!("     Source: {}", source_text);
 
         let y_from_bottom: u32 = (SCREEN_HEIGHT - 3).try_into()?;
 
