@@ -1,4 +1,5 @@
 mod editors;
+mod fennec_state;
 mod gui;
 mod language;
 mod renderers;
@@ -14,6 +15,7 @@ pub mod prelude {
     pub use crate::editors::snippet_editors::*;
     pub use crate::editors::word_editors::*;
     pub use crate::editors::*;
+    pub use crate::fennec_state::*;
     pub use crate::gui::*;
     pub use crate::language::glyphs::*;
     pub use crate::language::notebooks::*;
