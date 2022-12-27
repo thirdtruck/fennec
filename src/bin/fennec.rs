@@ -2,11 +2,11 @@ use std::error::Error;
 
 use fennec::prelude::*;
 
-struct State {
+struct FennecState {
     file_editor: FileEditor,
 }
 
-impl State {
+impl FennecState {
     fn new(snippet: Snippet) -> Self {
         let notebook: Notebook = vec![snippet].into();
         let file_editor = FileEditor::new(notebook.clone(), DEFAULT_NOTEBOOK_FILE);
@@ -50,7 +50,7 @@ impl State {
     }
 }
 
-impl GameState for State {
+impl GameState for FennecState {
     fn tick(&mut self, ctx: &mut BTerm) {
         let mut map = GlyphMap::new(10, 10).expect("Invalid map dimensions");
 
@@ -85,7 +85,7 @@ fn main() -> BError {
     let small_text_font = "dbyte_1x.png";
     let large_text_font = "dbyte_2x.png";
 
-    let state = State::new(Snippet::starting_snippet());
+    let state = FennecState::new(Snippet::starting_snippet());
 
     let output = serde_yaml::to_string(&state.file_editor.to_view().notebook_view).unwrap();
     println!("Output: {}", output);
