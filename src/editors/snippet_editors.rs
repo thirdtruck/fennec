@@ -151,7 +151,7 @@ impl SnippetEditor {
         }
     }
 
-    pub fn to_view(&self, selected_snippet: bool) -> SnippetView {
+    pub fn to_view(&self, selected_snippet: bool, retained: bool) -> SnippetView {
         let word_views: Vec<WordView> = self
             .selected_snippet
             .words
@@ -187,6 +187,7 @@ impl SnippetEditor {
             snippet: self.selected_snippet.clone(),
             word_views,
             transcribed,
+            retained,
         }
     }
 }

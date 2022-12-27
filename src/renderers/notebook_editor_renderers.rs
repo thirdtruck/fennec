@@ -18,7 +18,7 @@ pub fn render_notebook_on(
                 .snippet_views
                 .iter()
                 .enumerate()
-                .filter(|(_index, view)| !view.transcribed)
+                .filter(|(_index, view)| view.retained)
                 .map(|(index, view)| (index, view.clone()))
                 .collect();
 

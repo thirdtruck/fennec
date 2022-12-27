@@ -1,11 +1,20 @@
 use serde::{Deserialize, Serialize};
 use std::cmp;
+use std::collections::HashSet;
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum NotebookEditorFilter {
     DraftSnippetsOnly,
+}
+
+impl NotebookEditorFilter {
+    fn retains(&self, snippet: &Snippet) -> bool {
+        match self {
+            NotebookEditorFilter::DraftSnippetsOnly => !snippet.transcribed,
+        }
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -20,7 +29,7 @@ pub struct NotebookEditor {
     snippet_editor: Option<SnippetEditor>,
     selected_snippet_index: Option<usize>,
     state: NotebookEditorState,
-    filters: Vec<NotebookEditorFilter>,
+    filters: HashSet<NotebookEditorFilter>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -33,12 +42,15 @@ struct SnippetFiltrationOutcome {
 
 impl NotebookEditor {
     pub fn new(notebook: Notebook) -> Self {
+        let mut filters = HashSet::new();
+        filters.insert(NotebookEditorFilter::DraftSnippetsOnly);
+
         Self {
             selected_notebook: notebook,
             snippet_editor: None,
             selected_snippet_index: None,
             state: NotebookEditorState::EditingSnippet,
-            filters: vec![],
+            filters,
         }
     }
 
@@ -77,7 +89,10 @@ impl NotebookEditor {
             .iter()
             .enumerate()
             .map(|(absolute_index, snippet)| {
-                let retained = !snippet.transcribed;
+                let retained = self.filters
+                    .iter()
+                    .fold(true, |passing, filter| passing && filter.retains(snippet));
+
                 let current_relative_index = if retained { Some(relative_index) } else { None };
 
                 if retained {
@@ -205,11 +220,12 @@ impl NotebookEditor {
 
     pub fn to_view(&self) -> NotebookView {
         let snippet_views: Vec<SnippetView> = self
-            .selected_notebook
-            .snippets
+            .retained_snippet_outcomes()
             .iter()
             .enumerate()
-            .map(|(snippet_index, snippet)| {
+            .map(|(snippet_index, outcome)| {
+                let snippet = &outcome.snippet;
+
                 let selected = if let Some(selected_snippet_index) = self.selected_snippet_index {
                     snippet_index == selected_snippet_index
                 } else {
@@ -218,16 +234,16 @@ impl NotebookEditor {
 
                 if selected {
                     match self.snippet_editor.as_ref() {
-                        Some(editor) => editor.to_view(true),
+                        Some(editor) => editor.to_view(true, outcome.retained),
                         None => {
                             dbg!("Missing SnippetEditor");
                             dbg!(&self.snippet_editor);
 
-                            SnippetEditor::new(snippet.clone()).to_view(false)
+                            SnippetEditor::new(snippet.clone()).to_view(false, outcome.retained)
                         }
                     }
                 } else {
-                    SnippetEditor::new(snippet.clone()).to_view(false)
+                    SnippetEditor::new(snippet.clone()).to_view(false, outcome.retained)
                 }
             })
             .collect();
