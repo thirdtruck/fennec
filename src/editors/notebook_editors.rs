@@ -6,13 +6,13 @@ use crate::prelude::*;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum NotebookEditorFilter {
-    DraftSnippetsOnly,
+    HasBeenTranscribed(bool),
 }
 
 impl NotebookEditorFilter {
     fn retains(&self, snippet: &Snippet) -> bool {
         match self {
-            NotebookEditorFilter::DraftSnippetsOnly => !snippet.transcribed,
+            NotebookEditorFilter::HasBeenTranscribed(expected) => snippet.transcribed == *expected,
         }
     }
 }
@@ -43,7 +43,7 @@ struct SnippetFiltrationOutcome {
 impl NotebookEditor {
     pub fn new(notebook: Notebook) -> Self {
         let mut filters = HashSet::new();
-        filters.insert(NotebookEditorFilter::DraftSnippetsOnly);
+        filters.insert(NotebookEditorFilter::HasBeenTranscribed(false));
 
         Self {
             selected_notebook: notebook,
