@@ -200,10 +200,8 @@ pub fn on_attempt_to_load_file(editor: &FileEditor, _ctx: &BTerm) -> EditorEvent
     println!("Loading notebook from: {}", &file);
 
     match notebook_from_yaml_file(&file) {
-        Ok((notebook, yaml)) => {
+        Ok((notebook, _yaml)) => {
             println!("Saved notebook to file: {}", &file);
-            println!("YAML output:");
-            println!("{}", yaml);
 
             EditorEvent::ReportLoadedFromFile(notebook)
         }
@@ -242,10 +240,8 @@ pub fn on_attempt_to_save_file(editor: &FileEditor, _ctx: &BTerm) -> EditorEvent
     let notebook = editor.to_source();
 
     match notebook_to_yaml_file(&notebook, &file) {
-        Ok(yaml) => {
+        Ok(_yaml) => {
             println!("Saved notebook to file");
-            println!("YAML output:");
-            println!("{}", yaml);
 
             EditorEvent::ReportSavedToFile
         }
