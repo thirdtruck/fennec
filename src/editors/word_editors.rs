@@ -82,7 +82,7 @@ impl WordEditor {
                 }
                 .with_glyph_selected(new_index)
             }
-            Word::English(_string) => todo!("Implement English language support"),
+            Word::English(ref _string) => self,
         }
     }
 
@@ -213,7 +213,12 @@ impl WordEditor {
                     state: self.state,
                 }
             }
-            Word::English(_) => todo!("Add support for English words"),
+            Word::English(_) => WordView {
+                word: self.selected_word.clone(),
+                glyph_views: vec![],
+                selected: selected_word,
+                state: self.state
+            }
         }
     }
 }
@@ -227,6 +232,7 @@ impl AppliesEditorEvents for WordEditor {
             EditorEvent::AddNewGlyphToTunicWordAtCursor => self.with_new_glyph_at_cursor(),
             EditorEvent::DeleteGlyphAtCursor => self.with_glyph_at_cursor_deleted(),
             _ => {
+                // TODO: Refactor to move all of this logic into GlyphEditor or the like
                 if let Some(editor) = self.glyph_editor {
                     let glyph_editor = editor.apply(event);
 
@@ -240,7 +246,7 @@ impl AppliesEditorEvents for WordEditor {
 
                             Word::Tunic(glyphs)
                         }
-                        _ => todo!("Add support for other word types"),
+                        _ => self.selected_word.clone()
                     };
 
                     Self {
