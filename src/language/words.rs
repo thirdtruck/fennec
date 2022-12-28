@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 use crate::prelude::*;
 
@@ -20,6 +21,23 @@ impl Word {
 impl Default for Word {
     fn default() -> Self {
         Self::Tunic(vec![])
+    }
+}
+
+impl fmt::Display for Word {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Word::Tunic(glyphs) => {
+                let word = glyphs
+                    .iter()
+                    .map(|glyph| glyph.0.to_string())
+                    .reduce(|word, glyph_value| word + ", " + &glyph_value)
+                    .map_or("(Empty Tunic Word)".into(), |word| format!("Word::Tunic({})", word));
+
+                write!(f, "{}", word)
+            }
+            Word::English(text) => write!(f, "{}", text),
+        }
     }
 }
 
