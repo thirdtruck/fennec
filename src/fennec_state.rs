@@ -17,16 +17,20 @@ impl FennecState {
 
     fn render(&self, map: &mut GlyphMap, ctx: &mut BTerm) -> Result<(), Box<dyn Error>> {
         self.file_editor.render_with(|file_editor_view| {
-            ctx.set_active_console(16);
+            ctx.set_active_console(FILE_CONSOLE);
             ctx.cls();
-            ctx.set_active_console(17);
+            ctx.set_active_console(NOTEBOOK_CONSOLE);
+            ctx.cls();
+            ctx.set_active_console(SNIPPET_CONSOLE);
             ctx.cls();
 
-            let notebook_view = &file_editor_view.notebook_view;
-
-            render_notebook_on(notebook_view, map, ctx, 1, 1)?;
-
-            render_file_editor_view_onto(&file_editor_view, ctx)?;
+            match &file_editor_view.state {
+                FileEditorState::Idle => {
+                    let notebook_view = &file_editor_view.notebook_view;
+                    render_notebook_on(notebook_view, map, ctx, 1, 1)?;
+                }
+                _ => render_file_editor_view_onto(&file_editor_view, ctx)?,
+            };
 
             Ok(())
         })?;

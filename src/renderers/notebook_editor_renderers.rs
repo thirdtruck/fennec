@@ -9,7 +9,7 @@ pub fn render_notebook_on(
     x: u32,
     y: u32,
 ) -> Result<(), Box<dyn Error>> {
-    ctx.set_active_console(17);
+    ctx.set_active_console(NOTEBOOK_CONSOLE);
     ctx.cls();
 
     match notebook_view.state {
@@ -109,7 +109,7 @@ pub fn render_selected_snippet_on(
 
         let x_offset: u32 = 13;
 
-        ctx.set_active_console(16);
+        ctx.set_active_console(NOTEBOOK_CONSOLE);
         ctx.cls();
 
         let description_text = &snippet_view.snippet.description;

@@ -6,14 +6,11 @@ pub fn render_file_editor_view_onto(
     view: &FileEditorView,
     ctx: &mut BTerm,
 ) -> Result<(), Box<dyn Error>> {
-    ctx.set_active_console(16);
-
-    if view.state != FileEditorState::Idle {
-        ctx.cls();
-    }
+    ctx.set_active_console(FILE_CONSOLE);
+    ctx.cls();
 
     let x: i32 = 1;
-    let y: i32 = (SCREEN_HEIGHT - 1).try_into()?;
+    let y: i32 = (SCREEN_HEIGHT - 3).try_into()?;
 
     match &view.state {
         FileEditorState::LoadRequestSucceeded => {

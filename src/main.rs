@@ -43,4 +43,8 @@ pub mod prelude {
     pub static DEFAULT_NOTEBOOK_FILE: &str = "notebook.yaml";
 
     pub const DEFAULT_GLYPH: Glyph = Glyph(0x01);
+
+    pub const FILE_CONSOLE: usize = 16;
+    pub const NOTEBOOK_CONSOLE: usize = 17;
+    pub const SNIPPET_CONSOLE: usize = 18;
 }
