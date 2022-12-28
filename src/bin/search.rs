@@ -1,4 +1,5 @@
 use clap::{Args, Parser, Subcommand};
+use colored::{ColoredString, Colorize};
 
 use fennec::prelude::*;
 
@@ -43,7 +44,7 @@ fn main() {
 fn search_snippets(notebook: Notebook, search_args: Snippets) {
     let word = search_args.word.expect("Missing argument: glyph values for word");
 
-    println!("Looking for word {}", word);
+    println!("Looking for word {}", word.green());
 
     let glyphs: Vec<Glyph> = word
         .split_whitespace()
@@ -70,16 +71,24 @@ fn search_snippets(notebook: Notebook, search_args: Snippets) {
             .clone()
             .map_or("(None)".into(), |source| source.to_string());
 
-        let contents = snippet
+        let sentence: Vec<ColoredString> = snippet
             .words
             .iter()
-            .map(format_word_for_reading)
-            .reduce(|sentence, word| sentence + " " + &word)
-            .unwrap();
+            .map(|w| (format_word_for_reading(w), *w == word))
+            .map(|(w, matches)| if matches { w.green() } else { w.normal() })
+            .collect();
 
-        println!(" {:3}: {}", index, snippet.description);
+        println!(" {:3}: {}", index, snippet.description.green().bold());
+
         println!("      {}", source);
-        println!("      {}", contents);
+
+        print!("      ");
+        for word in sentence {
+            print!("{}", word);
+            print!(" ");
+        }
+        println!();
+
         println!();
     }
 }
