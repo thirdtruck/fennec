@@ -55,7 +55,11 @@ pub fn render_notebook_on(
 }
 
 fn description_color_for(view: &SnippetView) -> (u8, u8, u8) {
-    let SnippetView { selected, transcribed, .. } = view.clone();
+    let SnippetView {
+        selected,
+        transcribed,
+        ..
+    } = view.clone();
 
     if selected && transcribed {
         YELLOW
@@ -69,7 +73,11 @@ fn description_color_for(view: &SnippetView) -> (u8, u8, u8) {
 }
 
 fn source_color_for(view: &SnippetView) -> (u8, u8, u8) {
-    let SnippetView { selected, transcribed, .. } = view.clone();
+    let SnippetView {
+        selected,
+        transcribed,
+        ..
+    } = view.clone();
 
     if selected && transcribed {
         GRAY20
@@ -119,7 +127,13 @@ pub fn render_selected_snippet_on(
             WHITE
         };
         ctx.print_color(x, y_from_bottom + 2, GREEN, BLACK, "Transcribed:");
-        ctx.print_color(x + x_offset, y_from_bottom + 2, transcribed_text_color, BLACK, transcribed_text);
+        ctx.print_color(
+            x + x_offset,
+            y_from_bottom + 2,
+            transcribed_text_color,
+            BLACK,
+            transcribed_text,
+        );
     }
 
     Ok(())

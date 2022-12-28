@@ -12,7 +12,10 @@ impl NotebookEditorFilters {
     fn retains(&self, snippet: &Snippet) -> bool {
         let mut outcomes: Vec<bool> = vec![];
 
-        outcomes.push(self.has_been_transcribed.map_or(true, |expected| snippet.transcribed == expected));
+        let has_been_transcribed = self
+            .has_been_transcribed
+            .map_or(true, |expected| snippet.transcribed == expected);
+        outcomes.push(has_been_transcribed);
 
         outcomes.iter().all(|o| *o)
     }
@@ -196,7 +199,8 @@ impl NotebookEditor {
     }
 
     fn with_has_been_transcribed_filter_toggled(self) -> Self {
-        let has_been_transcribed = self.filters
+        let has_been_transcribed = self
+            .filters
             .has_been_transcribed
             .map(|has_been| !has_been)
             .or(Some(false));
@@ -286,7 +290,9 @@ impl AppliesEditorEvents for NotebookEditor {
             EditorEvent::MoveSnippetCursorBackward => self.with_snippet_selection_moved_backward(1),
             EditorEvent::MoveSnippetCursorForward => self.with_snippet_selection_moved_forward(1),
             EditorEvent::AddNewSnippetAtCursor => self.with_new_snippet_at_cursor(),
-            EditorEvent::ToggleHasBeenTranscribedFilter => self.with_has_been_transcribed_filter_toggled(),
+            EditorEvent::ToggleHasBeenTranscribedFilter => {
+                self.with_has_been_transcribed_filter_toggled()
+            }
             _ => {
                 if let Some(editor) = self.snippet_editor {
                     let snippet_editor = editor.apply(event);

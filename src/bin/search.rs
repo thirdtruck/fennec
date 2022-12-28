@@ -40,5 +40,4 @@ fn main() {
     };
 }
 
-fn search_snippets(_notebook: Notebook, _search_args: Snippets) {
-}
+fn search_snippets(_notebook: Notebook, _search_args: Snippets) {}
