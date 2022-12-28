@@ -112,6 +112,22 @@ pub fn render_selected_snippet_on(
         ctx.set_active_console(NOTEBOOK_CONSOLE);
         ctx.cls();
 
+        let english_word_views: Vec<(usize, &WordView)> = snippet_view
+            .word_views
+            .iter()
+            .enumerate()
+            .filter(|(_index, word_view)| if let Word::English(_) = &word_view.word { true } else { false })
+            .collect();
+
+        for (index, view) in english_word_views {
+            let index: u32 = index.try_into()?;
+            if let Word::English(text) = &view.word {
+                let x = x + 3;
+                let y = (index * 2) + y + 3;
+                ctx.print_color(x, y, ORANGE, BLACK, text);
+            }
+        }
+
         let description_text = &snippet_view.snippet.description;
         ctx.print_color(x, y_from_bottom, GREEN, BLACK, "Description:");
         ctx.print_color(x + x_offset, y_from_bottom, WHITE, BLACK, description_text);
