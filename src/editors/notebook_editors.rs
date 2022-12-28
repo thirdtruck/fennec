@@ -70,7 +70,21 @@ impl NotebookEditor {
         }
     }
 
-    pub fn with_snippet_selected(self, index: usize) -> Self {
+    pub fn with_relative_snippet_selected(self, index: usize) -> Self {
+        let new_index = self
+            .retained_snippet_outcomes()
+            .iter()
+            .find(|outcome| outcome.retained && outcome.relative_index == Some(index))
+            .map(|outcome| outcome.absolute_index);
+
+        if let Some(new_index) = new_index {
+            self.with_absolute_snippet_selected(new_index)
+        } else {
+            self
+        }
+    }
+
+    pub fn with_absolute_snippet_selected(self, index: usize) -> Self {
         let snippets = self.selected_notebook.snippets.clone();
 
         if let Some(snippet) = snippets.get(index) {
@@ -149,7 +163,7 @@ impl NotebookEditor {
             |relative_count, relative_index| cmp::min(relative_count - 1, relative_index + amount),
         );
 
-        self.with_snippet_selected(new_index)
+        self.with_absolute_snippet_selected(new_index)
     }
 
     pub fn with_snippet_selection_moved_backward(self, amount: usize) -> Self {
@@ -165,7 +179,7 @@ impl NotebookEditor {
             },
         );
 
-        self.with_snippet_selected(new_index)
+        self.with_absolute_snippet_selected(new_index)
     }
 
     pub fn with_new_snippet_at_cursor(self) -> Self {
@@ -195,7 +209,7 @@ impl NotebookEditor {
             selected_notebook,
             ..self
         }
-        .with_snippet_selected(new_index)
+        .with_absolute_snippet_selected(new_index)
     }
 
     fn with_has_been_transcribed_filter_toggled(self) -> Self {

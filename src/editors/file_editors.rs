@@ -85,14 +85,14 @@ pub struct FileEditor {
 impl FileEditor {
     pub fn new(notebook: Notebook, filename: &str) -> Self {
         Self {
-            notebook_editor: NotebookEditor::new(notebook).with_snippet_selected(0),
+            notebook_editor: NotebookEditor::new(notebook).with_relative_snippet_selected(0),
             target_file: filename.into(),
             state: FileEditorState::Idle,
         }
     }
 
     pub fn with_notebook(self, notebook: Notebook) -> Self {
-        let notebook_editor = NotebookEditor::new(notebook).with_snippet_selected(0);
+        let notebook_editor = NotebookEditor::new(notebook).with_relative_snippet_selected(0);
 
         Self {
             notebook_editor,
