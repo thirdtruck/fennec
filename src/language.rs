@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 pub mod glyphs;
 pub mod notebooks;
@@ -12,6 +13,16 @@ pub enum Source {
     ManualPageNumber(usize),
     ScreenshotFilename(String),
     Other(String),
+}
+
+impl fmt::Display for Source {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Source::ManualPageNumber(page_number) => write!(f, "ManualPageNumber({})", page_number),
+            Source::ScreenshotFilename(filename) => write!(f, "ScreenshotFilename({})", filename),
+            Source::Other(text) => write!(f, "Other({})", text),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
