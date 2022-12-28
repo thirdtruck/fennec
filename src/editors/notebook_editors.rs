@@ -157,11 +157,17 @@ impl NotebookEditor {
     }
 
     pub fn with_snippet_selection_moved_forward(self, amount: usize) -> Self {
-        let new_index = Self::absolute_index_from_relative_move(
-            self.selected_snippet_index,
-            self.retained_snippet_outcomes(),
-            |relative_count, relative_index| cmp::min(relative_count - 1, relative_index + amount),
-        );
+        let new_index = if let Some(_index) = self.selected_snippet_index {
+            Self::absolute_index_from_relative_move(
+                self.selected_snippet_index,
+                self.retained_snippet_outcomes(),
+                |relative_count, relative_index| {
+                    cmp::min(relative_count - 1, relative_index + amount)
+                },
+            )
+        } else {
+            0
+        };
 
         self.with_absolute_snippet_selected(new_index)
     }
@@ -304,9 +310,9 @@ impl AppliesEditorEvents for NotebookEditor {
             EditorEvent::MoveSnippetCursorBackward => self.with_snippet_selection_moved_backward(1),
             EditorEvent::MoveSnippetCursorForward => self.with_snippet_selection_moved_forward(1),
             EditorEvent::AddNewSnippetAtCursor => self.with_new_snippet_at_cursor(),
-            EditorEvent::ToggleHasBeenTranscribedFilter => {
-                self.with_has_been_transcribed_filter_toggled()
-            }
+            EditorEvent::ToggleHasBeenTranscribedFilter => self
+                .with_has_been_transcribed_filter_toggled()
+                .with_relative_snippet_selected(0),
             _ => {
                 if let Some(editor) = self.snippet_editor {
                     let snippet_editor = editor.apply(event);
