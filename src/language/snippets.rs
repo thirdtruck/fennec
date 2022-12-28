@@ -33,4 +33,8 @@ impl Snippet {
             ..self
         }
     }
+
+    pub fn contains_word(&self, word_to_find: &Word) -> bool {
+        self.words.iter().any(|word| word == word_to_find)
+    }
 }
