@@ -1,19 +1,20 @@
 use serde::{Deserialize, Serialize};
 use std::cmp;
-use std::collections::HashSet;
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub enum NotebookEditorFilter {
-    HasBeenTranscribed(bool),
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct NotebookEditorFilters {
+    has_been_transcribed: Option<bool>,
 }
 
-impl NotebookEditorFilter {
+impl NotebookEditorFilters {
     fn retains(&self, snippet: &Snippet) -> bool {
-        match self {
-            NotebookEditorFilter::HasBeenTranscribed(expected) => snippet.transcribed == *expected,
-        }
+        let mut outcomes: Vec<bool> = vec![];
+
+        outcomes.push(self.has_been_transcribed.map_or(true, |expected| snippet.transcribed == expected));
+
+        outcomes.iter().all(|o| *o)
     }
 }
 
@@ -29,7 +30,7 @@ pub struct NotebookEditor {
     snippet_editor: Option<SnippetEditor>,
     selected_snippet_index: Option<usize>,
     state: NotebookEditorState,
-    filters: HashSet<NotebookEditorFilter>,
+    filters: NotebookEditorFilters,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -42,8 +43,9 @@ struct SnippetFiltrationOutcome {
 
 impl NotebookEditor {
     pub fn new(notebook: Notebook) -> Self {
-        let mut filters = HashSet::new();
-        filters.insert(NotebookEditorFilter::HasBeenTranscribed(false));
+        let filters = NotebookEditorFilters {
+            has_been_transcribed: Some(false),
+        };
 
         Self {
             selected_notebook: notebook,
@@ -89,9 +91,7 @@ impl NotebookEditor {
             .iter()
             .enumerate()
             .map(|(absolute_index, snippet)| {
-                let retained = self.filters
-                    .iter()
-                    .fold(true, |passing, filter| passing && filter.retains(snippet));
+                let retained = self.filters.retains(snippet);
 
                 let current_relative_index = if retained { Some(relative_index) } else { None };
 
@@ -195,6 +195,21 @@ impl NotebookEditor {
         .with_snippet_selected(new_index)
     }
 
+    fn with_has_been_transcribed_filter_toggled(self) -> Self {
+        let has_been_transcribed = self.filters
+            .has_been_transcribed
+            .map(|has_been| !has_been)
+            .or(Some(false));
+
+        Self {
+            filters: NotebookEditorFilters {
+                has_been_transcribed,
+                ..self.filters
+            },
+            ..self
+        }
+    }
+
     pub fn on_input(&self, callback: Box<dyn Fn(&Self) -> EditorEvent>) -> EditorEvent {
         callback(self)
     }
@@ -271,6 +286,7 @@ impl AppliesEditorEvents for NotebookEditor {
             EditorEvent::MoveSnippetCursorBackward => self.with_snippet_selection_moved_backward(1),
             EditorEvent::MoveSnippetCursorForward => self.with_snippet_selection_moved_forward(1),
             EditorEvent::AddNewSnippetAtCursor => self.with_new_snippet_at_cursor(),
+            EditorEvent::ToggleHasBeenTranscribedFilter => self.with_has_been_transcribed_filter_toggled(),
             _ => {
                 if let Some(editor) = self.snippet_editor {
                     let snippet_editor = editor.apply(event);

@@ -111,6 +111,7 @@ pub fn on_notebook_editor_input(editor: &NotebookEditor, ctx: &BTerm) -> EditorE
                     VirtualKeyCode::Down => EditorEvent::MoveSnippetCursorForward,
                     VirtualKeyCode::J => EditorEvent::MoveSnippetCursorForward,
                     VirtualKeyCode::Plus => EditorEvent::AddNewSnippetAtCursor,
+                    VirtualKeyCode::T => EditorEvent::ToggleHasBeenTranscribedFilter,
                     _ => EditorEvent::NoOp,
                 }
             } else {

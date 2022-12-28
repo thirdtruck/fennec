@@ -28,4 +28,5 @@ pub enum EditorEvent {
     EnableSnippetNavigationMode,
     EnableSnippetEditingMode,
     ToggleSnippetTranscriptionState,
+    ToggleHasBeenTranscribedFilter,
 }
