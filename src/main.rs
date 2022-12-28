@@ -25,6 +25,7 @@ pub mod prelude {
     pub use crate::renderers::file_editor_renderers::*;
     pub use crate::renderers::glyph_map_renderers::*;
     pub use crate::renderers::notebook_editor_renderers::*;
+    pub use crate::renderers::snippet_editor_renderers::*;
     pub use crate::renderers::*;
     pub use crate::views::*;
 
