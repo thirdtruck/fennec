@@ -40,4 +40,59 @@ fn main() {
     };
 }
 
-fn search_snippets(_notebook: Notebook, _search_args: Snippets) {}
+fn search_snippets(notebook: Notebook, search_args: Snippets) {
+    let word = search_args.word.expect("Missing argument: glyph values for word");
+
+    println!("Looking for word {}", word);
+
+    let glyphs: Vec<Glyph> = word
+        .split_whitespace()
+        .map(|string| {
+            u16::from_str_radix(string, 10)
+                .expect("Invalid glyph value. Expected a base 10 u16 value")
+                .into()
+        })
+        .collect();
+
+    let word: Word = glyphs.into();
+
+    let matches: Vec<&Snippet> = notebook
+        .snippets
+        .iter()
+        .filter(|snippet| snippet.contains_word(&word))
+        .collect();
+
+    println!("Found {} match(es)", matches.len());
+
+    for (index, snippet) in matches.iter().enumerate() {
+        let source = snippet
+            .source
+            .clone()
+            .map_or("(None)".into(), |source| source.to_string());
+
+        let contents = snippet
+            .words
+            .iter()
+            .map(format_word_for_reading)
+            .reduce(|sentence, word| sentence + " " + &word)
+            .unwrap();
+
+        println!(" {:3}: {}", index, snippet.description);
+        println!("      {}", source);
+        println!("      {}", contents);
+        println!();
+    }
+}
+
+fn format_word_for_reading(word: &Word) -> String {
+    match word {
+        Word::Tunic(glyphs) => {
+            glyphs
+                .iter()
+                .map(|glyph| glyph.0.to_string())
+                .reduce(|word, glyph_value| word + " " + &glyph_value)
+                .map_or("(Empty)".into(), |word| format!("[{}]", word))
+        }
+        Word::English(text) => text.to_string(),
+    }
+}
