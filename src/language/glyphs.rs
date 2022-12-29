@@ -27,7 +27,7 @@ impl Error for GlyphError {
     }
 }
 
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Glyph(pub u16);
 
 impl fmt::Display for Glyph {
