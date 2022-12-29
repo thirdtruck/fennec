@@ -14,10 +14,10 @@ pub fn map_key_to_glyph_segment(key: VirtualKeyCode) -> Option<Segment> {
         VirtualKeyCode::D => Some(6),
         VirtualKeyCode::F => Some(7),
 
-        VirtualKeyCode::U => Some(8),
-        VirtualKeyCode::I => Some(9),
-        VirtualKeyCode::O => Some(10),
-        VirtualKeyCode::P => Some(11),
+        VirtualKeyCode::U => Some(9),
+        VirtualKeyCode::I => Some(10),
+        VirtualKeyCode::O => Some(11),
+        VirtualKeyCode::P => Some(8),
 
         VirtualKeyCode::J => Some(12),
         VirtualKeyCode::K => Some(13),
