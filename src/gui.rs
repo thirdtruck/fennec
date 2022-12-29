@@ -74,7 +74,7 @@ pub fn on_snippet_editor_input(editor: &SnippetEditor, ctx: &BTerm) -> EditorEve
             VirtualKeyCode::Up => EditorEvent::MoveWordCursorBackward,
             VirtualKeyCode::Down => EditorEvent::MoveWordCursorForward,
             VirtualKeyCode::Q => EditorEvent::ToggleGlyphEditingMode,
-            VirtualKeyCode::T => EditorEvent::ToggleSnippetTranscriptionState,
+            VirtualKeyCode::Key0 => EditorEvent::ToggleSnippetTranscriptionState,
             _ => {
                 let callbacks = WordEditorCallbacks {
                     on_modify_selected_glyph: Box::new(move |glyph_editor| {
