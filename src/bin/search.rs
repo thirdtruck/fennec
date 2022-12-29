@@ -1,5 +1,6 @@
 use clap::{Args, Parser, Subcommand};
 use colored::{ColoredString, Colorize};
+use std::collections::HashMap;
 
 use fennec::prelude::*;
 
@@ -14,12 +15,18 @@ struct Cli {
 enum Commands {
     // Search through every snippet in the notebook
     Snippets(Snippets),
+    // Search for usage
+    Usage(Usage),
 }
 
 #[derive(Args)]
 struct Snippets {
-    #[arg(short, long)]
     word: Option<String>,
+}
+
+#[derive(Args)]
+struct Usage {
+    words: Option<String>,
 }
 
 fn main() {
@@ -32,6 +39,7 @@ fn main() {
 
             match cli.command {
                 Commands::Snippets(args) => search_snippets(notebook, args),
+                Commands::Usage(args) => search_usage(notebook, args),
             };
         }
         Err(error) => {
@@ -39,6 +47,42 @@ fn main() {
             println!("{:?}", error);
         }
     };
+}
+
+fn search_usage(notebook: Notebook, usage_args: Usage) {
+    let usage_type = usage_args.words.expect("Missing argument: type of usage to search");
+
+    match usage_type.as_str() {
+        "words" => search_word_usage(notebook),
+        _ => panic!("Unsupported usage type: {}", usage_type),
+    };
+}
+
+fn search_word_usage(notebook: Notebook) {
+    println!("Search word usage...");
+
+    let mut usage_counts: HashMap<Word, usize> = HashMap::new();
+
+    for snippet in notebook.snippets.iter() {
+        for word in snippet.words.iter() {
+            if let Some(count) = usage_counts.get_mut(word) {
+                *count = *count + 1;
+            } else {
+                usage_counts.insert(word.clone(), 1);
+            }
+        }
+    }
+
+    let mut usage_counts: Vec<(Word, usize)> = usage_counts
+        .iter()
+        .map(|(word, count)| (word.clone(), *count))
+        .collect();
+
+    usage_counts.sort_by(|a, b| b.1.cmp(&a.1));
+
+    for (word, count) in usage_counts {
+        println!("{:4} -> {}", count, word);
+    }
 }
 
 fn search_snippets(notebook: Notebook, search_args: Snippets) {
