@@ -65,10 +65,12 @@ fn search_word_usage(notebook: Notebook) {
 
     for snippet in notebook.snippets.iter() {
         for word in snippet.words.iter() {
-            if let Some(count) = usage_counts.get_mut(word) {
-                *count = *count + 1;
-            } else {
-                usage_counts.insert(word.clone(), 1);
+            if let Word::Tunic(_) = word {
+                if let Some(count) = usage_counts.get_mut(word) {
+                    *count = *count + 1;
+                } else {
+                    usage_counts.insert(word.clone(), 1);
+                }
             }
         }
     }
