@@ -193,6 +193,24 @@ pub fn notebook_to_yaml_file(
     Ok(yaml)
 }
 
+pub fn dictionary_from_yaml_file(target_file: &str) -> Result<(Dictionary, String), Box<dyn Error>> {
+    let yaml = fs::read_to_string(target_file)?;
+    let dictionary: Dictionary = serde_yaml::from_str(&yaml)?;
+
+    Ok((dictionary, yaml))
+}
+
+pub fn dictionary_to_yaml_file(
+    dictionary: &Dictionary,
+    target_file: &str,
+) -> Result<String, Box<dyn Error>> {
+    let yaml = serde_yaml::to_string(dictionary)?;
+
+    fs::write(target_file, &yaml)?;
+
+    Ok(yaml)
+}
+
 pub fn on_attempt_to_load_file(editor: &FileEditor, _ctx: &BTerm) -> EditorEvent {
     let file = editor.target_file();
 

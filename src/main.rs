@@ -17,6 +17,7 @@ pub mod prelude {
     pub use crate::editors::*;
     pub use crate::fennec_state::*;
     pub use crate::gui::*;
+    pub use crate::language::dictionary::*;
     pub use crate::language::glyphs::*;
     pub use crate::language::notebooks::*;
     pub use crate::language::snippets::*;
@@ -42,6 +43,7 @@ pub mod prelude {
     };
 
     pub static DEFAULT_NOTEBOOK_FILE: &str = "notebook.yaml";
+    pub static DEFAULT_DICTIONARY_FILE: &str = "dictionary.yaml";
 
     pub const DEFAULT_GLYPH: Glyph = Glyph(16384);
 

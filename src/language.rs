@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+pub mod dictionary;
 pub mod glyphs;
 pub mod notebooks;
 pub mod snippets;
@@ -27,6 +28,18 @@ impl fmt::Display for Source {
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Note(String);
+
+impl Note {
+    pub fn as_text(&self) -> String {
+        self.0.clone()
+    }
+}
+
+impl fmt::Display for Note {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Note({})", self)
+    }
+}
 
 impl From<&str> for Note {
     fn from(text: &str) -> Self {
