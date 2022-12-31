@@ -83,7 +83,7 @@ fn search_word_usage(notebook: Notebook) {
     usage_counts.sort_by(|a, b| b.1.cmp(&a.1));
 
     for (word, count) in usage_counts {
-        println!("{:4} -> {}", count, word);
+        println!("{:4} -> {}", count, format_word_for_reading(&word));
     }
 }
 
