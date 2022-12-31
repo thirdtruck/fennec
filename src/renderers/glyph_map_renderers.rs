@@ -1,6 +1,30 @@
 use std::error::Error;
+use std::fmt;
 
 use crate::prelude::*;
+
+#[derive(Clone, Debug)]
+pub struct GlyphRenderError {
+    description: String,
+}
+
+impl GlyphRenderError {
+    pub fn new(description: String) -> Self {
+        Self { description }
+    }
+}
+
+impl fmt::Display for GlyphRenderError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "GlyphRenderError: {}", self.description)
+    }
+}
+
+impl Error for GlyphRenderError {
+    fn description(&self) -> &str {
+        &self.description
+    }
+}
 
 #[derive(Clone, Copy, Debug)]
 pub struct GlyphDrawing {
@@ -37,9 +61,16 @@ impl GlyphMap {
 
         let drawing = GlyphDrawing { glyph, color };
 
-        self.glyphs[index] = Some(drawing);
-
-        Ok(())
+        if let Some(glyph) = self.glyphs.get_mut(index) {
+            *glyph = Some(drawing);
+            Ok(())
+        } else {
+            let max = self.glyphs.len();
+            let err = GlyphRenderError::new(
+                format!("Invalid index for the GlyphMap: {}. The limit is {}.", index, max)
+            );
+            Err(Box::new(err))
+        }
     }
 
     pub fn get_glyph(&self, x: u32, y: u32) -> Option<GlyphDrawing> {

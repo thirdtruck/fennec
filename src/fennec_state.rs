@@ -61,7 +61,7 @@ impl FennecState {
 
 impl GameState for FennecState {
     fn tick(&mut self, ctx: &mut BTerm) {
-        let mut map = GlyphMap::new(10, 10).expect("Invalid map dimensions");
+        let mut map = GlyphMap::new(100, 100).expect("Invalid map dimensions");
 
         let ctx_clone = ctx.clone();
 
