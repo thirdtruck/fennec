@@ -1,0 +1,12 @@
+entries:
+  !English example:
+    definition: An example English word entry
+    notes:
+    - Example Note
+  ? !Tunic
+  - 16384
+  - 16384
+  - 16384
+  : definition: An example Tunic word entry
+    notes:
+    - Example Note
