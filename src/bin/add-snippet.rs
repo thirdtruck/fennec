@@ -148,7 +148,7 @@ fn english_word_snippet(args: &English) -> Snippet {
 }
 
 fn tunic_word_snippet(args: &Tunic) -> Snippet {
-    let word = vec![0x99].into();
+    let word = vec![DEFAULT_GLYPH].into();
     let words = vec![word].into();
 
     let (source, description) = match args {
