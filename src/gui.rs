@@ -11,7 +11,7 @@ pub fn map_keys_to_glyph_segments(key: VirtualKeyCode, shift_key: bool) -> Vec<S
         VirtualKeyCode::D if shift_key => vec![2, 6],
 
         VirtualKeyCode::I if shift_key => vec![10, 13],
-        VirtualKeyCode::K if shift_key => vec![13, 13],
+        VirtualKeyCode::K if shift_key => vec![10, 13],
 
         VirtualKeyCode::P if shift_key => vec![4, 8],
         VirtualKeyCode::A if shift_key => vec![4, 8],
