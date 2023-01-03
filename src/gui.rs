@@ -4,6 +4,9 @@ use std::fs;
 use crate::prelude::*;
 pub fn map_keys_to_glyph_segments(key: VirtualKeyCode, shift_key: bool) -> Vec<Segment> {
     match key {
+        VirtualKeyCode::W if shift_key => vec![1, 3],
+        VirtualKeyCode::R if shift_key => vec![1, 3],
+
         VirtualKeyCode::E if shift_key => vec![2, 6],
         VirtualKeyCode::D if shift_key => vec![2, 6],
 
@@ -12,6 +15,15 @@ pub fn map_keys_to_glyph_segments(key: VirtualKeyCode, shift_key: bool) -> Vec<S
 
         VirtualKeyCode::P if shift_key => vec![4, 8],
         VirtualKeyCode::A if shift_key => vec![4, 8],
+
+        VirtualKeyCode::U if shift_key => vec![9, 11],
+        VirtualKeyCode::O if shift_key => vec![9, 11],
+
+        VirtualKeyCode::J if shift_key => vec![12, 14],
+        VirtualKeyCode::L if shift_key => vec![12, 14],
+
+        VirtualKeyCode::S if shift_key => vec![5, 7],
+        VirtualKeyCode::F if shift_key => vec![5, 7],
 
         VirtualKeyCode::W => vec![1],
         VirtualKeyCode::E => vec![2],
