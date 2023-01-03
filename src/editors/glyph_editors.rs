@@ -19,6 +19,13 @@ impl GlyphEditor {
         }
     }
 
+    pub fn with_segments_toggled(self, segments: Vec<usize>) -> Result<GlyphEditor, GlyphError> {
+        match self.glyph.with_toggled_segments(segments) {
+            Ok(glyph) => Ok(Self { glyph }),
+            Err(error) => Err(error),
+        }
+    }
+
     pub fn to_view(&self, selected: bool) -> GlyphView {
         GlyphView {
             glyph: self.glyph,
@@ -34,6 +41,17 @@ impl AppliesEditorEvents for GlyphEditor {
                 let editor = self.clone();
 
                 match self.with_segment_toggled(segment) {
+                    Ok(editor) => editor.clone(),
+                    Err(error) => {
+                        dbg!(error);
+                        editor
+                    }
+                }
+            }
+            EditorEvent::ToggleSegmentsOnSelectedGlyph(segments) => {
+                let editor = self.clone();
+
+                match self.with_segments_toggled(segments) {
                     Ok(editor) => editor.clone(),
                     Err(error) => {
                         dbg!(error);

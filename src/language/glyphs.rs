@@ -142,4 +142,18 @@ impl Glyph {
 
         mask.map(|m| self.with_mask_applied(m, included))
     }
+
+    pub fn with_toggled_segments(&self, indices: Vec<usize>) -> Result<Self, GlyphError> {
+        if indices.is_empty() {
+            Ok(self.clone())
+        } else {
+            let mut editor: Result<Self, GlyphError> = Ok(self.clone());
+
+            for index in indices.iter() {
+                editor = editor.and_then(|ed| ed.with_toggled_segment(*index));
+            }
+
+            editor
+        }
+    }
 }

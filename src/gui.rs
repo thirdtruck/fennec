@@ -2,37 +2,45 @@ use std::error::Error;
 use std::fs;
 
 use crate::prelude::*;
-
-pub fn map_key_to_glyph_segment(key: VirtualKeyCode) -> Option<Segment> {
+pub fn map_keys_to_glyph_segments(key: VirtualKeyCode, shift_key: bool) -> Vec<Segment> {
     match key {
-        VirtualKeyCode::W => Some(1),
-        VirtualKeyCode::E => Some(2),
-        VirtualKeyCode::R => Some(3),
+        VirtualKeyCode::E if shift_key => vec![2, 6],
+        VirtualKeyCode::D if shift_key => vec![2, 6],
 
-        VirtualKeyCode::A => Some(4),
-        VirtualKeyCode::S => Some(5),
-        VirtualKeyCode::D => Some(6),
-        VirtualKeyCode::F => Some(7),
+        VirtualKeyCode::I if shift_key => vec![10, 13],
+        VirtualKeyCode::K if shift_key => vec![13, 13],
 
-        VirtualKeyCode::U => Some(9),
-        VirtualKeyCode::I => Some(10),
-        VirtualKeyCode::O => Some(11),
-        VirtualKeyCode::P => Some(8),
+        VirtualKeyCode::P if shift_key => vec![4, 8],
+        VirtualKeyCode::A if shift_key => vec![4, 8],
 
-        VirtualKeyCode::J => Some(12),
-        VirtualKeyCode::K => Some(13),
-        VirtualKeyCode::L => Some(14),
-        VirtualKeyCode::Semicolon => Some(15),
+        VirtualKeyCode::W => vec![1],
+        VirtualKeyCode::E => vec![2],
+        VirtualKeyCode::R => vec![3],
 
-        _ => None,
+        VirtualKeyCode::A => vec![4],
+        VirtualKeyCode::S => vec![5],
+        VirtualKeyCode::D => vec![6],
+        VirtualKeyCode::F => vec![7],
+
+        VirtualKeyCode::U => vec![9],
+        VirtualKeyCode::I => vec![10],
+        VirtualKeyCode::O => vec![11],
+        VirtualKeyCode::P => vec![8],
+
+        VirtualKeyCode::J => vec![12],
+        VirtualKeyCode::K => vec![13],
+        VirtualKeyCode::L => vec![14],
+        VirtualKeyCode::Semicolon => vec![15],
+
+        _ => vec![]
     }
 }
 
-pub fn on_modify_selected_glyph(_editor: &GlyphEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
-    if let Some(key) = key {
-        if let Some(segment) = map_key_to_glyph_segment(key) {
-            EditorEvent::ToggleSegmentOnSelectedGlyph(segment)
-        } else {
+pub fn on_modify_selected_glyph(_editor: &GlyphEditor, ctx: BTerm) -> EditorEvent {
+    if let Some(key) = ctx.key {
+        let segments = map_keys_to_glyph_segments(key, ctx.shift);
+
+        if segments.is_empty() {
             match key {
                 VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
                 VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
@@ -42,17 +50,19 @@ pub fn on_modify_selected_glyph(_editor: &GlyphEditor, key: Option<VirtualKeyCod
 
                 _ => EditorEvent::NoOp,
             }
+        } else {
+            EditorEvent::ToggleSegmentsOnSelectedGlyph(segments)
         }
     } else {
         EditorEvent::NoOp
     }
 }
 
-pub fn on_modify_glyph_set(_editor: &WordEditor, key: Option<VirtualKeyCode>) -> EditorEvent {
-    if let Some(key) = key {
-        if let Some(segment) = map_key_to_glyph_segment(key) {
-            EditorEvent::ToggleSegmentOnSelectedGlyph(segment)
-        } else {
+pub fn on_modify_glyph_set(_editor: &WordEditor, ctx: BTerm) -> EditorEvent {
+    if let Some(key) = ctx.key {
+        let segments = map_keys_to_glyph_segments(key, ctx.shift);
+
+        if segments.is_empty() {
             match key {
                 VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
                 VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
@@ -62,13 +72,15 @@ pub fn on_modify_glyph_set(_editor: &WordEditor, key: Option<VirtualKeyCode>) ->
 
                 _ => EditorEvent::NoOp,
             }
+        } else {
+            EditorEvent::ToggleSegmentsOnSelectedGlyph(segments)
         }
     } else {
         EditorEvent::NoOp
     }
 }
 
-pub fn on_snippet_editor_input(editor: &SnippetEditor, ctx: &BTerm) -> EditorEvent {
+pub fn on_snippet_editor_input(editor: &SnippetEditor, ctx: BTerm) -> EditorEvent {
     if let Some(key) = ctx.key {
         match key {
             VirtualKeyCode::Up => EditorEvent::MoveWordCursorBackward,
@@ -76,12 +88,14 @@ pub fn on_snippet_editor_input(editor: &SnippetEditor, ctx: &BTerm) -> EditorEve
             VirtualKeyCode::Q => EditorEvent::ToggleGlyphEditingMode,
             VirtualKeyCode::Key0 => EditorEvent::ToggleSnippetTranscriptionState,
             _ => {
+                let glyph_ctx = ctx.clone();
+                let word_ctx = ctx.clone();
                 let callbacks = WordEditorCallbacks {
                     on_modify_selected_glyph: Box::new(move |glyph_editor| {
-                        on_modify_selected_glyph(glyph_editor, Some(key))
+                        on_modify_selected_glyph(glyph_editor, glyph_ctx.clone())
                     }),
                     on_modify_glyph_set: Box::new(move |word_editor| {
-                        on_modify_glyph_set(word_editor, Some(key))
+                        on_modify_glyph_set(word_editor, word_ctx.clone())
                     }),
                 };
 
@@ -98,7 +112,7 @@ pub fn on_notebook_editor_input(editor: &NotebookEditor, ctx: &BTerm) -> EditorE
     let callback_ctx = ctx.clone();
 
     let callback: Box<dyn Fn(&SnippetEditor) -> EditorEvent> =
-        Box::new(move |snippet_editor| on_snippet_editor_input(snippet_editor, &callback_ctx));
+        Box::new(move |snippet_editor| on_snippet_editor_input(snippet_editor, callback_ctx.clone()));
 
     match editor.state() {
         NotebookEditorState::SelectingSnippet => {

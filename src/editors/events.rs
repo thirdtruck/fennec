@@ -4,6 +4,7 @@ use crate::prelude::*;
 pub enum EditorEvent {
     NoOp,
     ToggleSegmentOnSelectedGlyph(Segment),
+    ToggleSegmentsOnSelectedGlyph(Vec<Segment>),
     MoveGlyphCursorForward,
     MoveGlyphCursorBackward,
     MoveWordCursorForward,
