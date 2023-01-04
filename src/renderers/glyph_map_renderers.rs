@@ -83,7 +83,7 @@ impl GlyphMap {
     }
 
     pub fn draw_on(&self, ctx: &mut BTerm, x: u32, y: u32) -> Result<(), Box<dyn Error>> {
-        for segment in 0..16 {
+        for segment in 0..GLYPH_SEGMENT_COUNT {
             ctx.set_active_console(segment);
             ctx.cls();
 
@@ -143,7 +143,14 @@ impl GlyphMap {
     ) -> Result<(), Box<dyn Error>> {
         for (index, glyph_view) in view.glyph_views.iter().enumerate() {
             let index: u32 = index.try_into()?;
-            self.render_glyph_on(glyph_view, x + index, y)?;
+
+            // Add "word line" that connects glyphs in a word
+            let glyph_view = GlyphView {
+                glyph: glyph_view.glyph.with_toggled_segment(0)?,
+                ..*glyph_view
+            };
+
+            self.render_glyph_on(&glyph_view, x + index, y)?;
         }
 
         let state_x = 0;

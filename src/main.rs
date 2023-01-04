@@ -47,6 +47,7 @@ pub mod prelude {
 
     pub const DEFAULT_GLYPH: Glyph = Glyph(16384);
 
+    pub const GLYPH_SEGMENT_COUNT: usize = 16;
     pub const FILE_CONSOLE: usize = 16;
     pub const NOTEBOOK_CONSOLE: usize = 17;
     pub const SNIPPET_CONSOLE: usize = 18;
