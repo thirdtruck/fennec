@@ -84,8 +84,15 @@ impl SnippetEditor {
     }
 
     pub fn with_new_tunic_word_at_cursor(self) -> Self {
+        self.with_new_word_at_cursor(vec![DEFAULT_GLYPH].into())
+    }
+
+    pub fn with_new_english_word_at_cursor(self) -> Self {
+        self.with_new_word_at_cursor(".".into())
+    }
+
+    pub fn with_new_word_at_cursor(self, new_word: Word) -> Self {
         let mut words = self.selected_snippet.words.clone();
-        let new_word: Word = vec![DEFAULT_GLYPH].into(); // TODO: arbitrary starting value
 
         let new_index = if let Some(selected_word_index) = self.selected_word_index {
             if selected_word_index + 1 == words.len() {
@@ -198,6 +205,7 @@ impl AppliesEditorEvents for SnippetEditor {
             EditorEvent::MoveWordCursorBackward => self.with_word_selection_moved_backward(1),
             EditorEvent::MoveWordCursorForward => self.with_word_selection_moved_forward(1),
             EditorEvent::AddNewTunicWordAtCursor => self.with_new_tunic_word_at_cursor(),
+            EditorEvent::AddNewEnglishWordAtCursor => self.with_new_english_word_at_cursor(),
             EditorEvent::DeleteWordAtCursor => self.with_word_at_cursor_deleted(),
             EditorEvent::ToggleSnippetTranscriptionState => self.with_transcription_state_toggled(),
             _ => {

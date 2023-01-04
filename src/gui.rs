@@ -56,7 +56,6 @@ pub fn on_modify_selected_glyph(_editor: &GlyphEditor, ctx: BTerm) -> EditorEven
             match key {
                 VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
                 VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
-                VirtualKeyCode::Return => EditorEvent::AddNewTunicWordAtCursor,
                 VirtualKeyCode::Space => EditorEvent::AddNewGlyphToTunicWordAtCursor,
                 VirtualKeyCode::Back => EditorEvent::DeleteGlyphAtCursor,
 
@@ -78,7 +77,6 @@ pub fn on_modify_glyph_set(_editor: &WordEditor, ctx: BTerm) -> EditorEvent {
             match key {
                 VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
                 VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
-                VirtualKeyCode::Return => EditorEvent::AddNewTunicWordAtCursor,
                 VirtualKeyCode::Space => EditorEvent::AddNewGlyphToTunicWordAtCursor,
                 VirtualKeyCode::Back => EditorEvent::DeleteGlyphAtCursor,
 
@@ -99,6 +97,9 @@ pub fn on_snippet_editor_input(editor: &SnippetEditor, ctx: BTerm) -> EditorEven
             VirtualKeyCode::Down => EditorEvent::MoveWordCursorForward,
             VirtualKeyCode::Q => EditorEvent::ToggleGlyphEditingMode,
             VirtualKeyCode::Key0 => EditorEvent::ToggleSnippetTranscriptionState,
+            VirtualKeyCode::Return if ctx.shift => EditorEvent::AddNewEnglishWordAtCursor,
+            VirtualKeyCode::Return => EditorEvent::AddNewTunicWordAtCursor,
+            VirtualKeyCode::Back => EditorEvent::DeleteWordAtCursor,
             _ => {
                 let glyph_ctx = ctx.clone();
                 let word_ctx = ctx.clone();
