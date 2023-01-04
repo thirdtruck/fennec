@@ -45,7 +45,7 @@ pub mod prelude {
     pub static DEFAULT_NOTEBOOK_FILE: &str = "notebook.yaml";
     pub static DEFAULT_DICTIONARY_FILE: &str = "dictionary.yaml";
 
-    pub const DEFAULT_GLYPH: Glyph = Glyph(16384);
+    pub const DEFAULT_GLYPH: Glyph = Glyph(0);
 
     pub const GLYPH_SEGMENT_COUNT: usize = 16;
     pub const FILE_CONSOLE: usize = 16;
