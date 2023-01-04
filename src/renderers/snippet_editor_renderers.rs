@@ -32,7 +32,9 @@ pub fn render_snippet_on(
         if let Word::English(text) = &view.word {
             let x = x + x_offset;
             let y = (index * 2) + y + y_offset;
-            ctx.print_color(x, y, ORANGE, BLACK, text);
+            let color = if view.selected { YELLOW } else { WHITE };
+
+            ctx.print_color(x, y, color, BLACK, text);
         }
     }
 
