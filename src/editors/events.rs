@@ -5,6 +5,8 @@ pub enum EditorEvent {
     NoOp,
     ToggleSegmentOnSelectedGlyph(Segment),
     ToggleSegmentsOnSelectedGlyph(Vec<Segment>),
+    MoveWordsViewSliceBackward(usize),
+    MoveWordsViewSliceForward(usize),
     MoveGlyphCursorForward,
     MoveGlyphCursorBackward,
     MoveWordCursorForward,

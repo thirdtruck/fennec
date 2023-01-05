@@ -93,6 +93,8 @@ pub fn on_modify_glyph_set(_editor: &WordEditor, ctx: BTerm) -> EditorEvent {
 pub fn on_snippet_editor_input(editor: &SnippetEditor, ctx: BTerm) -> EditorEvent {
     if let Some(key) = ctx.key {
         match key {
+            VirtualKeyCode::Up if ctx.shift => EditorEvent::MoveWordsViewSliceBackward(1),
+            VirtualKeyCode::Down if ctx.shift => EditorEvent::MoveWordsViewSliceForward(1),
             VirtualKeyCode::Up => EditorEvent::MoveWordCursorBackward,
             VirtualKeyCode::Down => EditorEvent::MoveWordCursorForward,
             VirtualKeyCode::Q => EditorEvent::ToggleGlyphEditingMode,

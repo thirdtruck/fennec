@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use std::cmp;
+use std::ops::Range;
 
 use crate::prelude::*;
 
@@ -9,14 +10,17 @@ pub struct SnippetEditor {
     selected_snippet: Snippet,
     word_editor: Option<WordEditor>,
     selected_word_index: Option<usize>,
+    word_view_range: Range<usize>,
 }
 
 impl SnippetEditor {
     pub fn new(snippet: Snippet) -> Self {
+        let word_view_range = Range { start: 0, end: snippet.words.len(), };
         Self {
             selected_snippet: snippet,
             word_editor: None,
             selected_word_index: None,
+            word_view_range,
         }
     }
 
@@ -158,6 +162,10 @@ impl SnippetEditor {
         }
     }
 
+    fn with_word_view_slice_moved_forward(self, amount: usize) -> Self {
+        self
+    }
+
     pub fn to_view(&self, selected_snippet: bool, retained: bool) -> SnippetView {
         let word_views: Vec<WordView> = self
             .selected_snippet
@@ -195,6 +203,7 @@ impl SnippetEditor {
             word_views,
             transcribed,
             retained,
+            word_view_range: self.word_view_range.clone(),
         }
     }
 }

@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::ops::Range;
 
 use crate::prelude::*;
 
@@ -23,6 +24,7 @@ pub struct SnippetView {
     pub word_views: Vec<WordView>,
     pub transcribed: bool,
     pub retained: bool,
+    pub word_view_range: Range<usize>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]

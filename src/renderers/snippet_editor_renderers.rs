@@ -2,6 +2,12 @@ use std::error::Error;
 
 use crate::prelude::*;
 
+#[derive(Clone, Debug)]
+struct WordViewIndex {
+    index: usize,
+    view: WordView,
+}
+
 pub fn render_snippet_on(
     snippet_view: &SnippetView,
     map: &mut GlyphMap,
@@ -9,10 +15,20 @@ pub fn render_snippet_on(
     x: u32,
     y: u32,
 ) -> Result<(), Box<dyn Error>> {
-    ctx.set_active_console(SNIPPET_CONSOLE);
-    ctx.cls();
 
-    map.render_snippet_on(snippet_view, x, y)?;
+    let indexed_word_views: Vec<WordViewIndex> = snippet_view
+        .word_views
+        .iter()
+        .enumerate()
+        .map(|(index, view)| WordViewIndex { index, view: view.clone() })
+        .collect();
+
+    let visible_word_views: Vec<WordViewIndex> = indexed_word_views
+        .get(snippet_view.word_view_range.clone())
+        .map_or(vec![], |views| views.to_vec())
+        .iter()
+        .map(|view_index| view_index.clone())
+        .collect();
 
     let x_offset: u32 = 3;
     let y_offset: u32 = 3;
@@ -20,25 +36,23 @@ pub fn render_snippet_on(
     ctx.set_active_console(SNIPPET_CONSOLE);
     ctx.cls();
 
-    let english_word_views: Vec<(usize, &WordView)> = snippet_view
-        .word_views
-        .iter()
-        .enumerate()
-        .filter(|(_index, word_view)| if let Word::English(_) = &word_view.word { true } else { false })
-        .collect();
+    for WordViewIndex { index, view } in &visible_word_views {
+        let index: u32 = (*index).try_into()?;
+        match &view.word {
+            Word::English(text) => {
+                let x = x + x_offset;
+                let y = (index * 2) + y + y_offset;
+                let color = if view.selected { YELLOW } else { WHITE };
 
-    for (index, view) in english_word_views {
-        let index: u32 = index.try_into()?;
-        if let Word::English(text) = &view.word {
-            let x = x + x_offset;
-            let y = (index * 2) + y + y_offset;
-            let color = if view.selected { YELLOW } else { WHITE };
-
-            ctx.print_color(x, y, color, BLACK, text);
-        }
+                ctx.print_color(x, y, color, BLACK, text);
+            }
+            Word::Tunic(_glyphs) => {
+                map.render_word_on(&view, x, y + index)?
+            }
+        };
     }
 
-    for (index, _view) in snippet_view.word_views.iter().enumerate() {
+    for (index, _view) in visible_word_views.iter().enumerate() {
         let index: u32 = index.try_into()?;
         let x = 1;
         let y = (index * 2) + y + y_offset;
