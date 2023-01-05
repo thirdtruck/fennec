@@ -38,5 +38,12 @@ pub fn render_snippet_on(
         }
     }
 
+    for (index, _view) in snippet_view.word_views.iter().enumerate() {
+        let index: u32 = index.try_into()?;
+        let x = 1;
+        let y = (index * 2) + y + y_offset;
+        ctx.print_color(x, y, YELLOW, BLACK, index.to_string());
+    }
+
     Ok(())
 }
