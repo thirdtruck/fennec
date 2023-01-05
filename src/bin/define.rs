@@ -1,5 +1,5 @@
 use clap::{Args, Parser, Subcommand};
-//use colored::{ColoredString, Colorize};
+use colored::Colorize;
 
 use fennec::prelude::*;
 
@@ -46,12 +46,13 @@ fn initialize_dictionary() {
 
 fn search_for_word(cmd: WordCmd) {
     let word: Word = cmd.glyphs.into();
+    let readable_word: String = format_word_for_reading(&word);
 
     println!("Loading dictionary...");
 
     match dictionary_from_yaml_file(DEFAULT_DICTIONARY_FILE) {
         Ok((dictionary, _yaml)) => {
-            println!("Searching the dictionary for word [{}] ...", &word);
+            println!("Searching the dictionary for word {} ...", readable_word.green());
 
             if let Some(entry) = dictionary.get(&word) {
                 let definition: String = entry
@@ -60,11 +61,11 @@ fn search_for_word(cmd: WordCmd) {
                     .unwrap_or("[Undefined]".into());
 
                 println!("-----");
-                println!("{}", word);
-                println!("{}", definition);
-                println!("---");
+                println!("  {}: {}", readable_word.green().bold(), definition.bold());
+                println!();
+                println!("  Notes:");
                 for note in entry.notes().iter() {
-                    println!("  - {}", note.as_text());
+                    println!("    - {}", note.as_text());
                 }
                 println!("-----");
             } else {
@@ -76,6 +77,19 @@ fn search_for_word(cmd: WordCmd) {
             println!("{:?}", error);
         }
     };
+}
+
+fn format_word_for_reading(word: &Word) -> String {
+    match word {
+        Word::Tunic(glyphs) => {
+            glyphs
+                .iter()
+                .map(|glyph| glyph.0.to_string())
+                .reduce(|word, glyph_value| word + " " + &glyph_value)
+                .map_or("(Empty)".into(), |word| format!("[{}]", word))
+        }
+        Word::English(text) => text.to_string(),
+    }
 }
 
 fn main() {
