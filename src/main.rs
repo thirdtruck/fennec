@@ -4,6 +4,7 @@ mod gui;
 mod language;
 mod renderers;
 mod views;
+mod visibility;
 
 pub mod prelude {
     pub use bracket_lib::prelude::*;
@@ -29,6 +30,7 @@ pub mod prelude {
     pub use crate::renderers::snippet_editor_renderers::*;
     pub use crate::renderers::*;
     pub use crate::views::*;
+    pub use crate::visibility::*;
 
     pub const SCREEN_WIDTH: i32 = 80;
     pub const SCREEN_HEIGHT: i32 = 50;
@@ -52,5 +54,5 @@ pub mod prelude {
     pub const NOTEBOOK_CONSOLE: usize = 17;
     pub const SNIPPET_CONSOLE: usize = 18;
 
-    pub const MAX_VISIBLE_WORDS: usize = 99;
+    pub const MAX_VISIBLE_WORDS: usize = 20;
 }

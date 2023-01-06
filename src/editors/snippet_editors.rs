@@ -4,50 +4,21 @@ use std::cmp;
 
 use crate::prelude::*;
 
-use self::visibility::*;
-
-mod visibility {
-    use serde::{Deserialize, Serialize};
-
-    use std::cmp;
-    use std::ops::Range;
-
-    use crate::prelude::*;
-
-    #[derive(Clone, Debug, Serialize, Deserialize)]
-    pub struct WordViewsVisibility {
-        range: Range<usize>,
-        max: usize,
-    }
-
-    impl WordViewsVisibility {
-        pub fn new(views: &Vec<Word>, max: usize) -> Self {
-            let start = 0;
-            let end = cmp::min(views.len(), max);
-
-            Self {
-                range: Range { start, end, },
-                max,
-            }
-        }
-
-        pub fn includes(&self, index: usize) -> bool {
-            self.range.contains(&index)
-        }
-    }
-}
-
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SnippetEditor {
     selected_snippet: Snippet,
     word_editor: Option<WordEditor>,
     selected_word_index: Option<usize>,
-    visibility: WordViewsVisibility,
+    visibility: VisibilityRange,
 }
 
 impl SnippetEditor {
     pub fn new(snippet: Snippet) -> Self {
-        let visibility = WordViewsVisibility::new(&snippet.words, MAX_VISIBLE_WORDS);
+        // TODO: Move the const usage below upstream and take the max as a param instead
+        let visibility = VisibilityRange::new()
+            .with_total_items(snippet.words.len())
+            .with_max_visible(MAX_VISIBLE_WORDS)
+            .with_index(0);
 
         Self {
             selected_snippet: snippet,
@@ -195,8 +166,22 @@ impl SnippetEditor {
         }
     }
 
-    fn _with_word_view_slice_moved_forward(self, _amount: usize) -> Self {
-        self
+    fn with_word_view_slice_moved_forward(self, amount: usize) -> Self {
+        let visibility = self.visibility.moved_forward(amount);
+
+        Self {
+            visibility,
+            ..self
+        }
+    }
+
+    fn with_word_view_slice_moved_backward(self, amount: usize) -> Self {
+        let visibility = self.visibility.moved_backward(amount);
+
+        Self {
+            visibility,
+            ..self
+        }
     }
 
     pub fn to_view(&self, selected_snippet: bool, retained: bool) -> SnippetView {
@@ -255,6 +240,8 @@ impl AppliesEditorEvents for SnippetEditor {
             EditorEvent::AddNewEnglishWordAtCursor => self.with_new_english_word_at_cursor(),
             EditorEvent::DeleteWordAtCursor => self.with_word_at_cursor_deleted(),
             EditorEvent::ToggleSnippetTranscriptionState => self.with_transcription_state_toggled(),
+            EditorEvent::MoveWordsViewSliceForward(amount) => self.with_word_view_slice_moved_forward(amount),
+            EditorEvent::MoveWordsViewSliceBackward(amount) => self.with_word_view_slice_moved_backward(amount),
             _ => {
                 if let Some(editor) = self.word_editor {
                     let word_editor = editor.apply(event);
