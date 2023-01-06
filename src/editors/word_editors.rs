@@ -176,7 +176,7 @@ impl WordEditor {
         Self { state, ..self }
     }
 
-    pub fn to_view(&self, selected_word: bool) -> WordView {
+    pub fn to_view(&self, params: WordViewParams) -> WordView {
         match &self.selected_word {
             Word::Tunic(glyphs) => {
                 let glyph_views: Vec<GlyphView> = glyphs
@@ -190,7 +190,7 @@ impl WordEditor {
                                 false
                             };
 
-                        if selected_word && selected_glyph {
+                        if params.selected && selected_glyph {
                             match self.glyph_editor.as_ref() {
                                 Some(editor) => editor.to_view(true),
                                 None => {
@@ -209,14 +209,18 @@ impl WordEditor {
                 WordView {
                     word: self.selected_word.clone(),
                     glyph_views,
-                    selected: selected_word,
+                    selected: params.selected,
+                    index: params.index,
+                    within_visible_range: params.within_visible_range,
                     state: self.state,
                 }
             }
             Word::English(_) => WordView {
                 word: self.selected_word.clone(),
                 glyph_views: vec![],
-                selected: selected_word,
+                selected: params.selected,
+                index: params.index,
+                within_visible_range: params.within_visible_range,
                 state: self.state
             }
         }

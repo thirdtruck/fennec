@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::ops::Range;
 
 use crate::prelude::*;
 
@@ -12,9 +11,18 @@ pub struct GlyphView {
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct WordView {
     pub word: Word,
+    pub index: usize,
+    pub within_visible_range: bool,
     pub selected: bool,
     pub glyph_views: Vec<GlyphView>,
     pub state: WordEditorState,
+}
+
+#[derive(Clone, Debug)]
+pub struct WordViewParams {
+    pub index: usize,
+    pub within_visible_range: bool,
+    pub selected: bool,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -24,7 +32,6 @@ pub struct SnippetView {
     pub word_views: Vec<WordView>,
     pub transcribed: bool,
     pub retained: bool,
-    pub word_view_range: Range<usize>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]

@@ -1,26 +1,59 @@
 use serde::{Deserialize, Serialize};
 
 use std::cmp;
-use std::ops::Range;
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+use self::visibility::*;
+
+mod visibility {
+    use serde::{Deserialize, Serialize};
+
+    use std::cmp;
+    use std::ops::Range;
+
+    use crate::prelude::*;
+
+    #[derive(Clone, Debug, Serialize, Deserialize)]
+    pub struct WordViewsVisibility {
+        range: Range<usize>,
+        max: usize,
+    }
+
+    impl WordViewsVisibility {
+        pub fn new(views: &Vec<Word>, max: usize) -> Self {
+            let start = 0;
+            let end = cmp::min(views.len(), max);
+
+            Self {
+                range: Range { start, end, },
+                max,
+            }
+        }
+
+        pub fn includes(&self, index: usize) -> bool {
+            self.range.contains(&index)
+        }
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SnippetEditor {
     selected_snippet: Snippet,
     word_editor: Option<WordEditor>,
     selected_word_index: Option<usize>,
-    word_view_range: Range<usize>,
+    visibility: WordViewsVisibility,
 }
 
 impl SnippetEditor {
     pub fn new(snippet: Snippet) -> Self {
-        let word_view_range = Range { start: 0, end: snippet.words.len(), };
+        let visibility = WordViewsVisibility::new(&snippet.words, MAX_VISIBLE_WORDS);
+
         Self {
             selected_snippet: snippet,
             word_editor: None,
             selected_word_index: None,
-            word_view_range,
+            visibility,
         }
     }
 
@@ -162,7 +195,7 @@ impl SnippetEditor {
         }
     }
 
-    fn with_word_view_slice_moved_forward(self, amount: usize) -> Self {
+    fn _with_word_view_slice_moved_forward(self, _amount: usize) -> Self {
         self
     }
 
@@ -173,6 +206,12 @@ impl SnippetEditor {
             .iter()
             .enumerate()
             .map(|(word_index, word)| {
+                let params = WordViewParams {
+                    index: word_index,
+                    within_visible_range: self.visibility.includes(word_index),
+                    selected: false,
+                };
+
                 let selected_word = if let Some(selected_word_index) = self.selected_word_index {
                     word_index == selected_word_index
                 } else {
@@ -181,16 +220,16 @@ impl SnippetEditor {
 
                 if selected_snippet && selected_word {
                     match self.word_editor.as_ref() {
-                        Some(editor) => editor.to_view(true),
+                        Some(editor) => editor.to_view(WordViewParams { selected: true, ..params }),
                         None => {
                             dbg!("Missing WordEditor");
                             dbg!(&self.word_editor);
 
-                            WordEditor::new(word.clone()).to_view(false)
+                            WordEditor::new(word.clone()).to_view(params)
                         }
                     }
                 } else {
-                    WordEditor::new(word.clone()).to_view(false)
+                    WordEditor::new(word.clone()).to_view(params)
                 }
             })
             .collect();
@@ -203,7 +242,6 @@ impl SnippetEditor {
             word_views,
             transcribed,
             retained,
-            word_view_range: self.word_view_range.clone(),
         }
     }
 }

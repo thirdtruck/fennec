@@ -51,4 +51,6 @@ pub mod prelude {
     pub const FILE_CONSOLE: usize = 16;
     pub const NOTEBOOK_CONSOLE: usize = 17;
     pub const SNIPPET_CONSOLE: usize = 18;
+
+    pub const MAX_VISIBLE_WORDS: usize = 99;
 }
