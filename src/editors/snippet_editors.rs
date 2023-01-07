@@ -102,7 +102,11 @@ impl SnippetEditor {
     pub fn with_new_word_at_cursor(self, new_word: Word) -> Self {
         let mut words = self.selected_snippet.words.clone();
 
-        let new_index = if let Some(selected_word_index) = self.selected_word_index {
+        let new_index = if words.is_empty() {
+            words.push(new_word);
+
+            0
+        } else if let Some(selected_word_index) = self.selected_word_index {
             if selected_word_index + 1 == words.len() {
                 words.push(new_word);
             } else {
