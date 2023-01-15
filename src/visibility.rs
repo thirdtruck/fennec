@@ -4,31 +4,6 @@ use std::cmp;
 use std::ops::Range;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Cursor {
-    index: usize,
-}
-
-impl Cursor {
-    pub fn new() -> Self {
-        Self { index: 0 }
-    }
-
-    pub fn moved_forward_within(self, visibility: &VisibilityRange, amount: usize) -> Self {
-        Self {
-            index: cmp::min(visibility.max_index_within(), self.index + amount),
-        }
-    }
-
-    pub fn moved_backward_within(self, visibility: &VisibilityRange, amount: usize) -> Self {
-        let index = if self.index >= amount { self.index - amount } else { 0 };
-
-        Self {
-            index: cmp::max(index, visibility.min_index_within()),
-        }
-    }
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct VisibilityRange {
     max_visible: usize,
     total_items: usize,
@@ -45,7 +20,18 @@ impl VisibilityRange {
     }
 
     pub fn with_index(self, index: usize) -> Self {
-        Self { index: cmp::min(index, self.max_index()), ..self }
+        let floor = cmp::max(index, self.min_index());
+        let ceiling = cmp::min(index, self.max_index());
+
+        let index = if floor > index {
+            floor
+        } else if ceiling > index {
+            ceiling
+        } else {
+            index
+        };
+
+        Self { index, ..self }
     }
 
     pub fn with_max_visible(self, max_visible: usize) -> Self {
@@ -63,8 +49,8 @@ impl VisibilityRange {
         Range { start, end }.contains(&index)
     }
 
-    pub fn min_index_within(&self) -> usize {
-        self.index
+    fn min_index(&self) -> usize {
+        0
     }
 
     fn max_index(&self) -> usize {
@@ -82,6 +68,10 @@ impl VisibilityRange {
         let relative_max = cmp::min(self.index + delta, absolute_max);
 
         relative_max
+    }
+
+    pub fn min_index_within(&self) -> usize {
+        self.index
     }
 
     pub fn max_index_within(&self) -> usize {
