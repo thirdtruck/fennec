@@ -1,3 +1,4 @@
+mod cursors;
 mod editors;
 mod fennec_state;
 mod gui;
@@ -9,6 +10,7 @@ mod visibility;
 pub mod prelude {
     pub use bracket_lib::prelude::*;
 
+    pub use crate::cursors::*;
     pub use crate::editors::events::*;
     pub use crate::editors::file_editors::*;
     pub use crate::editors::glyph_editors::*;

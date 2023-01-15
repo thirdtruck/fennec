@@ -10,6 +10,7 @@ pub struct SnippetEditor {
     word_editor: Option<WordEditor>,
     selected_word_index: Option<usize>,
     visibility: VisibilityRange,
+    word_cursor: Option<Cursor>,
 }
 
 impl SnippetEditor {
@@ -25,6 +26,7 @@ impl SnippetEditor {
             word_editor: None,
             selected_word_index: None,
             visibility,
+            word_cursor: None,
         }
     }
 
