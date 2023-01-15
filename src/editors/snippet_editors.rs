@@ -23,7 +23,7 @@ impl SnippetEditor {
             selected_snippet: snippet,
             word_editor: None,
             cursor,
-        }
+        }.with_visible_word_selected()
     }
 
     pub fn selected_snippet(&self) -> Snippet {
@@ -47,7 +47,7 @@ impl SnippetEditor {
         }
     }
 
-    pub fn with_word_selected(self, index: usize) -> Self {
+    fn with_word_selected(self, index: usize) -> Self {
         let cursor = self.cursor.clone().with_index(index);
 
         if let Some(word) = self.selected_snippet.words.get(cursor.index()) {
@@ -69,29 +69,29 @@ impl SnippetEditor {
         self.with_word_selected(index)
     }
 
-    pub fn with_word_selection_moved_forward(self, amount: usize) -> Self {
+    fn with_word_selection_moved_forward(self, amount: usize) -> Self {
         Self {
             cursor: self.cursor.with_cursor_index_moved_forward(amount),
             ..self
         }
     }
 
-    pub fn with_word_selection_moved_backward(self, amount: usize) -> Self {
+    fn with_word_selection_moved_backward(self, amount: usize) -> Self {
         Self {
             cursor: self.cursor.with_cursor_index_moved_backward(amount),
             ..self
         }
     }
 
-    pub fn with_new_tunic_word_at_cursor(self) -> Self {
+    fn with_new_tunic_word_at_cursor(self) -> Self {
         self.with_new_word_at_cursor(vec![DEFAULT_GLYPH].into())
     }
 
-    pub fn with_new_english_word_at_cursor(self) -> Self {
+    fn with_new_english_word_at_cursor(self) -> Self {
         self.with_new_word_at_cursor(".".into())
     }
 
-    pub fn with_new_word_at_cursor(self, new_word: Word) -> Self {
+    fn with_new_word_at_cursor(self, new_word: Word) -> Self {
         let mut words = self.selected_snippet.words.clone();
 
         let new_index = if words.is_empty() {
@@ -126,7 +126,7 @@ impl SnippetEditor {
         }
     }
 
-    pub fn with_word_at_cursor_deleted(self) -> Self {
+    fn with_word_at_cursor_deleted(self) -> Self {
         let index = self.cursor.index();
 
         let mut words = self.selected_snippet.words.clone();

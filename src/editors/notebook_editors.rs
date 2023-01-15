@@ -88,7 +88,7 @@ impl NotebookEditor {
         let snippets = self.selected_notebook.snippets.clone();
 
         if let Some(snippet) = snippets.get(index) {
-            let editor = SnippetEditor::new(snippet.clone()).with_word_selected(0);
+            let editor = SnippetEditor::new(snippet.clone());
 
             Self {
                 snippet_editor: Some(editor),
