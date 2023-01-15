@@ -73,14 +73,14 @@ impl SnippetEditor {
         Self {
             cursor: self.cursor.with_cursor_index_moved_forward(amount),
             ..self
-        }.with_visible_word_selected()
+        }
     }
 
     pub fn with_word_selection_moved_backward(self, amount: usize) -> Self {
         Self {
             cursor: self.cursor.with_cursor_index_moved_backward(amount),
             ..self
-        }.with_visible_word_selected()
+        }
     }
 
     pub fn with_new_tunic_word_at_cursor(self) -> Self {
@@ -123,7 +123,7 @@ impl SnippetEditor {
             cursor,
             selected_snippet,
             ..self
-        }.with_visible_word_selected()
+        }
     }
 
     pub fn with_word_at_cursor_deleted(self) -> Self {
@@ -153,7 +153,7 @@ impl SnippetEditor {
                 cursor,
                 selected_snippet,
                 ..self
-            }.with_visible_word_selected()
+            }
         } else {
             self
         }
@@ -169,13 +169,13 @@ impl SnippetEditor {
     fn with_word_view_slice_moved_forward(self, amount: usize) -> Self {
         let cursor = self.cursor.with_range_index_moved_forward(amount);
 
-        Self { cursor, ..self }.with_visible_word_selected()
+        Self { cursor, ..self }
     }
 
     fn with_word_view_slice_moved_backward(self, amount: usize) -> Self {
         let cursor = self.cursor.with_range_index_moved_backward(amount);
 
-        Self { cursor, ..self }.with_visible_word_selected()
+        Self { cursor, ..self }
     }
 
     pub fn to_view(&self, selected_snippet: bool, retained: bool) -> SnippetView {
@@ -223,7 +223,7 @@ impl SnippetEditor {
 
 impl AppliesEditorEvents for SnippetEditor {
     fn apply(self, event: EditorEvent) -> Self {
-        match event {
+        let editor = match event {
             EditorEvent::MoveWordCursorBackward => self.with_word_selection_moved_backward(1),
             EditorEvent::MoveWordCursorForward => self.with_word_selection_moved_forward(1),
             EditorEvent::AddNewTunicWordAtCursor => self.with_new_tunic_word_at_cursor(),
@@ -251,6 +251,8 @@ impl AppliesEditorEvents for SnippetEditor {
                     self
                 }
             }
-        }
+        };
+
+        editor.with_visible_word_selected()
     }
 }
