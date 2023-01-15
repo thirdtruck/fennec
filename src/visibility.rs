@@ -60,7 +60,7 @@ impl VisibilityRange {
     }
 
     fn max_index(&self) -> usize {
-        if self.total_items > 0 { 
+        if self.total_items > 0 {
             self.total_items - 1
         } else {
             0
