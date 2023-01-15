@@ -4,7 +4,7 @@ use std::cmp;
 
 use crate::prelude::*;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Cursor {
     index: usize,
 }
