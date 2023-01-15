@@ -6,8 +6,7 @@ use crate::prelude::*;
 pub struct SnippetEditor {
     selected_snippet: Snippet,
     word_editor: Option<WordEditor>,
-    visibility: VisibilityRange,
-    word_cursor: Option<Cursor>,
+    cursor: VisibleCursor,
 }
 
 impl SnippetEditor {
@@ -18,11 +17,12 @@ impl SnippetEditor {
             .with_max_visible(MAX_VISIBLE_WORDS)
             .with_index(0);
 
+        let cursor = VisibleCursor::new(visibility.clone(), 0);
+
         Self {
             selected_snippet: snippet,
             word_editor: None,
-            visibility,
-            word_cursor: None,
+            cursor,
         }
     }
 
@@ -48,14 +48,14 @@ impl SnippetEditor {
     }
 
     pub fn with_word_selected(self, index: usize) -> Self {
-        let words = self.selected_snippet.words.clone();
+        let cursor = self.cursor.clone().with_index(index);
 
-        if let Some(word) = words.get(index) {
+        if let Some(word) = self.selected_snippet.words.get(cursor.index()) {
             let editor = WordEditor::new(word.clone()).with_glyph_selected(0);
 
             SnippetEditor {
                 word_editor: Some(editor),
-                word_cursor: Some(self.visibility.into_cursor_at(index)),
+                cursor,
                 ..self
             }
         } else {
@@ -63,22 +63,24 @@ impl SnippetEditor {
         }
     }
 
+    fn with_visible_word_selected(self) -> Self {
+        let index = self.cursor.index();
+
+        self.with_word_selected(index)
+    }
+
     pub fn with_word_selection_moved_forward(self, amount: usize) -> Self {
-        if let Some(cursor) = &self.word_cursor {
-            let cursor = cursor.moved_forward_within(&self.visibility, amount);
-            self.with_word_selected(cursor.index())
-        } else {
-            self
-        }
+        Self {
+            cursor: self.cursor.with_cursor_index_moved_forward(amount),
+            ..self
+        }.with_visible_word_selected()
     }
 
     pub fn with_word_selection_moved_backward(self, amount: usize) -> Self {
-        if let Some(cursor) = &self.word_cursor {
-            let cursor = cursor.moved_backward_within(&self.visibility, amount);
-            self.with_word_selected(cursor.index())
-        } else {
-            self
-        }
+        Self {
+            cursor: self.cursor.with_cursor_index_moved_backward(amount),
+            ..self
+        }.with_visible_word_selected()
     }
 
     pub fn with_new_tunic_word_at_cursor(self) -> Self {
@@ -96,8 +98,8 @@ impl SnippetEditor {
             words.push(new_word);
 
             0
-        } else if let Some(cursor) = &self.word_cursor {
-            let index = cursor.index();
+        } else {
+            let index = self.cursor.index();
 
             if index + 1 == words.len() {
                 words.push(new_word);
@@ -106,10 +108,6 @@ impl SnippetEditor {
             }
 
             index + 1
-        } else {
-            words.push(new_word);
-
-            words.len() - 1
         };
 
         let selected_snippet = Snippet {
@@ -125,33 +123,29 @@ impl SnippetEditor {
     }
 
     pub fn with_word_at_cursor_deleted(self) -> Self {
-        if let Some(cursor) = &self.word_cursor {
-            let index = cursor.index();
+        let index = self.cursor.index();
 
-            let mut words = self.selected_snippet.words.clone();
+        let mut words = self.selected_snippet.words.clone();
 
-            if words.len() > 0 {
-                words.remove(index);
+        if words.len() > 0 {
+            words.remove(index);
 
-                let new_index = if index > 0 {
-                    index - 1
-                } else {
-                    0
-                };
-
-                let selected_snippet = Snippet {
-                    words,
-                    ..self.selected_snippet
-                };
-
-                Self {
-                    selected_snippet,
-                    ..self
-                }
-                .with_word_selected(new_index)
+            let new_index = if index > 0 {
+                index - 1
             } else {
-                self
+                0
+            };
+
+            let selected_snippet = Snippet {
+                words,
+                ..self.selected_snippet
+            };
+
+            Self {
+                selected_snippet,
+                ..self
             }
+            .with_word_selected(new_index)
         } else {
             self
         }
@@ -165,21 +159,15 @@ impl SnippetEditor {
     }
 
     fn with_word_view_slice_moved_forward(self, amount: usize) -> Self {
-        let visibility = self.visibility.moved_forward(amount);
+        let cursor = self.cursor.with_range_index_moved_forward(amount);
 
-        Self {
-            visibility,
-            ..self
-        }
+        Self { cursor, ..self }.with_visible_word_selected()
     }
 
     fn with_word_view_slice_moved_backward(self, amount: usize) -> Self {
-        let visibility = self.visibility.moved_backward(amount);
+        let cursor = self.cursor.with_range_index_moved_backward(amount);
 
-        Self {
-            visibility,
-            ..self
-        }
+        Self { cursor, ..self }.with_visible_word_selected()
     }
 
     pub fn to_view(&self, selected_snippet: bool, retained: bool) -> SnippetView {
@@ -191,15 +179,11 @@ impl SnippetEditor {
             .map(|(word_index, word)| {
                 let params = WordViewParams {
                     index: word_index,
-                    within_visible_range: self.visibility.includes(word_index),
+                    within_visible_range: self.cursor.visible_range_includes(word_index),
                     selected: false,
                 };
 
-                let selected_word = if let Some(cursor) = &self.word_cursor {
-                    word_index == cursor.index()
-                } else {
-                    false
-                };
+                let selected_word = word_index == self.cursor.index();
 
                 if selected_snippet && selected_word {
                     match self.word_editor.as_ref() {
@@ -246,10 +230,8 @@ impl AppliesEditorEvents for SnippetEditor {
 
                     let mut snippet = self.selected_snippet.clone();
 
-                    if let Some(cursor) = &self.word_cursor {
-                        if let Some(word) = snippet.words.get_mut(cursor.index()) {
-                            *word = word_editor.selected_word();
-                        }
+                    if let Some(word) = snippet.words.get_mut(self.cursor.index()) {
+                        *word = word_editor.selected_word();
                     }
 
                     Self {
