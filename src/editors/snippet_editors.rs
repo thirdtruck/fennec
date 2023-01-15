@@ -99,16 +99,20 @@ impl SnippetEditor {
 
             0
         } else {
-            let index = self.cursor.index();
+            let index = self.cursor.index() + 1;
 
-            if index + 1 == words.len() {
+            if index == words.len() {
                 words.push(new_word);
             } else {
-                words.insert(index + 1, new_word);
+                words.insert(index, new_word);
             }
 
-            index + 1
+            index
         };
+
+        let cursor = self.cursor
+            .with_total_items(words.len())
+            .with_index(new_index);
 
         let selected_snippet = Snippet {
             words,
@@ -116,10 +120,10 @@ impl SnippetEditor {
         };
 
         Self {
+            cursor,
             selected_snippet,
             ..self
-        }
-        .with_word_selected(new_index)
+        }.with_visible_word_selected()
     }
 
     pub fn with_word_at_cursor_deleted(self) -> Self {
@@ -136,16 +140,20 @@ impl SnippetEditor {
                 0
             };
 
+            let cursor = self.cursor
+                .with_total_items(words.len())
+                .with_index(new_index);
+
             let selected_snippet = Snippet {
                 words,
                 ..self.selected_snippet
             };
 
             Self {
+                cursor,
                 selected_snippet,
                 ..self
-            }
-            .with_word_selected(new_index)
+            }.with_visible_word_selected()
         } else {
             self
         }

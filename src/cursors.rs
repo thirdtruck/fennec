@@ -57,6 +57,12 @@ impl VisibleCursor {
         Self { cursor, range }
     }
 
+    pub fn with_total_items(self, amount: usize) -> Self {
+        let range = self.range.with_total_items(amount);
+
+        Self::new(range, self.cursor.index())
+    }
+
     pub fn with_index(self, index: usize) -> Self {
         let cursor = Cursor::new_within(&self.range, index);
 
