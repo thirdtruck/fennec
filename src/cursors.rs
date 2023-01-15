@@ -44,6 +44,64 @@ impl Cursor {
     }
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct VisibleCursor {
+    cursor: Cursor,
+    range: VisibilityRange,
+}
+
+impl VisibleCursor {
+    pub fn new(range: VisibilityRange, index: usize) -> Self {
+        let cursor = Cursor::new_within(&range, index);
+
+        Self { cursor, range }
+    }
+
+    pub fn with_index(self, index: usize) -> Self {
+        let cursor = Cursor::new_within(&self.range, index);
+
+        Self { cursor, ..self }
+    }
+
+    fn with_visible_word_selected(self) -> Self {
+        let cursor = Cursor::new_within(&self.range, self.cursor.index());
+
+        Self { cursor, ..self }
+    }
+
+    pub fn with_cursor_index_moved_forward(self, amount: usize) -> Self {
+        let cursor = self.cursor.moved_forward_within(&self.range, amount);
+
+        Self { cursor, ..self }
+    }
+
+    pub fn with_cursor_index_moved_backward(self, amount: usize) -> Self {
+        let cursor = self.cursor.moved_backward_within(&self.range, amount);
+
+        Self { cursor, ..self }
+    }
+
+    pub fn with_range_index_moved_forward(self, amount: usize) -> Self {
+        let range = self.range.moved_forward(amount);
+
+        Self { range, ..self }.with_visible_word_selected()
+    }
+
+    pub fn with_range_index_moved_backward(self, amount: usize) -> Self {
+        let range = self.range.moved_backward(amount);
+
+        Self { range, ..self }.with_visible_word_selected()
+    }
+
+    pub fn index(&self) -> usize {
+        self.cursor.index
+    }
+
+    pub fn visible_range_includes(&self, index: usize) -> bool {
+        self.range.includes(index)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
