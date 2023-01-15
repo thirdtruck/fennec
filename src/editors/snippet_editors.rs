@@ -55,7 +55,7 @@ impl SnippetEditor {
 
             SnippetEditor {
                 word_editor: Some(editor),
-                word_cursor: Some(Cursor::new_within(&self.visibility, index)),
+                word_cursor: Some(self.visibility.into_cursor_at(index)),
                 ..self
             }
         } else {

@@ -3,6 +3,8 @@ use serde::{Deserialize, Serialize};
 use std::cmp;
 use std::ops::Range;
 
+use crate::prelude::*;
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct VisibilityRange {
     max_visible: usize,
@@ -32,6 +34,10 @@ impl VisibilityRange {
         };
 
         Self { index, ..self }
+    }
+
+    pub fn into_cursor_at(&self, index: usize) -> Cursor {
+        Cursor::new_within(self, index)
     }
 
     pub fn with_max_visible(self, max_visible: usize) -> Self {
