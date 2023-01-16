@@ -22,6 +22,7 @@ pub struct WordEditorCallbacks {
     pub on_modify_glyph_set: Box<dyn Fn(&WordEditor) -> EditorEvent>,
 }
 
+// TODO: Extract TunicWordEditor and EnglishWordEditor
 impl WordEditor {
     pub fn new(word: Word) -> Self {
         Self {
@@ -53,6 +54,38 @@ impl WordEditor {
                     EditorEvent::NoOp
                 }
             }
+        }
+    }
+
+    pub fn with_word(self, word: Word) -> Self {
+        match &self.selected_word {
+            Word::Tunic(glyphs) => {
+                let new_index = match self.selected_glyph_index {
+                    Some(current_index) => {
+                        let glyph_count = glyphs.len();
+
+                        if glyph_count == 0 {
+                            0
+                        } else if current_index > glyph_count {
+                            glyph_count - 1
+                        } else {
+                            current_index
+                        }
+                    }
+                    None => 0,
+                };
+
+                Self {
+                    selected_word: word,
+                    ..self
+                }.with_glyph_selected(new_index)
+            }
+            Word::English(_text) => Self {
+                selected_word: word,
+                glyph_editor: None,
+                selected_glyph_index: None,
+                ..self
+            },
         }
     }
 
