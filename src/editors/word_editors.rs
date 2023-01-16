@@ -96,7 +96,8 @@ impl WordEditor {
 
                 let new_index = self.selected_glyph_index.unwrap_or(0) + 1;
 
-                let (left, right) = glyphs.split_at(new_index);
+                let left = glyphs.get(0..new_index).unwrap_or_default();
+                let right = glyphs.get(new_index..).unwrap_or_default();
 
                 let glyphs = [left, &[new_glyph], right].concat().to_vec();
 
