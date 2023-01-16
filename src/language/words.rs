@@ -10,9 +10,15 @@ pub enum Word {
 }
 
 impl Word {
-    pub fn is_empty(&self) -> bool {
+    pub fn is_blank(&self) -> bool {
         match self {
-            Word::Tunic(glyphs) => glyphs.len() == 0,
+            Word::Tunic(glyphs) => {
+                if glyphs.len() == 1 {
+                    glyphs.get(0).map_or(false, |g| g.is_blank())
+                } else {
+                    glyphs.is_empty()
+                }
+            }
             Word::English(string) => string.len() == 0,
         }
     }

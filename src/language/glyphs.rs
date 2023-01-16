@@ -156,4 +156,8 @@ impl Glyph {
             editor
         }
     }
+
+    pub fn is_blank(&self) -> bool {
+        self.0 == 0
+    }
 }

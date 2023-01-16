@@ -93,21 +93,12 @@ impl WordEditor {
         match self.selected_word {
             Word::Tunic(glyphs) => {
                 let new_glyph: Glyph = DEFAULT_GLYPH;
-                let mut glyphs = glyphs.clone();
 
-                let new_index = if let Some(selected_glyph_index) = self.selected_glyph_index {
-                    if selected_glyph_index + 1 == glyphs.len() {
-                        glyphs.push(new_glyph);
-                    } else {
-                        glyphs.insert(selected_glyph_index + 1, new_glyph);
-                    }
+                let new_index = self.selected_glyph_index.unwrap_or(0) + 1;
 
-                    selected_glyph_index + 1
-                } else {
-                    glyphs.push(new_glyph);
+                let (left, right) = glyphs.split_at(new_index);
 
-                    glyphs.len() - 1
-                };
+                let glyphs = [left, &[new_glyph], right].concat().to_vec();
 
                 Self {
                     selected_word: Word::Tunic(glyphs),

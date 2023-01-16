@@ -36,12 +36,7 @@ impl SnippetEditor {
 
     pub fn on_word_editor_input(&self, callbacks: WordEditorCallbacks) -> EditorEvent {
         if let Some(editor) = &self.word_editor {
-            // TODO: What if any other conditions should apply here?
-            if editor.selected_word().is_empty() {
-                EditorEvent::DeleteWordAtCursor
-            } else {
-                editor.on_input(callbacks)
-            }
+            editor.on_input(callbacks)
         } else {
             EditorEvent::NoOp
         }
@@ -99,8 +94,8 @@ impl SnippetEditor {
 
         let cursor_index = self.cursor.index() + 1;
 
-        let left = &words[0..cursor_index];
-        let right = &words[cursor_index..];
+        let left = words.get(0..cursor_index).unwrap_or_default();
+        let right = words.get(cursor_index..).unwrap_or_default();
 
         let words = [left, &[new_word], right].concat().to_vec();
 
@@ -213,6 +208,26 @@ impl SnippetEditor {
             retained,
         }
     }
+
+    fn with_event_applied_to_word_editor(self, event: EditorEvent) -> Self {
+        if let Some(editor) = self.word_editor {
+            let word_editor = editor.apply(event);
+
+            let mut snippet = self.selected_snippet.clone();
+
+            if let Some(word) = snippet.words.get_mut(self.cursor.index()) {
+                *word = word_editor.selected_word();
+            }
+
+            Self {
+                selected_snippet: snippet,
+                word_editor: Some(word_editor),
+                ..self
+            }
+        } else {
+            self
+        }
+    }
 }
 
 impl AppliesEditorEvents for SnippetEditor {
@@ -226,25 +241,17 @@ impl AppliesEditorEvents for SnippetEditor {
             EditorEvent::ToggleSnippetTranscriptionState => self.with_transcription_state_toggled(),
             EditorEvent::MoveWordsViewSliceForward(amount) => self.with_word_view_slice_moved_forward(amount),
             EditorEvent::MoveWordsViewSliceBackward(amount) => self.with_word_view_slice_moved_backward(amount),
-            _ => {
-                if let Some(editor) = self.word_editor {
-                    let word_editor = editor.apply(event);
+            EditorEvent::DeleteGlyphAtCursor => {
+                let delete_word = self.word_editor.as_ref()
+                    .map_or(false, |editor| editor.selected_word().is_blank());
 
-                    let mut snippet = self.selected_snippet.clone();
-
-                    if let Some(word) = snippet.words.get_mut(self.cursor.index()) {
-                        *word = word_editor.selected_word();
-                    }
-
-                    Self {
-                        selected_snippet: snippet,
-                        word_editor: Some(word_editor),
-                        ..self
-                    }
+                if delete_word {
+                    self.with_word_at_cursor_deleted()
                 } else {
-                    self
+                    self.with_event_applied_to_word_editor(event)
                 }
             }
+            _ => self.with_event_applied_to_word_editor(event)
         };
 
         editor.with_visible_word_selected()
