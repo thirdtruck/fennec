@@ -95,27 +95,18 @@ impl SnippetEditor {
     }
 
     fn with_new_word_at_cursor(self, new_word: Word) -> Self {
-        let mut words = self.selected_snippet.words.clone();
+        let words = self.selected_snippet.words;
 
-        let new_index = if words.is_empty() {
-            words.push(new_word);
+        let cursor_index = self.cursor.index() + 1;
 
-            0
-        } else {
-            let index = self.cursor.index() + 1;
+        let left = &words[0..cursor_index];
+        let right = &words[cursor_index..];
 
-            if index == words.len() {
-                words.push(new_word);
-            } else {
-                words.insert(index, new_word);
-            }
-
-            index
-        };
+        let words = [left, &[new_word], right].concat().to_vec();
 
         let cursor = self.cursor
             .with_total_items(words.len())
-            .with_index(new_index);
+            .with_index(cursor_index);
 
         let selected_snippet = Snippet {
             words,
