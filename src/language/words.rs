@@ -158,6 +158,18 @@ impl From<EnglishWord> for Word {
     }
 }
 
+impl From<String> for EnglishWord {
+    fn from(text: String) -> Self {
+        EnglishWord { text }
+    }
+}
+
+impl From<&str> for EnglishWord {
+    fn from(text: &str) -> Self {
+        EnglishWord { text: text.to_string() }
+    }
+}
+
 impl From<Vec<u16>> for Word {
     fn from(items: Vec<u16>) -> Self {
         let glyphs: Vec<Glyph> = items.iter().map(|c| Glyph(*c)).collect();
