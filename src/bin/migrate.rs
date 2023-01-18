@@ -9,7 +9,11 @@ mod old_version {
 
     #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
     pub enum Word {
-        Tunic(Vec<Glyph>),
+        Tunic {
+            glyphs: Vec<Glyph>,
+            has_border: bool,
+            colored: bool,
+        },
         English(String),
     }
 
@@ -31,12 +35,12 @@ mod old_version {
 impl old_version::Word {
     pub fn migrated(&self) -> fennec::prelude::Word {
         match self {
-            Self::Tunic(glyphs) => fennec::prelude::Word::Tunic {
+            Self::Tunic { glyphs, has_border, colored } => fennec::prelude::TunicWord {
                 glyphs: glyphs.clone(),
-                has_border: false,
-                colored: false,
-            },
-            Self::English(text) => fennec::prelude::Word::English(text.clone()),
+                has_border: *has_border,
+                colored: *colored,
+            }.into(),
+            Self::English(text) => fennec::prelude::EnglishWord { text: text.clone() }.into(),
         }
     }
 }
@@ -66,7 +70,7 @@ impl From<old_version::Notebook> for fennec::prelude::Notebook {
 
         Self {
             snippets,
-            version: 2,
+            version: fennec::prelude::notebooks::VERSION,
         }
     }
 }

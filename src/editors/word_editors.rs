@@ -58,8 +58,8 @@ impl WordEditor {
     }
 
     pub fn with_word(self, word: Word) -> Self {
-        match &self.selected_word {
-            Word::Tunic { glyphs, .. } => {
+        match &self.selected_word.word_type {
+            WordType::Tunic(TunicWord { glyphs, .. }) => {
                 let new_index = match self.selected_glyph_index {
                     Some(current_index) => {
                         let glyph_count = glyphs.len();
@@ -81,7 +81,7 @@ impl WordEditor {
                 }
                 .with_glyph_selected(new_index)
             }
-            Word::English(_text) => Self {
+            WordType::English(_) => Self {
                 selected_word: word,
                 glyph_editor: None,
                 selected_glyph_index: None,
@@ -91,18 +91,21 @@ impl WordEditor {
     }
 
     pub fn with_new_glyph_at_cursor(self) -> Self {
-        match &self.selected_word {
-            Word::Tunic { glyphs, .. } => {
+        match &self.selected_word.word_type {
+            WordType::Tunic(word) => {
                 let new_glyph: Glyph = DEFAULT_GLYPH;
 
                 let new_index = self.selected_glyph_index.unwrap_or(0) + 1;
 
-                let left = glyphs.get(0..new_index).unwrap_or_default();
-                let right = glyphs.get(new_index..).unwrap_or_default();
+                let left = word.glyphs.get(0..new_index).unwrap_or_default();
+                let right = word.glyphs.get(new_index..).unwrap_or_default();
 
                 let glyphs = [left, &[new_glyph], right].concat().to_vec();
 
-                let selected_word = self.selected_word.with_glyphs(glyphs);
+                let selected_word: Word = TunicWord {
+                    glyphs,
+                    ..*word
+                }.into();
 
                 Self {
                     selected_word,
@@ -110,7 +113,7 @@ impl WordEditor {
                 }
                 .with_glyph_selected(new_index)
             }
-            Word::English(ref _string) => self,
+            WordType::English(_) => self,
         }
     }
 
@@ -118,7 +121,7 @@ impl WordEditor {
         let mut glyph_editor = self.glyph_editor.clone();
         let mut selected_glyph_index = self.selected_glyph_index;
 
-        if let Word::Tunic { glyphs, .. } = &self.selected_word {
+        if let WordType::Tunic(TunicWord { glyphs, .. }) = &self.selected_word.word_type {
             if let Some(glyph) = glyphs.get(index) {
                 let glyph = *glyph;
 
@@ -135,7 +138,7 @@ impl WordEditor {
     }
 
     pub fn with_glyph_selection_moved_forward(self, amount: usize) -> Self {
-        if let Word::Tunic { glyphs, .. } = &self.selected_word {
+        if let WordType::Tunic(TunicWord { glyphs, .. }) = &self.selected_word.word_type {
             let new_index = if let Some(index) = self.selected_glyph_index {
                 cmp::min(glyphs.len(), index + amount)
             } else {
@@ -149,7 +152,7 @@ impl WordEditor {
     }
 
     pub fn with_glyph_selection_moved_backward(self, amount: usize) -> Self {
-        if let Word::Tunic { .. } = &self.selected_word {
+        if let WordType::Tunic(_) = &self.selected_word.word_type {
             let new_index = if let Some(index) = self.selected_glyph_index {
                 if index >= amount {
                     index - amount
@@ -167,7 +170,9 @@ impl WordEditor {
     }
 
     pub fn with_glyph_at_cursor_deleted(self) -> Self {
-        if let Word::Tunic { glyphs, .. } = &self.selected_word {
+        if let WordType::Tunic(word) = &self.selected_word.word_type {
+            let glyphs = &word.glyphs;
+
             if let Some(selected_glyph_index) = self.selected_glyph_index {
                 if glyphs.len() > 0 {
                     let mut glyphs = glyphs.clone();
@@ -179,7 +184,8 @@ impl WordEditor {
                         0
                     };
 
-                    let selected_word = self.selected_word.with_glyphs(glyphs);
+                    let selected_word = word.clone();
+                    let selected_word: Word = selected_word.with_glyphs(glyphs).into();
 
                     Self {
                         selected_word,
@@ -207,8 +213,8 @@ impl WordEditor {
     }
 
     pub fn to_view(&self, params: WordViewParams) -> WordView {
-        match &self.selected_word {
-            Word::Tunic { glyphs, .. } => {
+        match &self.selected_word.word_type {
+            WordType::Tunic(TunicWord { glyphs, .. }) => {
                 let glyph_views: Vec<GlyphView> = glyphs
                     .iter()
                     .enumerate()
@@ -245,7 +251,7 @@ impl WordEditor {
                     state: self.state,
                 }
             }
-            Word::English(_) => WordView {
+            WordType::English(_) => WordView {
                 word: self.selected_word.clone(),
                 glyph_views: vec![],
                 selected: params.selected,
@@ -270,15 +276,20 @@ impl AppliesEditorEvents for WordEditor {
                 if let Some(editor) = self.glyph_editor {
                     let glyph_editor = editor.apply(event);
 
-                    let new_word = match self.selected_word.clone() {
-                        Word::Tunic { mut glyphs, .. } => {
+                    let new_word = match &self.selected_word.word_type {
+                        WordType::Tunic(word) => {
+                            let mut glyphs = word.glyphs.clone();
+
                             if let Some(index) = self.selected_glyph_index {
                                 if let Some(glyph) = glyphs.get_mut(index) {
                                     *glyph = glyph_editor.glyph;
                                 }
                             }
 
-                            self.selected_word.with_glyphs(glyphs)
+                            TunicWord {
+                                glyphs,
+                                ..*word
+                            }.into()
                         }
                         _ => self.selected_word.clone(),
                     };

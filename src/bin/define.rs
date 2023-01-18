@@ -86,13 +86,13 @@ fn search_for_word(cmd: WordCmd) {
 }
 
 fn format_word_for_reading(word: &Word) -> String {
-    match word {
-        Word::Tunic { glyphs, .. } => glyphs
+    match &word.word_type {
+        WordType::Tunic(TunicWord { glyphs, .. }) => glyphs
             .iter()
             .map(|glyph| glyph.0.to_string())
             .reduce(|word, glyph_value| word + " " + &glyph_value)
             .map_or("(Empty)".into(), |word| format!("[{}]", word)),
-        Word::English(text) => text.to_string(),
+        WordType::English(EnglishWord { text }) => text.to_string(),
     }
 }
 

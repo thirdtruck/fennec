@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
 
-pub const VERSION: usize = 2;
+pub const VERSION: usize = 3;
 
 #[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Notebook {

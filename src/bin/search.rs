@@ -67,11 +67,13 @@ fn search_word_usage(notebook: Notebook) {
 
     for snippet in notebook.snippets.iter() {
         for word in snippet.words.iter() {
-            if let Word::Tunic { .. } = word {
-                if let Some(count) = usage_counts.get_mut(word) {
+            if let WordType::Tunic(word) = &word.word_type {
+                let word: Word = word.clone().into();
+
+                if let Some(count) = usage_counts.get_mut(&word) {
                     *count = *count + 1;
                 } else {
-                    usage_counts.insert(word.clone(), 1);
+                    usage_counts.insert(word, 1);
                 }
             }
         }
@@ -144,12 +146,12 @@ fn search_snippets(notebook: Notebook, search_args: Snippets) {
 }
 
 fn format_word_for_reading(word: &Word) -> String {
-    match word {
-        Word::Tunic { glyphs, .. } => glyphs
+    match &word.word_type {
+        WordType::Tunic(TunicWord { glyphs, .. }) => glyphs
             .iter()
             .map(|glyph| glyph.0.to_string())
             .reduce(|word, glyph_value| word + " " + &glyph_value)
             .map_or("(Empty)".into(), |word| format!("[{}]", word)),
-        Word::English(text) => text.to_string(),
+        WordType::English(EnglishWord { text }) => text.to_string(),
     }
 }

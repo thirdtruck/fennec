@@ -41,15 +41,15 @@ pub fn render_snippet_on(
         let view = &view_index.view;
         let word = &view_index.view.word;
 
-        match word {
-            Word::English(text) => {
+        match &word.word_type {
+            WordType::English(EnglishWord { text }) => {
                 let x = x + x_offset;
                 let y = (absolute_index * 2) + y + y_offset;
                 let color = if view.selected { YELLOW } else { WHITE };
 
                 ctx.print_color(x, y, color, BLACK, text);
             }
-            Word::Tunic { .. } => map.render_word_on(view, x, y + absolute_index)?,
+            WordType::Tunic(_) => map.render_word_on(view, x, y + absolute_index)?,
         };
 
         let x = 1;
