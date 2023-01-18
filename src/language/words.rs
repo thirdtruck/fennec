@@ -5,7 +5,7 @@ use crate::prelude::*;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct TunicWord {
-    pub glyphs: Vec<Glyph>,
+    glyphs: Vec<Glyph>,
     has_border: bool,
     colored: bool,
 }
@@ -45,6 +45,10 @@ impl TunicWord {
             glyphs,
             ..self
         }
+    }
+
+    pub fn glyphs(&self) -> Vec<Glyph> {
+        self.glyphs.clone()
     }
 
     pub fn has_border(&self) -> bool {
