@@ -6,11 +6,33 @@ use crate::prelude::*;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct TunicWord {
     pub glyphs: Vec<Glyph>,
-    pub has_border: bool,
-    pub colored: bool,
+    has_border: bool,
+    colored: bool,
 }
 
 impl TunicWord {
+    pub fn new(glyphs: Vec<Glyph>) -> Self {
+        Self {
+            glyphs,
+            has_border: false,
+            colored: false,
+        }
+    }
+
+    pub fn with_colored_as(self, colored: bool) -> Self {
+        Self {
+            colored,
+            ..self
+        }
+    }
+
+    pub fn with_border_as(self, has_border: bool) -> Self {
+        Self {
+            has_border,
+            ..self
+        }
+    }
+
     pub fn with_border_toggled(self) -> Self {
         Self {
             has_border: !self.has_border,
@@ -23,6 +45,14 @@ impl TunicWord {
             glyphs,
             ..self
         }
+    }
+
+    pub fn has_border(&self) -> bool {
+        self.has_border
+    }
+
+    pub fn colored(&self) -> bool {
+        self.colored
     }
 }
 

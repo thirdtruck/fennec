@@ -102,10 +102,7 @@ impl WordEditor {
 
                 let glyphs = [left, &[new_glyph], right].concat().to_vec();
 
-                let selected_word: Word = TunicWord {
-                    glyphs,
-                    ..*word
-                }.into();
+                let selected_word: Word = word.clone().with_glyphs(glyphs).into();
 
                 Self {
                     selected_word,
@@ -286,10 +283,7 @@ impl AppliesEditorEvents for WordEditor {
                                 }
                             }
 
-                            TunicWord {
-                                glyphs,
-                                ..*word
-                            }.into()
+                            word.clone().with_glyphs(glyphs).into()
                         }
                         _ => self.selected_word.clone(),
                     };
