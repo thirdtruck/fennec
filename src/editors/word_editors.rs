@@ -3,6 +3,23 @@ use std::cmp;
 
 use crate::prelude::*;
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+struct TunicWordEditor {
+    word: TunicWord,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+struct EnglishWordEditor {
+    word: EnglishWord,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+enum SubEditorType {
+    Tunic(TunicWordEditor),
+    English(EnglishWordEditor),
+    None,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum WordEditorState {
     ModifySelectedGlyph,
@@ -15,6 +32,7 @@ pub struct WordEditor {
     glyph_editor: Option<GlyphEditor>,
     selected_glyph_index: Option<usize>,
     state: WordEditorState,
+    sub_editor: SubEditorType,
 }
 
 pub struct WordEditorCallbacks {
@@ -30,6 +48,7 @@ impl WordEditor {
             glyph_editor: None,
             selected_glyph_index: None,
             state: WordEditorState::ModifySelectedGlyph,
+            sub_editor: SubEditorType::None,
         }
         .with_glyph_selected(0)
     }
