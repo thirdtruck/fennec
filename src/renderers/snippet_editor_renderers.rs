@@ -42,12 +42,12 @@ pub fn render_snippet_on(
         let word = &view_index.view.word;
 
         match &word.word_type {
-            WordType::English(EnglishWord { text }) => {
+            WordType::English(word) => {
                 let x = x + x_offset;
                 let y = (absolute_index * 2) + y + y_offset;
                 let color = if view.selected { YELLOW } else { WHITE };
 
-                ctx.print_color(x, y, color, BLACK, text);
+                ctx.print_color(x, y, color, BLACK, word.text());
             }
             WordType::Tunic(_) => map.render_word_on(view, x, y + absolute_index)?,
         };

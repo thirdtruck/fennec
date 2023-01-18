@@ -40,7 +40,7 @@ impl old_version::Word {
                 has_border: *has_border,
                 colored: *colored,
             }.into(),
-            Self::English(text) => fennec::prelude::EnglishWord { text: text.clone() }.into(),
+            Self::English(text) => text.clone().into()
         }
     }
 }

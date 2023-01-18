@@ -28,7 +28,13 @@ impl TunicWord {
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct EnglishWord {
-    pub text: String,
+    text: String,
+}
+
+impl EnglishWord {
+    pub fn text(&self) -> String {
+        self.text.clone()
+    }
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]

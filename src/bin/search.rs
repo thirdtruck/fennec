@@ -152,6 +152,6 @@ fn format_word_for_reading(word: &Word) -> String {
             .map(|glyph| glyph.0.to_string())
             .reduce(|word, glyph_value| word + " " + &glyph_value)
             .map_or("(Empty)".into(), |word| format!("[{}]", word)),
-        WordType::English(EnglishWord { text }) => text.to_string(),
+        WordType::English(word) => word.text()
     }
 }
