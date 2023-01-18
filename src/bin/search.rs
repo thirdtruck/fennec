@@ -50,7 +50,9 @@ fn main() {
 }
 
 fn search_usage(notebook: Notebook, usage_args: Usage) {
-    let usage_type = usage_args.words.expect("Missing argument: type of usage to search");
+    let usage_type = usage_args
+        .words
+        .expect("Missing argument: type of usage to search");
 
     match usage_type.as_str() {
         "words" => search_word_usage(notebook),
@@ -88,7 +90,9 @@ fn search_word_usage(notebook: Notebook) {
 }
 
 fn search_snippets(notebook: Notebook, search_args: Snippets) {
-    let word = search_args.word.expect("Missing argument: glyph values for word");
+    let word = search_args
+        .word
+        .expect("Missing argument: glyph values for word");
 
     println!("Looking for word {}", word.green());
 
@@ -141,13 +145,11 @@ fn search_snippets(notebook: Notebook, search_args: Snippets) {
 
 fn format_word_for_reading(word: &Word) -> String {
     match word {
-        Word::Tunic { glyphs, .. } => {
-            glyphs
-                .iter()
-                .map(|glyph| glyph.0.to_string())
-                .reduce(|word, glyph_value| word + " " + &glyph_value)
-                .map_or("(Empty)".into(), |word| format!("[{}]", word))
-        }
+        Word::Tunic { glyphs, .. } => glyphs
+            .iter()
+            .map(|glyph| glyph.0.to_string())
+            .reduce(|word, glyph_value| word + " " + &glyph_value)
+            .map_or("(Empty)".into(), |word| format!("[{}]", word)),
         Word::English(text) => text.to_string(),
     }
 }

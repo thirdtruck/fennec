@@ -36,7 +36,11 @@ impl Cursor {
     }
 
     pub fn moved_backward_within(self, visibility: &VisibilityRange, amount: usize) -> Self {
-        let index = if self.index >= amount { self.index - amount } else { 0 };
+        let index = if self.index >= amount {
+            self.index - amount
+        } else {
+            0
+        };
 
         Self {
             index: cmp::max(index, visibility.min_index_within()),
@@ -141,8 +145,7 @@ mod tests {
     fn moved_forward_within_stays_within_upper_range() {
         let range = default_visibility_range();
 
-        let cursor = Cursor::new_within(&range, 0)
-            .moved_forward_within(&range, 100);
+        let cursor = Cursor::new_within(&range, 0).moved_forward_within(&range, 100);
 
         assert_eq!(cursor.index(), 59);
     }
@@ -151,8 +154,7 @@ mod tests {
     fn moved_backward_within_stays_within_upper_range() {
         let range = default_visibility_range();
 
-        let cursor = Cursor::new_within(&range, 100)
-            .moved_backward_within(&range, 500);
+        let cursor = Cursor::new_within(&range, 100).moved_backward_within(&range, 500);
 
         assert_eq!(cursor.index(), 20);
     }

@@ -16,19 +16,16 @@ pub fn render_snippet_on(
     x: u32,
     y: u32,
 ) -> Result<(), Box<dyn Error>> {
-
     let indexed_visible_word_views: Vec<WordViewIndex> = snippet_view
         .word_views
         .iter()
         .enumerate()
         .filter(|(_, view)| view.within_visible_range)
         .enumerate()
-        .map(|(absolute_index, (relative_index, view))| {
-            WordViewIndex {
-                view: view.clone(),
-                relative_index,
-                absolute_index,
-            }
+        .map(|(absolute_index, (relative_index, view))| WordViewIndex {
+            view: view.clone(),
+            relative_index,
+            absolute_index,
         })
         .collect();
 
@@ -52,9 +49,7 @@ pub fn render_snippet_on(
 
                 ctx.print_color(x, y, color, BLACK, text);
             }
-            Word::Tunic { .. } => {
-                map.render_word_on(view, x, y + absolute_index)?
-            }
+            Word::Tunic { .. } => map.render_word_on(view, x, y + absolute_index)?,
         };
 
         let x = 1;

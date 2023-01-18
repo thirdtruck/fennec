@@ -23,7 +23,8 @@ impl SnippetEditor {
             selected_snippet: snippet,
             word_editor: None,
             cursor,
-        }.with_visible_word_selected()
+        }
+        .with_visible_word_selected()
     }
 
     pub fn selected_snippet(&self) -> Snippet {
@@ -99,7 +100,8 @@ impl SnippetEditor {
 
         let words = [left, &[new_word], right].concat().to_vec();
 
-        let cursor = self.cursor
+        let cursor = self
+            .cursor
             .with_total_items(words.len())
             .with_index(cursor_index);
 
@@ -123,13 +125,10 @@ impl SnippetEditor {
         if words.len() > 0 {
             words.remove(index);
 
-            let new_index = if index > 0 {
-                index - 1
-            } else {
-                0
-            };
+            let new_index = if index > 0 { index - 1 } else { 0 };
 
-            let cursor = self.cursor
+            let cursor = self
+                .cursor
                 .with_total_items(words.len())
                 .with_index(new_index);
 
@@ -184,7 +183,10 @@ impl SnippetEditor {
 
                 if selected_snippet && selected_word {
                     match self.word_editor.as_ref() {
-                        Some(editor) => editor.to_view(WordViewParams { selected: true, ..params }),
+                        Some(editor) => editor.to_view(WordViewParams {
+                            selected: true,
+                            ..params
+                        }),
                         None => {
                             dbg!("Missing WordEditor");
                             dbg!(&self.word_editor);
@@ -239,10 +241,16 @@ impl AppliesEditorEvents for SnippetEditor {
             EditorEvent::AddNewEnglishWordAtCursor => self.with_new_english_word_at_cursor(),
             EditorEvent::DeleteWordAtCursor => self.with_word_at_cursor_deleted(),
             EditorEvent::ToggleSnippetTranscriptionState => self.with_transcription_state_toggled(),
-            EditorEvent::MoveWordsViewSliceForward(amount) => self.with_word_view_slice_moved_forward(amount),
-            EditorEvent::MoveWordsViewSliceBackward(amount) => self.with_word_view_slice_moved_backward(amount),
+            EditorEvent::MoveWordsViewSliceForward(amount) => {
+                self.with_word_view_slice_moved_forward(amount)
+            }
+            EditorEvent::MoveWordsViewSliceBackward(amount) => {
+                self.with_word_view_slice_moved_backward(amount)
+            }
             EditorEvent::DeleteGlyphAtCursor => {
-                let delete_word = self.word_editor.as_ref()
+                let delete_word = self
+                    .word_editor
+                    .as_ref()
                     .map_or(false, |editor| editor.selected_word().is_blank());
 
                 if delete_word {
@@ -251,7 +259,7 @@ impl AppliesEditorEvents for SnippetEditor {
                     self.with_event_applied_to_word_editor(event)
                 }
             }
-            _ => self.with_event_applied_to_word_editor(event)
+            _ => self.with_event_applied_to_word_editor(event),
         };
 
         editor.with_visible_word_selected()

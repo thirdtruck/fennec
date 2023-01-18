@@ -41,11 +41,17 @@ impl VisibilityRange {
     }
 
     pub fn with_max_visible(self, max_visible: usize) -> Self {
-        Self { max_visible, ..self }
+        Self {
+            max_visible,
+            ..self
+        }
     }
 
     pub fn with_total_items(self, total_items: usize) -> Self {
-        Self { total_items, ..self }
+        Self {
+            total_items,
+            ..self
+        }
     }
 
     pub fn includes(&self, index: usize) -> bool {
@@ -99,7 +105,11 @@ impl VisibilityRange {
 
     pub fn moved_backward(self, amount: usize) -> Self {
         Self {
-            index: if self.index >= amount { self.index - amount } else { 0 },
+            index: if self.index >= amount {
+                self.index - amount
+            } else {
+                0
+            },
             ..self
         }
     }

@@ -66,9 +66,10 @@ impl GlyphMap {
             Ok(())
         } else {
             let max = self.glyphs.len();
-            let err = GlyphRenderError::new(
-                format!("Invalid index for the GlyphMap: {}. The limit is {}.", index, max)
-            );
+            let err = GlyphRenderError::new(format!(
+                "Invalid index for the GlyphMap: {}. The limit is {}.",
+                index, max
+            ));
             Err(Box::new(err))
         }
     }

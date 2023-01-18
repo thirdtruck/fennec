@@ -5,7 +5,7 @@ use fennec::prelude::DEFAULT_NOTEBOOK_FILE;
 mod old_version {
     use serde::{Deserialize, Serialize};
 
-    use fennec::prelude::{Glyph, Source, Note};
+    use fennec::prelude::{Glyph, Note, Source};
 
     #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
     pub enum Word {
@@ -43,10 +43,8 @@ impl old_version::Word {
 
 impl old_version::Snippet {
     pub fn migrated(&self) -> fennec::prelude::Snippet {
-        let words: Vec<fennec::prelude::Word> = self.words
-            .iter()
-            .map(|word| word.migrated())
-            .collect();
+        let words: Vec<fennec::prelude::Word> =
+            self.words.iter().map(|word| word.migrated()).collect();
 
         fennec::prelude::Snippet {
             words,
@@ -60,7 +58,8 @@ impl old_version::Snippet {
 
 impl From<old_version::Notebook> for fennec::prelude::Notebook {
     fn from(old_notebook: old_version::Notebook) -> Self {
-        let snippets: Vec<fennec::prelude::Snippet> = old_notebook.snippets
+        let snippets: Vec<fennec::prelude::Snippet> = old_notebook
+            .snippets
             .iter()
             .map(|snip| snip.migrated())
             .collect();

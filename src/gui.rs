@@ -44,7 +44,7 @@ pub fn map_keys_to_glyph_segments(key: VirtualKeyCode, shift_key: bool) -> Vec<S
         VirtualKeyCode::L => vec![14],
         VirtualKeyCode::Semicolon => vec![15],
 
-        _ => vec![]
+        _ => vec![],
     }
 }
 
@@ -125,8 +125,9 @@ pub fn on_notebook_editor_input(editor: &NotebookEditor, ctx: &BTerm) -> EditorE
     let ctx = ctx.clone();
     let callback_ctx = ctx.clone();
 
-    let callback: Box<dyn Fn(&SnippetEditor) -> EditorEvent> =
-        Box::new(move |snippet_editor| on_snippet_editor_input(snippet_editor, callback_ctx.clone()));
+    let callback: Box<dyn Fn(&SnippetEditor) -> EditorEvent> = Box::new(move |snippet_editor| {
+        on_snippet_editor_input(snippet_editor, callback_ctx.clone())
+    });
 
     match editor.state() {
         NotebookEditorState::SelectingSnippet => {
@@ -221,7 +222,9 @@ pub fn notebook_to_yaml_file(
     Ok(yaml)
 }
 
-pub fn dictionary_from_yaml_file(target_file: &str) -> Result<(Dictionary, String), Box<dyn Error>> {
+pub fn dictionary_from_yaml_file(
+    target_file: &str,
+) -> Result<(Dictionary, String), Box<dyn Error>> {
     let yaml = fs::read_to_string(target_file)?;
     let dictionary: Dictionary = serde_yaml::from_str(&yaml)?;
 

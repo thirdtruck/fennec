@@ -43,7 +43,11 @@ impl Word {
 
     pub fn with_border_toggled(self) -> Self {
         match self {
-            Self::Tunic { glyphs, has_border, colored } => Self::Tunic {
+            Self::Tunic {
+                glyphs,
+                has_border,
+                colored,
+            } => Self::Tunic {
                 has_border: !has_border,
                 glyphs,
                 colored,
@@ -54,7 +58,11 @@ impl Word {
 
     pub fn with_glyphs(self, glyphs: Vec<Glyph>) -> Self {
         match self {
-            Self::Tunic { has_border, colored, .. } => Self::Tunic {
+            Self::Tunic {
+                has_border,
+                colored,
+                ..
+            } => Self::Tunic {
                 glyphs,
                 has_border,
                 colored,
@@ -82,7 +90,9 @@ impl fmt::Display for Word {
                     .iter()
                     .map(|glyph| glyph.0.to_string())
                     .reduce(|word, glyph_value| word + ", " + &glyph_value)
-                    .map_or("(Empty Tunic Word)".into(), |word| format!("Word::Tunic {}", word));
+                    .map_or("(Empty Tunic Word)".into(), |word| {
+                        format!("Word::Tunic {}", word)
+                    });
 
                 write!(f, "{}", word)
             }

@@ -78,7 +78,8 @@ impl WordEditor {
                 Self {
                     selected_word: word,
                     ..self
-                }.with_glyph_selected(new_index)
+                }
+                .with_glyph_selected(new_index)
             }
             Word::English(_text) => Self {
                 selected_word: word,
@@ -250,8 +251,8 @@ impl WordEditor {
                 selected: params.selected,
                 index: params.index,
                 within_visible_range: params.within_visible_range,
-                state: self.state
-            }
+                state: self.state,
+            },
         }
     }
 }
@@ -279,7 +280,7 @@ impl AppliesEditorEvents for WordEditor {
 
                             self.selected_word.with_glyphs(glyphs)
                         }
-                        _ => self.selected_word.clone()
+                        _ => self.selected_word.clone(),
                     };
 
                     Self {

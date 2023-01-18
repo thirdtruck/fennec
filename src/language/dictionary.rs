@@ -20,10 +20,7 @@ impl Default for Entry {
 
 impl Entry {
     pub fn new(definition: Option<String>, notes: Vec<Note>) -> Self {
-        Self {
-            definition,
-            notes,
-        }
+        Self { definition, notes }
     }
 
     pub fn definition(&self) -> &Option<String> {
@@ -53,10 +50,7 @@ impl Dictionary {
         let mut entries = self.entries.clone();
         entries.insert(word.clone(), entry);
 
-        Self {
-            entries,
-            ..self
-        }
+        Self { entries, ..self }
     }
 
     pub fn with_annotation(self, word: &Word, note: Note) -> Self {
@@ -71,10 +65,7 @@ impl Dictionary {
         let mut entries = self.entries.clone();
         entries.insert(word.clone(), entry);
 
-        Self {
-            entries,
-            ..self
-        }
+        Self { entries, ..self }
     }
 
     pub fn get(&self, word: &Word) -> Option<&Entry> {

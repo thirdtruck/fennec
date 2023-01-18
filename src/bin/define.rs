@@ -24,7 +24,10 @@ struct WordCmd {
 }
 
 fn initialize_dictionary() {
-    println!("Initializing dictionary file: {}...", DEFAULT_DICTIONARY_FILE);
+    println!(
+        "Initializing dictionary file: {}...",
+        DEFAULT_DICTIONARY_FILE
+    );
 
     let english_word: Word = "example".into();
     let tunic_word: Word = vec![DEFAULT_GLYPH, DEFAULT_GLYPH, DEFAULT_GLYPH].into();
@@ -52,13 +55,13 @@ fn search_for_word(cmd: WordCmd) {
 
     match dictionary_from_yaml_file(DEFAULT_DICTIONARY_FILE) {
         Ok((dictionary, _yaml)) => {
-            println!("Searching the dictionary for word {} ...", readable_word.green());
+            println!(
+                "Searching the dictionary for word {} ...",
+                readable_word.green()
+            );
 
             if let Some(entry) = dictionary.get(&word) {
-                let definition: String = entry
-                    .definition()
-                    .clone()
-                    .unwrap_or("[Undefined]".into());
+                let definition: String = entry.definition().clone().unwrap_or("[Undefined]".into());
 
                 println!("-----");
                 println!("  {}: {}", readable_word.green().bold(), definition.bold());
@@ -73,7 +76,10 @@ fn search_for_word(cmd: WordCmd) {
             }
         }
         Err(error) => {
-            println!("Unable to load dictionary file: {}", DEFAULT_DICTIONARY_FILE);
+            println!(
+                "Unable to load dictionary file: {}",
+                DEFAULT_DICTIONARY_FILE
+            );
             println!("{:?}", error);
         }
     };
@@ -81,13 +87,11 @@ fn search_for_word(cmd: WordCmd) {
 
 fn format_word_for_reading(word: &Word) -> String {
     match word {
-        Word::Tunic { glyphs, .. } => {
-            glyphs
-                .iter()
-                .map(|glyph| glyph.0.to_string())
-                .reduce(|word, glyph_value| word + " " + &glyph_value)
-                .map_or("(Empty)".into(), |word| format!("[{}]", word))
-        }
+        Word::Tunic { glyphs, .. } => glyphs
+            .iter()
+            .map(|glyph| glyph.0.to_string())
+            .reduce(|word, glyph_value| word + " " + &glyph_value)
+            .map_or("(Empty)".into(), |word| format!("[{}]", word)),
         Word::English(text) => text.to_string(),
     }
 }
