@@ -65,7 +65,7 @@ fn search_word_usage(notebook: Notebook) {
 
     for snippet in notebook.snippets.iter() {
         for word in snippet.words.iter() {
-            if let Word::Tunic(_) = word {
+            if let Word::Tunic { .. } = word {
                 if let Some(count) = usage_counts.get_mut(word) {
                     *count = *count + 1;
                 } else {
@@ -141,7 +141,7 @@ fn search_snippets(notebook: Notebook, search_args: Snippets) {
 
 fn format_word_for_reading(word: &Word) -> String {
     match word {
-        Word::Tunic(glyphs) => {
+        Word::Tunic { glyphs, .. } => {
             glyphs
                 .iter()
                 .map(|glyph| glyph.0.to_string())

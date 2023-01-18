@@ -81,7 +81,7 @@ fn search_for_word(cmd: WordCmd) {
 
 fn format_word_for_reading(word: &Word) -> String {
     match word {
-        Word::Tunic(glyphs) => {
+        Word::Tunic { glyphs, .. } => {
             glyphs
                 .iter()
                 .map(|glyph| glyph.0.to_string())

@@ -52,7 +52,7 @@ pub fn render_snippet_on(
 
                 ctx.print_color(x, y, color, BLACK, text);
             }
-            Word::Tunic(_glyphs) => {
+            Word::Tunic { .. } => {
                 map.render_word_on(view, x, y + absolute_index)?
             }
         };

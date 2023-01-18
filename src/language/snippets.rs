@@ -13,7 +13,8 @@ pub struct Snippet {
 
 impl Snippet {
     pub fn starting_snippet() -> Self {
-        let words = vec![Word::Tunic(vec![DEFAULT_GLYPH])];
+        let word: Word = DEFAULT_GLYPH.into();
+        let words = vec![word];
         let source = Some(Source::Other("ADD_SOURCE_HERE".into()));
         let description = "ADD_DESCRIPTION_HERE".into();
         let note: Note = "ADD_NOTE_HERE".into();
