@@ -17,6 +17,8 @@ pub mod prelude {
     pub use crate::editors::notebook_editors::*;
     pub use crate::editors::snippet_editors::*;
     pub use crate::editors::word_editors::*;
+    pub use crate::editors::word_editors::tunic_word_editors::*;
+    pub use crate::editors::word_editors::english_word_editors::*;
     pub use crate::editors::*;
     pub use crate::fennec_state::*;
     pub use crate::gui::*;
