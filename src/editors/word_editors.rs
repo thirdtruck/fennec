@@ -11,12 +11,6 @@ enum SubEditorType {
     English(EnglishWordEditor),
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub enum WordEditorState {
-    ModifySelectedGlyph,
-    ModifyGlyphSet,
-}
-
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WordEditor {
     sub_editor: SubEditorType,
@@ -24,7 +18,7 @@ pub struct WordEditor {
 
 pub struct WordEditorCallbacks {
     pub on_modify_selected_glyph: Box<dyn Fn(&GlyphEditor) -> EditorEvent>,
-    pub on_modify_glyph_set: Box<dyn Fn(&TunicWordEditor) -> EditorEvent>,
+    pub on_modify_english_word: Box<dyn Fn(&EnglishWordEditor) -> EditorEvent>,
 }
 
 impl WordEditor {

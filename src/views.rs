@@ -15,7 +15,6 @@ pub struct WordView {
     pub within_visible_range: bool,
     pub selected: bool,
     pub glyph_views: Vec<GlyphView>,
-    pub state: WordEditorState,
 }
 
 #[derive(Clone, Debug)]

@@ -8,7 +8,6 @@ pub struct TunicWordEditor {
     word: TunicWord,
     glyph_editor: Option<GlyphEditor>,
     selected_glyph_index: Option<usize>,
-    state: WordEditorState,
 }
 
 impl TunicWordEditor {
@@ -17,26 +16,14 @@ impl TunicWordEditor {
             word,
             glyph_editor: None,
             selected_glyph_index: None,
-            state: WordEditorState::ModifySelectedGlyph,
         }
     }
 
     pub fn on_input(&self, callbacks: WordEditorCallbacks) -> EditorEvent {
-        match self.state {
-            WordEditorState::ModifySelectedGlyph => {
-                if let Some(editor) = &self.glyph_editor {
-                    (callbacks.on_modify_selected_glyph)(editor)
-                } else {
-                    EditorEvent::NoOp
-                }
-            }
-            WordEditorState::ModifyGlyphSet => {
-                if let Some(_editor) = &self.glyph_editor {
-                    (callbacks.on_modify_glyph_set)(self)
-                } else {
-                    EditorEvent::NoOp
-                }
-            }
+        if let Some(editor) = &self.glyph_editor {
+            (callbacks.on_modify_selected_glyph)(editor)
+        } else {
+            EditorEvent::NoOp
         }
     }
 
@@ -60,8 +47,7 @@ impl TunicWordEditor {
         Self {
             word,
             ..self
-        }
-        .with_glyph_selected(new_index)
+        }.with_glyph_selected(new_index)
     }
 
     pub fn with_new_glyph_at_cursor(self) -> Self {
@@ -151,15 +137,6 @@ impl TunicWordEditor {
         }
     }
 
-    pub fn with_glyph_editing_mode_toggled(self) -> Self {
-        let state = match &self.state {
-            WordEditorState::ModifyGlyphSet => WordEditorState::ModifySelectedGlyph,
-            WordEditorState::ModifySelectedGlyph => WordEditorState::ModifyGlyphSet,
-        };
-
-        Self { state, ..self }
-    }
-
     pub fn word(&self) -> TunicWord {
         self.word.clone()
     }
@@ -198,7 +175,6 @@ impl TunicWordEditor {
             selected: params.selected,
             index: params.index,
             within_visible_range: params.within_visible_range,
-            state: self.state,
         }
     }
 }
@@ -206,7 +182,6 @@ impl TunicWordEditor {
 impl AppliesEditorEvents for TunicWordEditor {
     fn apply(self, event: EditorEvent) -> Self {
         match &event {
-            EditorEvent::ToggleGlyphEditingMode => self.with_glyph_editing_mode_toggled(),
             EditorEvent::MoveGlyphCursorBackward => self.with_glyph_selection_moved_backward(1),
             EditorEvent::MoveGlyphCursorForward => self.with_glyph_selection_moved_forward(1),
             EditorEvent::AddNewGlyphToTunicWordAtCursor => self.with_new_glyph_at_cursor(),

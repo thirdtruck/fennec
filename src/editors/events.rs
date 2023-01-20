@@ -13,7 +13,6 @@ pub enum EditorEvent {
     MoveWordCursorBackward,
     MoveSnippetCursorForward,
     MoveSnippetCursorBackward,
-    ToggleGlyphEditingMode,
     AddNewTunicWordAtCursor,
     AddNewEnglishWordAtCursor,
     AddNewGlyphToTunicWordAtCursor,

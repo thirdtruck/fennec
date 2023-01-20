@@ -69,21 +69,11 @@ pub fn on_modify_selected_glyph(_editor: &GlyphEditor, ctx: BTerm) -> EditorEven
     }
 }
 
-pub fn on_modify_glyph_set(_editor: &TunicWordEditor, ctx: BTerm) -> EditorEvent {
+pub fn on_modify_english_word(_editor: &EnglishWordEditor, ctx: BTerm) -> EditorEvent {
     if let Some(key) = ctx.key {
-        let segments = map_keys_to_glyph_segments(key, ctx.shift);
-
-        if segments.is_empty() {
-            match key {
-                VirtualKeyCode::Left => EditorEvent::MoveGlyphCursorBackward,
-                VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
-                VirtualKeyCode::Space => EditorEvent::AddNewGlyphToTunicWordAtCursor,
-                VirtualKeyCode::Back => EditorEvent::DeleteGlyphAtCursor,
-
-                _ => EditorEvent::NoOp,
-            }
-        } else {
-            EditorEvent::ToggleSegmentsOnSelectedGlyph(segments)
+        match key {
+            VirtualKeyCode::Back => EditorEvent::DeleteWordAtCursor,
+            _ => EditorEvent::NoOp,
         }
     } else {
         EditorEvent::NoOp
@@ -97,7 +87,6 @@ pub fn on_snippet_editor_input(editor: &SnippetEditor, ctx: BTerm) -> EditorEven
             VirtualKeyCode::Down if ctx.shift => EditorEvent::MoveWordsViewSliceForward(1),
             VirtualKeyCode::Up => EditorEvent::MoveWordCursorBackward,
             VirtualKeyCode::Down => EditorEvent::MoveWordCursorForward,
-            VirtualKeyCode::Q => EditorEvent::ToggleGlyphEditingMode,
             VirtualKeyCode::Key0 => EditorEvent::ToggleSnippetTranscriptionState,
             VirtualKeyCode::Return if ctx.shift => EditorEvent::AddNewEnglishWordAtCursor,
             VirtualKeyCode::Return => EditorEvent::AddNewTunicWordAtCursor,
@@ -108,8 +97,8 @@ pub fn on_snippet_editor_input(editor: &SnippetEditor, ctx: BTerm) -> EditorEven
                     on_modify_selected_glyph: Box::new(move |glyph_editor| {
                         on_modify_selected_glyph(glyph_editor, glyph_ctx.clone())
                     }),
-                    on_modify_glyph_set: Box::new(move |tunic_word_editor| {
-                        on_modify_glyph_set(tunic_word_editor, word_ctx.clone())
+                    on_modify_english_word: Box::new(move |english_word_editor| {
+                        on_modify_english_word(english_word_editor, word_ctx.clone())
                     }),
                 };
 
