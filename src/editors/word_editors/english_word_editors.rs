@@ -41,16 +41,12 @@ impl AppliesEditorEvents for EnglishWordEditor {
 
 impl From<&EnglishWord> for EnglishWordEditor {
     fn from(word: &EnglishWord) -> Self {
-        EnglishWordEditor {
-            word: word.clone(),
-        }
+        EnglishWordEditor { word: word.clone() }
     }
 }
 
 impl From<EnglishWord> for EnglishWordEditor {
     fn from(word: EnglishWord) -> Self {
-        EnglishWordEditor {
-            word,
-        }
+        EnglishWordEditor { word }
     }
 }

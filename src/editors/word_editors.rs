@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::prelude::*;
 
-pub mod tunic_word_editors;
 pub mod english_word_editors;
+pub mod tunic_word_editors;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 enum SubEditorType {
@@ -24,13 +24,13 @@ pub struct WordEditorCallbacks {
 impl WordEditor {
     pub fn new(word: Word) -> Self {
         let sub_editor = match &word.word_type {
-            WordType::Tunic(word) => SubEditorType::Tunic(TunicWordEditor::new(word.clone()).with_glyph_selected(0)),
+            WordType::Tunic(word) => {
+                SubEditorType::Tunic(TunicWordEditor::new(word.clone()).with_glyph_selected(0))
+            }
             WordType::English(word) => SubEditorType::English(EnglishWordEditor::new(word.clone())),
         };
 
-        Self {
-            sub_editor,
-        }
+        Self { sub_editor }
     }
 
     pub fn selected_word(&self) -> Word {
@@ -51,15 +51,13 @@ impl WordEditor {
         match &new_word.word_type {
             WordType::Tunic(tunic_word) => {
                 let sub_editor = match &self.sub_editor {
-                    SubEditorType::Tunic(editor) => SubEditorType::Tunic(editor.clone().with_word(tunic_word.clone())),
+                    SubEditorType::Tunic(editor) => {
+                        SubEditorType::Tunic(editor.clone().with_word(tunic_word.clone()))
+                    }
                     _ => SubEditorType::Tunic(TunicWordEditor::new(tunic_word.clone())),
                 };
 
-
-                Self {
-                    sub_editor,
-                    ..self
-                }
+                Self { sub_editor, ..self }
             }
             WordType::English(english_word) => Self {
                 sub_editor: SubEditorType::English(english_word.into()),
@@ -79,14 +77,14 @@ impl WordEditor {
 impl AppliesEditorEvents for WordEditor {
     fn apply(self, event: EditorEvent) -> Self {
         let sub_editor = match &self.sub_editor {
-            SubEditorType::English(editor) => SubEditorType::English(editor.clone().apply(event.clone())),
-            SubEditorType::Tunic(editor) => SubEditorType::Tunic(editor.clone().apply(event.clone())),
+            SubEditorType::English(editor) => {
+                SubEditorType::English(editor.clone().apply(event.clone()))
+            }
+            SubEditorType::Tunic(editor) => {
+                SubEditorType::Tunic(editor.clone().apply(event.clone()))
+            }
         };
 
-        Self {
-            sub_editor,
-            ..self
-        }
-
+        Self { sub_editor, ..self }
     }
 }

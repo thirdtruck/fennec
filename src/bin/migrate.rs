@@ -35,13 +35,15 @@ mod old_version {
 impl old_version::Word {
     pub fn migrated(&self) -> fennec::prelude::Word {
         match self {
-            Self::Tunic { glyphs, has_border, colored } => {
-                fennec::prelude::TunicWord::new(glyphs.clone())
-                    .with_border_as(*has_border)
-                    .with_colored_as(*colored)
-                    .into()
-            },
-            Self::English(text) => text.clone().into()
+            Self::Tunic {
+                glyphs,
+                has_border,
+                colored,
+            } => fennec::prelude::TunicWord::new(glyphs.clone())
+                .with_border_as(*has_border)
+                .with_colored_as(*colored)
+                .into(),
+            Self::English(text) => text.clone().into(),
         }
     }
 }

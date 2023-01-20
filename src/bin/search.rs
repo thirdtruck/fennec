@@ -147,11 +147,12 @@ fn search_snippets(notebook: Notebook, search_args: Snippets) {
 
 fn format_word_for_reading(word: &Word) -> String {
     match &word.word_type {
-        WordType::Tunic(word) => word.glyphs()
+        WordType::Tunic(word) => word
+            .glyphs()
             .iter()
             .map(|glyph| glyph.0.to_string())
             .reduce(|word, glyph_value| word + " " + &glyph_value)
             .map_or("(Empty)".into(), |word| format!("[{}]", word)),
-        WordType::English(word) => word.text()
+        WordType::English(word) => word.text(),
     }
 }

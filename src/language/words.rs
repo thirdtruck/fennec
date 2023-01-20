@@ -20,17 +20,11 @@ impl TunicWord {
     }
 
     pub fn with_colored_as(self, colored: bool) -> Self {
-        Self {
-            colored,
-            ..self
-        }
+        Self { colored, ..self }
     }
 
     pub fn with_border_as(self, has_border: bool) -> Self {
-        Self {
-            has_border,
-            ..self
-        }
+        Self { has_border, ..self }
     }
 
     pub fn with_border_toggled(self) -> Self {
@@ -41,10 +35,7 @@ impl TunicWord {
     }
 
     pub fn with_glyphs(self, glyphs: Vec<Glyph>) -> Self {
-        Self {
-            glyphs,
-            ..self
-        }
+        Self { glyphs, ..self }
     }
 
     pub fn glyphs(&self) -> Vec<Glyph> {
@@ -213,7 +204,9 @@ impl From<String> for EnglishWord {
 
 impl From<&str> for EnglishWord {
     fn from(text: &str) -> Self {
-        EnglishWord { text: text.to_string() }
+        EnglishWord {
+            text: text.to_string(),
+        }
     }
 }
 
@@ -271,12 +264,18 @@ impl From<Glyph> for Word {
 
 impl From<&str> for Word {
     fn from(text: &str) -> Self {
-        Self { word_type: WordType::English(EnglishWord { text: text.to_string() }) }
+        Self {
+            word_type: WordType::English(EnglishWord {
+                text: text.to_string(),
+            }),
+        }
     }
 }
 
 impl From<String> for Word {
     fn from(text: String) -> Self {
-        Self { word_type: WordType::English(EnglishWord { text }) }
+        Self {
+            word_type: WordType::English(EnglishWord { text }),
+        }
     }
 }

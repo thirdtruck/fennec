@@ -44,10 +44,7 @@ impl TunicWordEditor {
             None => 0,
         };
 
-        Self {
-            word,
-            ..self
-        }.with_glyph_selected(new_index)
+        Self { word, ..self }.with_glyph_selected(new_index)
     }
 
     pub fn with_new_glyph_at_cursor(self) -> Self {
@@ -142,16 +139,17 @@ impl TunicWordEditor {
     }
 
     pub fn to_view(&self, params: WordViewParams) -> WordView {
-        let glyph_views: Vec<GlyphView> = self.word.glyphs()
+        let glyph_views: Vec<GlyphView> = self
+            .word
+            .glyphs()
             .iter()
             .enumerate()
             .map(|(glyph_index, glyph)| {
-                let selected_glyph =
-                    if let Some(selected_glyph_index) = self.selected_glyph_index {
-                        glyph_index == selected_glyph_index
-                    } else {
-                        false
-                    };
+                let selected_glyph = if let Some(selected_glyph_index) = self.selected_glyph_index {
+                    glyph_index == selected_glyph_index
+                } else {
+                    false
+                };
 
                 if params.selected && selected_glyph {
                     match self.glyph_editor.as_ref() {
