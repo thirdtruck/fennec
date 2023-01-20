@@ -24,8 +24,8 @@ impl EnglishWordEditor {
         Self { word }
     }
 
-    pub fn on_input(&self, _callbacks: WordEditorCallbacks) -> EditorEvent {
-        EditorEvent::NoOp
+    pub fn on_input(&self, callbacks: WordEditorCallbacks) -> EditorEvent {
+        (callbacks.on_modify_english_word)(self)
     }
 
     pub fn word(&self) -> EnglishWord {
