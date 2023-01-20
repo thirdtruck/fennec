@@ -69,7 +69,7 @@ pub fn on_modify_selected_glyph(_editor: &GlyphEditor, ctx: BTerm) -> EditorEven
     }
 }
 
-pub fn on_modify_glyph_set(_editor: &WordEditor, ctx: BTerm) -> EditorEvent {
+pub fn on_modify_glyph_set(_editor: &TunicWordEditor, ctx: BTerm) -> EditorEvent {
     if let Some(key) = ctx.key {
         let segments = map_keys_to_glyph_segments(key, ctx.shift);
 
@@ -108,8 +108,8 @@ pub fn on_snippet_editor_input(editor: &SnippetEditor, ctx: BTerm) -> EditorEven
                     on_modify_selected_glyph: Box::new(move |glyph_editor| {
                         on_modify_selected_glyph(glyph_editor, glyph_ctx.clone())
                     }),
-                    on_modify_glyph_set: Box::new(move |word_editor| {
-                        on_modify_glyph_set(word_editor, word_ctx.clone())
+                    on_modify_glyph_set: Box::new(move |tunic_word_editor| {
+                        on_modify_glyph_set(tunic_word_editor, word_ctx.clone())
                     }),
                 };
 

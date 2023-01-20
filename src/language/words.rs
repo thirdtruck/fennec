@@ -60,6 +60,16 @@ impl TunicWord {
     }
 }
 
+impl From<Vec<Glyph>> for TunicWord {
+    fn from(glyphs: Vec<Glyph>) -> Self {
+        Self {
+            glyphs,
+            has_border: false,
+            colored: false,
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct EnglishWord {
     text: String,
@@ -75,6 +85,34 @@ impl EnglishWord {
 pub enum WordType {
     Tunic(TunicWord),
     English(EnglishWord),
+}
+
+pub struct WordCallbacks {
+    for_tunic_word: Box<dyn FnOnce(&TunicWord) -> TunicWord>,
+    for_english_word: Box<dyn FnOnce(&EnglishWord) -> EnglishWord>,
+}
+
+impl WordCallbacks {
+    pub fn new() -> Self {
+        Self {
+            for_tunic_word: Box::new(move |w| w.clone()),
+            for_english_word: Box::new(move |w| w.clone()),
+        }
+    }
+
+    pub fn for_tunic_word(self, callback: Box<dyn FnOnce(&TunicWord) -> TunicWord>) -> Self {
+        Self {
+            for_tunic_word: callback,
+            ..self
+        }
+    }
+
+    pub fn for_english_word(self, callback: Box<dyn FnOnce(&EnglishWord) -> EnglishWord>) -> Self {
+        Self {
+            for_english_word: callback,
+            ..self
+        }
+    }
 }
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
@@ -96,18 +134,11 @@ impl Word {
         }
     }
 
-    pub fn apply_to_tunic_word(&self, callback: Box<dyn Fn(&TunicWord)>) {
+    pub fn apply(&self, callbacks: WordCallbacks) -> Self {
         match &self.word_type {
-            WordType::Tunic(word) => callback(&word),
-            _ => ()
-        };
-    }
-
-    pub fn apply_to_english_word(&self, callback: Box<dyn Fn(&EnglishWord)>) {
-        match &self.word_type {
-            WordType::English(word) => callback(&word),
-            _ => ()
-        };
+            WordType::Tunic(word) => (callbacks.for_tunic_word)(word).into(),
+            WordType::English(word) => (callbacks.for_english_word)(word).into(),
+        }
     }
 }
 
@@ -150,10 +181,26 @@ impl From<TunicWord> for Word {
     }
 }
 
+impl From<&TunicWord> for Word {
+    fn from(tunic_word: &TunicWord) -> Self {
+        Word {
+            word_type: WordType::Tunic(tunic_word.clone()),
+        }
+    }
+}
+
 impl From<EnglishWord> for Word {
     fn from(english_word: EnglishWord) -> Self {
         Word {
             word_type: WordType::English(english_word),
+        }
+    }
+}
+
+impl From<&EnglishWord> for Word {
+    fn from(english_word: &EnglishWord) -> Self {
+        Word {
+            word_type: WordType::English(english_word.clone()),
         }
     }
 }

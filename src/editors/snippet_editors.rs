@@ -49,7 +49,7 @@ impl SnippetEditor {
         if let Some(word) = self.selected_snippet.words.get(cursor.index()) {
             let word_editor = match &self.word_editor {
                 Some(editor) => editor.clone().with_word(word.clone()),
-                None => WordEditor::new(word.clone()).with_glyph_selected(0),
+                None => WordEditor::new(word.clone()),
             };
 
             SnippetEditor {
