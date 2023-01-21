@@ -131,6 +131,20 @@ impl Word {
             WordType::English(word) => (callbacks.for_english_word)(word).into(),
         }
     }
+
+    pub fn has_border(&self) -> bool {
+        match &self.word_type {
+            WordType::Tunic(word) => word.has_border,
+            _ => false,
+        }
+    }
+
+    pub fn colored(&self) -> bool {
+        match &self.word_type {
+            WordType::Tunic(word) => word.colored,
+            _ => false,
+        }
+    }
 }
 
 impl Default for Word {
