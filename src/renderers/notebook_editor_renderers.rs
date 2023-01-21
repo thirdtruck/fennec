@@ -103,35 +103,111 @@ pub fn render_selected_snippet_on(
         .find(|snippet_view| snippet_view.selected);
 
     if let Some(snippet_view) = selected_snippet_view {
-        let y_from_bottom: u32 = (SCREEN_HEIGHT - 4).try_into()?;
+        let y_from_bottom: u32 = SCREEN_HEIGHT.try_into()?;
 
-        let x_offset: u32 = 13;
+        let (has_border, colored) = snippet_view
+            .word_views
+            .iter()
+            .filter(|view| view.selected)
+            .collect::<Vec<&WordView>>()
+            .first()
+            .map_or((false, false), |view| (view.word.has_border(), view.word.colored()));
 
         render_snippet_on(snippet_view, map, ctx, x, y)?;
 
-        let description_text = &snippet_view.snippet.description;
-        ctx.print_color(x, y_from_bottom, GREEN, BLACK, "Description:");
-        ctx.print_color(x + x_offset, y_from_bottom, WHITE, BLACK, description_text);
-
-        let source_text = snippet_source_to_label(&snippet_view);
-        ctx.print_color(x, y_from_bottom + 1, GREEN, BLACK, "     Source:");
-        ctx.print_color(x + x_offset, y_from_bottom + 1, GRAY40, BLACK, source_text);
-
-        let transcribed_text = format!("{}", &snippet_view.transcribed);
-        let transcribed_text_color = if snippet_view.transcribed {
-            GRAY40
-        } else {
-            WHITE
-        };
-        ctx.print_color(x, y_from_bottom + 2, GREEN, BLACK, "Transcribed:");
-        ctx.print_color(
-            x + x_offset,
-            y_from_bottom + 2,
-            transcribed_text_color,
-            BLACK,
-            transcribed_text,
-        );
+        render_description_status(snippet_view, ctx, x, y_from_bottom - 5)?;
+        render_source_status(snippet_view, ctx, x, y_from_bottom - 4)?;
+        render_transcribed_status(snippet_view, ctx, x, y_from_bottom - 3)?;
+        render_has_border_status(has_border, ctx, x, y_from_bottom - 2)?;
+        render_colored_status(colored, ctx, x, y_from_bottom - 1)?;
     }
+
+    Ok(())
+}
+
+fn render_description_status(
+    snippet_view: &SnippetView,
+    ctx: &mut BTerm,
+    x: u32,
+    y: u32,
+) -> Result<(), Box<dyn Error>> {
+    let x_offset: u32 = 13;
+
+    let description_text = &snippet_view.snippet.description;
+    ctx.print_color(x, y, GREEN, BLACK, "Description:");
+    ctx.print_color(x + x_offset, y, WHITE, BLACK, description_text);
+
+    Ok(())
+}
+
+fn render_source_status(
+    snippet_view: &SnippetView,
+    ctx: &mut BTerm,
+    x: u32,
+    y: u32,
+) -> Result<(), Box<dyn Error>> {
+    let x_offset: u32 = 13;
+
+    let source_text = snippet_source_to_label(&snippet_view);
+    ctx.print_color(x, y, GREEN, BLACK, "     Source:");
+    ctx.print_color(x + x_offset, y, GRAY40, BLACK, source_text);
+
+    Ok(())
+}
+
+fn render_transcribed_status(
+    snippet_view: &SnippetView,
+    ctx: &mut BTerm,
+    x: u32,
+    y: u32,
+) -> Result<(), Box<dyn Error>> {
+    let x_offset: u32 = 13;
+
+    let transcribed_text = format!("{}", &snippet_view.transcribed);
+    let transcribed_text_color = if snippet_view.transcribed {
+        GRAY40
+    } else {
+        WHITE
+    };
+
+    ctx.print_color(x, y, GREEN, BLACK, "Transcribed:");
+    ctx.print_color(
+        x + x_offset,
+        y,
+        transcribed_text_color,
+        BLACK,
+        transcribed_text,
+    );
+
+    Ok(())
+}
+
+fn render_has_border_status(
+    has_border: bool,
+    ctx: &mut BTerm,
+    x: u32,
+    y: u32,
+) -> Result<(), Box<dyn Error>> {
+    let x_offset: u32 = 13;
+
+    let has_border = format!("{}", has_border);
+    ctx.print_color(x, y, YELLOW, BLACK, " Has Border:");
+    ctx.print_color(x + x_offset, y, WHITE, BLACK, has_border);
+
+    Ok(())
+}
+
+fn render_colored_status(
+    colored: bool,
+    ctx: &mut BTerm,
+    x: u32,
+    y: u32,
+) -> Result<(), Box<dyn Error>> {
+    let x_offset: u32 = 13;
+
+    let colored = format!("{}", colored);
+    ctx.print_color(x, y, YELLOW, BLACK, "    Colored:");
+    ctx.print_color(x + x_offset, y, WHITE, BLACK, colored);
 
     Ok(())
 }
