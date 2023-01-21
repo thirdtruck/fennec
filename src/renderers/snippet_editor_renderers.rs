@@ -29,6 +29,8 @@ pub fn render_snippet_on(
         })
         .collect();
 
+    let word_count: u32 = snippet_view.word_views.len().try_into()?;
+
     let x_offset: u32 = 3;
     let y_offset: u32 = 3;
 
@@ -54,7 +56,22 @@ pub fn render_snippet_on(
 
         let x = 1;
         let y = (absolute_index * 2) + y + y_offset;
-        ctx.print_color(x, y, YELLOW, BLACK, relative_index.to_string());
+
+        let more_below_index: u32 = MAX_VISIBLE_WORDS.try_into()?;
+        let more_below_index = more_below_index - 1;
+
+        let more_below = absolute_index == more_below_index && relative_index < word_count - 1;
+        let more_above = absolute_index == 0 && relative_index > 0;
+
+        let snippet_index_text = if more_below {
+            "++".to_string()
+        } else if more_above {
+            "^^".to_string()
+        } else {
+            relative_index.to_string()
+        };
+
+        ctx.print_color(x, y, YELLOW, BLACK, snippet_index_text);
     }
 
     Ok(())
