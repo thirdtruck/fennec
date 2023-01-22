@@ -23,6 +23,13 @@ impl TunicWord {
         Self { colored, ..self }
     }
 
+    pub fn with_colored_state_toggled(self) -> Self {
+        Self {
+            colored: !self.colored,
+            ..self
+        }
+    }
+
     pub fn with_border_as(self, has_border: bool) -> Self {
         Self { has_border, ..self }
     }

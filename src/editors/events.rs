@@ -32,4 +32,6 @@ pub enum EditorEvent {
     EnableSnippetEditingMode,
     ToggleSnippetTranscriptionState,
     ToggleHasBeenTranscribedFilter,
+    ToggleWordHasABorderState,
+    ToggleWordIsColoredState,
 }

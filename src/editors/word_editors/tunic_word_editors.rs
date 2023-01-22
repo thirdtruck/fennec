@@ -134,6 +134,24 @@ impl TunicWordEditor {
         }
     }
 
+    pub fn with_word_border_toggled(self) -> TunicWordEditor {
+        let word = self.word.with_border_toggled();
+
+        Self {
+            word,
+            ..self
+        }
+    }
+
+    pub fn with_word_colored_state_toggled(self) -> TunicWordEditor {
+        let word = self.word.with_colored_state_toggled();
+
+        Self {
+            word,
+            ..self
+        }
+    }
+
     pub fn word(&self) -> TunicWord {
         self.word.clone()
     }
@@ -184,6 +202,8 @@ impl AppliesEditorEvents for TunicWordEditor {
             EditorEvent::MoveGlyphCursorForward => self.with_glyph_selection_moved_forward(1),
             EditorEvent::AddNewGlyphToTunicWordAtCursor => self.with_new_glyph_at_cursor(),
             EditorEvent::DeleteGlyphAtCursor => self.with_glyph_at_cursor_deleted(),
+            EditorEvent::ToggleWordHasABorderState => self.with_word_border_toggled(),
+            EditorEvent::ToggleWordIsColoredState => self.with_word_colored_state_toggled(),
             _ => {
                 // TODO: Refactor to move all of this logic into GlyphEditor or the like
                 if let Some(glyph_editor) = &self.glyph_editor {

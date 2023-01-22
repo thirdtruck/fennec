@@ -58,6 +58,8 @@ pub fn on_modify_selected_glyph(_editor: &GlyphEditor, ctx: BTerm) -> EditorEven
                 VirtualKeyCode::Right => EditorEvent::MoveGlyphCursorForward,
                 VirtualKeyCode::Space => EditorEvent::AddNewGlyphToTunicWordAtCursor,
                 VirtualKeyCode::Back => EditorEvent::DeleteGlyphAtCursor,
+                VirtualKeyCode::Key8 => EditorEvent::ToggleWordIsColoredState,
+                VirtualKeyCode::Key9 => EditorEvent::ToggleWordHasABorderState,
 
                 _ => EditorEvent::NoOp,
             }

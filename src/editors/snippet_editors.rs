@@ -114,7 +114,7 @@ impl SnippetEditor {
             cursor,
             selected_snippet,
             ..self
-        }
+        }.with_word_selected(cursor_index)
     }
 
     fn with_word_at_cursor_deleted(self) -> Self {
