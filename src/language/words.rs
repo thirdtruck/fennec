@@ -68,6 +68,18 @@ impl From<Vec<Glyph>> for TunicWord {
     }
 }
 
+impl From<Vec<u16>> for TunicWord {
+    fn from(items: Vec<u16>) -> Self {
+        let glyphs: Vec<Glyph> = items.iter().map(|c| Glyph(*c)).collect();
+
+        TunicWord {
+            glyphs,
+            has_border: false,
+            colored: false,
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct EnglishWord {
     text: String,

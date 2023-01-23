@@ -29,12 +29,9 @@ fn initialize_dictionary() {
         DEFAULT_DICTIONARY_FILE
     );
 
-    let english_word: Word = "example".into();
-    let tunic_word: Word = vec![DEFAULT_GLYPH, DEFAULT_GLYPH, DEFAULT_GLYPH].into();
+    let tunic_word: TunicWord = vec![DEFAULT_GLYPH, DEFAULT_GLYPH, DEFAULT_GLYPH].into();
 
     let dictionary = Dictionary::new()
-        .with_new_definition(&english_word, "An example English word entry".into())
-        .with_annotation(&english_word, "Example Note".into())
         .with_new_definition(&tunic_word, "An example Tunic word entry".into())
         .with_annotation(&tunic_word, "Example Note".into());
 
@@ -48,7 +45,7 @@ fn initialize_dictionary() {
 }
 
 fn search_for_word(cmd: WordCmd) {
-    let word: Word = cmd.glyphs.into();
+    let word: TunicWord = cmd.glyphs.into();
     let readable_word: String = format_word_for_reading(&word);
 
     println!("Loading dictionary...");
@@ -61,7 +58,11 @@ fn search_for_word(cmd: WordCmd) {
             );
 
             if let Some(entry) = dictionary.get(&word) {
-                let definition: String = entry.definition().clone().unwrap_or("[Undefined]".into());
+                let definition: String = match entry.definition() {
+                    Definition::Undefined => "Undefined".into(),
+                    Definition::Tentative(text) => text.clone(),
+                    Definition::Confirmed(text) => text.clone(),
+                };
 
                 println!("-----");
                 println!("  {}: {}", readable_word.green().bold(), definition.bold());
@@ -85,16 +86,13 @@ fn search_for_word(cmd: WordCmd) {
     };
 }
 
-fn format_word_for_reading(word: &Word) -> String {
-    match &word.word_type {
-        WordType::Tunic(word) => word
-            .glyphs()
-            .iter()
-            .map(|glyph| glyph.0.to_string())
-            .reduce(|word, glyph_value| word + " " + &glyph_value)
-            .map_or("(Empty)".into(), |word| format!("[{}]", word)),
-        WordType::English(word) => word.text(),
-    }
+fn format_word_for_reading(word: &TunicWord) -> String {
+    word
+        .glyphs()
+        .iter()
+        .map(|glyph| glyph.0.to_string())
+        .reduce(|word, glyph_value| word + " " + &glyph_value)
+        .map_or("(Empty)".into(), |word| format!("[{}]", word))
 }
 
 fn main() {

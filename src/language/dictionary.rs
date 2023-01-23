@@ -3,27 +3,47 @@ use std::collections::HashMap;
 
 use crate::prelude::*;
 
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct DictionaryWord {
+    glyphs: Vec<Glyph>,
+}
+
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub enum Definition {
+    Undefined,
+    Tentative(String),
+    Confirmed(String),
+}
+
+impl From<&TunicWord> for DictionaryWord {
+    fn from(tunic_word: &TunicWord) -> Self {
+        Self {
+            glyphs: tunic_word.glyphs()
+        }
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Entry {
-    definition: Option<String>,
+    definition: Definition,
     notes: Vec<Note>,
 }
 
 impl Default for Entry {
     fn default() -> Self {
         Self {
-            definition: None,
+            definition: Definition::Undefined,
             notes: vec![],
         }
     }
 }
 
 impl Entry {
-    pub fn new(definition: Option<String>, notes: Vec<Note>) -> Self {
+    pub fn new(definition: Definition, notes: Vec<Note>) -> Self {
         Self { definition, notes }
     }
 
-    pub fn definition(&self) -> &Option<String> {
+    pub fn definition(&self) -> &Definition {
         &self.definition
     }
 
@@ -34,7 +54,7 @@ impl Entry {
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Dictionary {
-    entries: HashMap<Word, Entry>,
+    entries: HashMap<DictionaryWord, Entry>,
 }
 
 impl Dictionary {
@@ -44,17 +64,19 @@ impl Dictionary {
         }
     }
 
-    pub fn with_new_definition(self, word: &Word, definition: String) -> Self {
-        let entry = Entry::new(Some(definition), vec![]);
+    pub fn with_new_definition(self, tunic_word: &TunicWord, definition: String) -> Self {
+        let definition = Definition::Tentative(definition);
+        let entry = Entry::new(definition, vec![]);
 
         let mut entries = self.entries.clone();
-        entries.insert(word.clone(), entry);
+        entries.insert(tunic_word.into(), entry);
 
         Self { entries, ..self }
     }
 
-    pub fn with_annotation(self, word: &Word, note: Note) -> Self {
-        let entry = if let Some(entry) = self.entries.get(word) {
+    pub fn with_annotation(self, tunic_word: &TunicWord, note: Note) -> Self {
+        let word: DictionaryWord = tunic_word.into();
+        let entry = if let Some(entry) = self.entries.get(&word) {
             let mut entry = entry.clone();
             entry.notes.push(note);
             entry
@@ -68,7 +90,9 @@ impl Dictionary {
         Self { entries, ..self }
     }
 
-    pub fn get(&self, word: &Word) -> Option<&Entry> {
-        self.entries.get(word)
+    pub fn get(&self, tunic_word: &TunicWord) -> Option<&Entry> {
+        let word: DictionaryWord = tunic_word.into();
+
+        self.entries.get(&word)
     }
 }
