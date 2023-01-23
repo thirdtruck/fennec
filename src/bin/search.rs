@@ -155,12 +155,15 @@ fn search_snippets(notebook: Notebook, search_args: Snippets) {
 
 fn format_word_for_reading(word: &Word) -> String {
     match &word.word_type {
-        WordType::Tunic(word) => word
-            .glyphs()
-            .iter()
-            .map(|glyph| glyph.0.to_string())
-            .reduce(|word, glyph_value| word + " " + &glyph_value)
-            .map_or("(Empty)".into(), |word| format!("[{}]", word)),
+        WordType::Tunic(word) => format_glyphs_for_reading(word.glyphs()),
         WordType::English(word) => word.text(),
     }
+}
+
+fn format_glyphs_for_reading(glyphs: Vec<Glyph>) -> String {
+    glyphs
+        .iter()
+        .map(|glyph| glyph.0.to_string())
+        .reduce(|word, glyph_value| word + " " + &glyph_value)
+        .map_or("(Empty)".into(), |word| format!("[{}]", word))
 }
