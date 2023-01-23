@@ -33,19 +33,26 @@ fn main() {
     let cli = Cli::parse();
 
     println!("Loading notebook...");
-    match notebook_from_yaml_file(DEFAULT_NOTEBOOK_FILE) {
-        Ok((notebook, _yaml)) => {
-            println!("Searching...");
 
-            match cli.command {
-                Commands::Snippets(args) => search_snippets(notebook, args),
-                Commands::Usage(args) => search_usage(notebook, args),
-            };
-        }
-        Err(error) => {
+    let (notebook, _yaml) = notebook_from_yaml_file(DEFAULT_NOTEBOOK_FILE)
+        .unwrap_or_else(|error| {
             println!("Unable to load notebook file: {}", DEFAULT_NOTEBOOK_FILE);
             println!("{:?}", error);
-        }
+            panic!("Search aborted");
+        });
+
+    let (dictionary, _yaml) = dictionary_from_yaml_file(DEFAULT_DICTIONARY_FILE)
+        .unwrap_or_else(|error| {
+            println!("Unable to load dictionary file: {}", DEFAULT_NOTEBOOK_FILE);
+            println!("{:?}", error);
+            panic!("Search aborted");
+        });
+
+    println!("Searching...");
+
+    match cli.command {
+        Commands::Snippets(args) => search_snippets(notebook, args),
+        Commands::Usage(args) => search_usage(notebook, args),
     };
 }
 
@@ -97,6 +104,7 @@ fn search_snippets(notebook: Notebook, search_args: Snippets) {
         .expect("Missing argument: glyph values for word");
 
     println!("Looking for word {}", word.green());
+
 
     let glyphs: Vec<Glyph> = word
         .split_whitespace()
