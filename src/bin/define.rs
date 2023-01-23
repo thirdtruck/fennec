@@ -18,8 +18,8 @@ enum Commands {
 
 #[derive(Args)]
 struct WordCmd {
-    // The Tunic word to search for as a space-delimited sequence of integer values for its glyphs
-    // Example: 1 27 339
+    /// The Tunic word to search for as a space-delimited sequence of integer values for its glyphs
+    /// Example: 1 27 339
     glyphs: Vec<u16>,
 }
 

@@ -13,9 +13,9 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    // Search through every snippet in the notebook
+    /// Search through every snippet in the notebook
     Snippets(Snippets),
-    // Search for usage
+    /// Search for usage
     Usage(Usage),
 }
 

@@ -5,7 +5,7 @@ use fennec::prelude::*;
 #[derive(Parser)]
 #[command(author, version, about)]
 struct Cli {
-    // Append the new snippet to the end of the notebook [default: prepend]
+    /// Append the new snippet to the end of the notebook [default: prepend]
     #[arg(short, long)]
     append: bool,
 
@@ -15,36 +15,36 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    // Include a Tunic word
+    /// Include a Tunic word
     #[command(subcommand)]
     Tunic(Tunic),
 
-    // Include an English word
+    /// Include an English word
     #[command(subcommand)]
     English(English),
 }
 
 #[derive(Subcommand)]
 enum Tunic {
-    // Manual page number
+    /// Manual page number
     Page(Page),
 
-    // Screenshot filename
+    /// Screenshot filename
     Screenshot(Screenshot),
 
-    // Other source
+    /// Other source
     Other(Other),
 }
 
 #[derive(Subcommand)]
 enum English {
-    // Manual page number
+    /// Manual page number
     Page(Page),
 
-    // Screenshot filename
+    /// Screenshot filename
     Screenshot(Screenshot),
 
-    // Other source
+    /// Other source
     Other(Other),
 }
 
@@ -52,7 +52,7 @@ enum English {
 struct Page {
     number: usize,
     description: String,
-    // Required for English words
+    /// Required for English words
     word_text: Option<String>,
 }
 
@@ -60,7 +60,7 @@ struct Page {
 struct Screenshot {
     filename: String,
     description: String,
-    // Required for English words
+    /// Required for English words
     word_text: Option<String>,
 }
 
@@ -68,7 +68,7 @@ struct Screenshot {
 struct Other {
     text: String,
     description: String,
-    // Required for English words
+    /// Required for English words
     word_text: Option<String>,
 }
 
