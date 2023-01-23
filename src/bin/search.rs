@@ -22,6 +22,9 @@ enum Commands {
 #[derive(Args)]
 struct Snippets {
     word: Option<String>,
+    /// Render words as their definition if available. Default: Render words as their glyph values
+    #[arg(short, long)]
+    define_inline: bool,
 }
 
 #[derive(Args)]
@@ -52,22 +55,22 @@ fn main() {
 
     match cli.command {
         Commands::Snippets(args) => search_snippets(notebook, dictionary, args),
-        Commands::Usage(args) => search_usage(notebook, dictionary, args),
+        Commands::Usage(args) => search_usage(notebook, args),
     };
 }
 
-fn search_usage(notebook: Notebook, dictionary: Dictionary, usage_args: Usage) {
+fn search_usage(notebook: Notebook, usage_args: Usage) {
     let usage_type = usage_args
         .words
         .expect("Missing argument: type of usage to search");
 
     match usage_type.as_str() {
-        "words" => search_word_usage(notebook, dictionary),
+        "words" => search_word_usage(notebook),
         _ => panic!("Unsupported usage type: {}", usage_type),
     };
 }
 
-fn search_word_usage(notebook: Notebook, dictionary: Dictionary) {
+fn search_word_usage(notebook: Notebook) {
     println!("Search word usage...");
 
     let mut usage_counts: HashMap<Word, usize> = HashMap::new();
@@ -94,7 +97,7 @@ fn search_word_usage(notebook: Notebook, dictionary: Dictionary) {
     usage_counts.sort_by(|a, b| b.1.cmp(&a.1));
 
     for (word, count) in usage_counts {
-        println!("{:4} -> {}", count, format_word_for_reading(&dictionary, &word));
+        println!("{:4} -> {}", count, format_word_for_reading_as_glyphs(&word));
     }
 }
 
@@ -103,8 +106,9 @@ fn search_snippets(notebook: Notebook, dictionary: Dictionary, search_args: Snip
         .word
         .expect("Missing argument: glyph values for word");
 
-    println!("Looking for word {}", word.green());
+    let define_inline = search_args.define_inline;
 
+    println!("Looking for word {}", word.green());
 
     let glyphs: Vec<Glyph> = word
         .split_whitespace()
@@ -134,7 +138,15 @@ fn search_snippets(notebook: Notebook, dictionary: Dictionary, search_args: Snip
         let sentence: Vec<ColoredString> = snippet
             .words
             .iter()
-            .map(|w| (format_word_for_reading(&dictionary, w), *w == word))
+            .map(|w| {
+                let formatted_word = if define_inline {
+                    format_word_for_reading_as_defined(&dictionary, w)
+                } else {
+                    format_word_for_reading_as_glyphs(w)
+                };
+
+                (formatted_word, *w == word)
+            })
             .map(|(w, matches)| if matches { w.underline().green() } else { w })
             .collect();
 
@@ -153,7 +165,7 @@ fn search_snippets(notebook: Notebook, dictionary: Dictionary, search_args: Snip
     }
 }
 
-fn format_word_for_reading(dictionary: &Dictionary, word: &Word) -> ColoredString {
+fn format_word_for_reading_as_defined(dictionary: &Dictionary, word: &Word) -> ColoredString {
     match &word.word_type {
         WordType::Tunic(word) => {
             if let Some(entry) = dictionary.get(word) {
@@ -165,6 +177,15 @@ fn format_word_for_reading(dictionary: &Dictionary, word: &Word) -> ColoredStrin
             } else {
                 format_glyphs_for_reading(word.glyphs()).normal()
             }
+        }
+        WordType::English(word) => word.text().normal(),
+    }
+}
+
+fn format_word_for_reading_as_glyphs(word: &Word) -> ColoredString {
+    match &word.word_type {
+        WordType::Tunic(word) => {
+            format_glyphs_for_reading(word.glyphs()).normal()
         }
         WordType::English(word) => word.text().normal(),
     }
