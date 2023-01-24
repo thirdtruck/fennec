@@ -21,6 +21,7 @@ enum Commands {
 
 #[derive(Args)]
 struct Snippets {
+    /// Search for snippets that contain this Tunic word. Space-separated list of glyph values
     word: Option<String>,
     /// Render words as their definition if available. Default: Render words as their glyph values
     #[arg(short, long)]
