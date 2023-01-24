@@ -105,15 +105,21 @@ pub fn render_selected_snippet_on(
     if let Some(snippet_view) = selected_snippet_view {
         let y_from_bottom: u32 = SCREEN_HEIGHT.try_into()?;
 
-        let (has_border, colored) = snippet_view
+        let (selected_word, has_border, colored) = snippet_view
             .word_views
             .iter()
             .filter(|view| view.selected)
             .collect::<Vec<&WordView>>()
             .first()
-            .map_or((false, false), |view| (view.word.has_border(), view.word.colored()));
+            .map_or((None, false, false), |view| {
+                (Some(view.word.clone()), view.word.has_border(), view.word.colored())
+            });
 
         render_snippet_on(snippet_view, map, ctx, x, y)?;
+
+        if let Some(word) = &selected_word {
+            render_selected_word_glyphs_as_base10(word.clone(), ctx, y, y_from_bottom - 6)?;
+        }
 
         render_description_status(snippet_view, ctx, x, y_from_bottom - 5)?;
         render_source_status(snippet_view, ctx, x, y_from_bottom - 4)?;
@@ -121,6 +127,40 @@ pub fn render_selected_snippet_on(
         render_has_border_status(has_border, ctx, x, y_from_bottom - 2)?;
         render_colored_status(colored, ctx, x, y_from_bottom - 1)?;
     }
+
+    Ok(())
+}
+fn format_glyphs_for_reading(glyphs: Vec<Glyph>) -> String {
+    glyphs
+        .iter()
+        .map(|glyph| glyph.0.to_string())
+        .reduce(|word, glyph_value| word + " " + &glyph_value)
+        .map_or("(Empty)".into(), |word| format!("[{}]", word))
+}
+
+fn render_selected_word_glyphs_as_base10(
+    word: Word,
+    ctx: &mut BTerm,
+    x: u32,
+    y: u32,
+) -> Result<(), Box<dyn Error>> {
+    let x_offset: u32 = 13;
+
+    match word.word_type {
+        WordType::Tunic(tunic_word) => {
+            let glyph_values = format_glyphs_for_reading(tunic_word.glyphs());
+
+            ctx.print_color(x, y, GREEN, BLACK, " As Base 10:");
+            ctx.print_color(x + x_offset, y, WHITE, BLACK, glyph_values);
+        },
+        WordType::English(_) => {
+            let glyph_values: String = "n/a".into();
+
+            ctx.print_color(x, y, GREEN, BLACK, " As Base 10:");
+            ctx.print_color(x + x_offset, y, GRAY40, BLACK, glyph_values);
+        },
+    };
+
 
     Ok(())
 }
