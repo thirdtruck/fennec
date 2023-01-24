@@ -34,4 +34,5 @@ pub enum EditorEvent {
     ToggleHasBeenTranscribedFilter,
     ToggleWordHasABorderState,
     ToggleWordIsColoredState,
+    PrintWord(Word),
 }

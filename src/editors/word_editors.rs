@@ -18,6 +18,7 @@ pub struct WordEditor {
 
 pub struct WordEditorCallbacks {
     pub on_modify_selected_glyph: Box<dyn Fn(&GlyphEditor) -> EditorEvent>,
+    pub on_modify_tunic_word: Box<dyn Fn(&TunicWordEditor) -> EditorEvent>,
     pub on_modify_english_word: Box<dyn Fn(&EnglishWordEditor) -> EditorEvent>,
 }
 

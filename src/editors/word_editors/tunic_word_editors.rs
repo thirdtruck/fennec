@@ -20,10 +20,13 @@ impl TunicWordEditor {
     }
 
     pub fn on_input(&self, callbacks: WordEditorCallbacks) -> EditorEvent {
-        if let Some(editor) = &self.glyph_editor {
-            (callbacks.on_modify_selected_glyph)(editor)
-        } else {
-            EditorEvent::NoOp
+        let event = (callbacks.on_modify_tunic_word)(self);
+
+        match event {
+            EditorEvent::NoOp => self.glyph_editor
+                .as_ref()
+                .map_or(EditorEvent::NoOp, |editor| (callbacks.on_modify_selected_glyph)(&editor)),
+            _ => event,
         }
     }
 

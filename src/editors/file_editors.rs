@@ -170,6 +170,10 @@ impl AppliesEditorEvents for FileEditor {
             EditorEvent::ReportFailedToSaveToFile(error) => {
                 self.with_state(FileEditorState::SaveRequestFailed(error))
             }
+            EditorEvent::PrintWord(word) => {
+                println!("{}", word);
+                self
+            }
             EditorEvent::ResetFileEditorToIdle => self.with_state(FileEditorState::Idle),
             _ => {
                 let notebook_editor = self.notebook_editor.apply(event);

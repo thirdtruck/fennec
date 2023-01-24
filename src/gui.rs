@@ -71,6 +71,17 @@ pub fn on_modify_selected_glyph(_editor: &GlyphEditor, ctx: BTerm) -> EditorEven
     }
 }
 
+pub fn on_modify_tunic_word(editor: &TunicWordEditor, ctx: BTerm) -> EditorEvent {
+    if let Some(key) = ctx.key {
+        match key {
+            VirtualKeyCode::F4 => EditorEvent::PrintWord(editor.word().into()),
+            _ => EditorEvent::NoOp,
+        }
+    } else {
+        EditorEvent::NoOp
+    }
+}
+
 pub fn on_modify_english_word(_editor: &EnglishWordEditor, ctx: BTerm) -> EditorEvent {
     if let Some(key) = ctx.key {
         match key {
@@ -94,13 +105,17 @@ pub fn on_snippet_editor_input(editor: &SnippetEditor, ctx: BTerm) -> EditorEven
             VirtualKeyCode::Return => EditorEvent::AddNewTunicWordAtCursor,
             _ => {
                 let glyph_ctx = ctx.clone();
-                let word_ctx = ctx.clone();
+                let tunic_word_ctx = ctx.clone();
+                let english_word_ctx = ctx.clone();
                 let callbacks = WordEditorCallbacks {
                     on_modify_selected_glyph: Box::new(move |glyph_editor| {
                         on_modify_selected_glyph(glyph_editor, glyph_ctx.clone())
                     }),
+                    on_modify_tunic_word: Box::new(move |tunic_word_editor| {
+                        on_modify_tunic_word(tunic_word_editor, tunic_word_ctx.clone())
+                    }),
                     on_modify_english_word: Box::new(move |english_word_editor| {
-                        on_modify_english_word(english_word_editor, word_ctx.clone())
+                        on_modify_english_word(english_word_editor, english_word_ctx.clone())
                     }),
                 };
 
