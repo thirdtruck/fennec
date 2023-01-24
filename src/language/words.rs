@@ -185,9 +185,9 @@ impl fmt::Display for Word {
                 let word = glyphs
                     .iter()
                     .map(|glyph| glyph.0.to_string())
-                    .reduce(|word, glyph_value| word + ", " + &glyph_value)
+                    .reduce(|word, glyph_value| word + " " + &glyph_value)
                     .map_or("(Empty Tunic Word)".into(), |word| {
-                        format!("Word::Tunic {}", word)
+                        format!("TunicWord: {}", word)
                     });
 
                 write!(f, "{}", word)

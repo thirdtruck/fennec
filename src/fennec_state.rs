@@ -4,15 +4,16 @@ use crate::prelude::*;
 
 pub struct FennecState {
     file_editor: FileEditor,
+    dictionary: Dictionary,
 }
 
 impl FennecState {
-    pub fn new(snippet: Snippet) -> Self {
+    pub fn new(snippet: Snippet, dictionary: Dictionary) -> Self {
         let notebook: Notebook = vec![snippet].into();
         let file_editor = FileEditor::new(notebook.clone(), DEFAULT_NOTEBOOK_FILE);
         let file_editor = file_editor.apply(EditorEvent::ConfirmLoadFromFileRequest);
 
-        Self { file_editor }
+        Self { file_editor, dictionary }
     }
 
     fn render(&self, map: &mut GlyphMap, ctx: &mut BTerm) -> Result<(), Box<dyn Error>> {
@@ -27,7 +28,7 @@ impl FennecState {
             match &file_editor_view.state {
                 FileEditorState::Idle => {
                     let notebook_view = &file_editor_view.notebook_view;
-                    render_notebook_on(notebook_view, map, ctx, 1, 1)?;
+                    render_notebook_on(notebook_view, &self.dictionary, map, ctx, 1, 1)?;
                 }
                 _ => render_file_editor_view_onto(&file_editor_view, ctx)?,
             };

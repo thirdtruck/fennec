@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 pub fn render_notebook_on(
     notebook_view: &NotebookView,
+    dictionary: &Dictionary,
     map: &mut GlyphMap,
     ctx: &mut BTerm,
     x: u32,
@@ -47,7 +48,7 @@ pub fn render_notebook_on(
             }
         }
         NotebookEditorState::EditingSnippet => {
-            render_selected_snippet_on(notebook_view, map, ctx, x, y)?
+            render_selected_snippet_on(notebook_view, dictionary, map, ctx, x, y)?
         }
     };
 
@@ -92,6 +93,7 @@ fn source_color_for(view: &SnippetView) -> (u8, u8, u8) {
 
 pub fn render_selected_snippet_on(
     notebook_view: &NotebookView,
+    dictionary: &Dictionary,
     map: &mut GlyphMap,
     ctx: &mut BTerm,
     x: u32,
@@ -118,7 +120,8 @@ pub fn render_selected_snippet_on(
         render_snippet_on(snippet_view, map, ctx, x, y)?;
 
         if let Some(word) = &selected_word {
-            render_selected_word_glyphs_as_base10(word.clone(), ctx, y, y_from_bottom - 6)?;
+            render_selected_word_glyphs_as_base10(word.clone(), ctx, y, y_from_bottom - 7)?;
+            render_word_definition(word.clone(), ctx, x, y_from_bottom - 6)?;
         }
 
         render_description_status(snippet_view, ctx, x, y_from_bottom - 5)?;
@@ -136,6 +139,22 @@ fn format_glyphs_for_reading(glyphs: Vec<Glyph>) -> String {
         .map(|glyph| glyph.0.to_string())
         .reduce(|word, glyph_value| word + " " + &glyph_value)
         .map_or("(Empty)".into(), |word| format!("[{}]", word))
+}
+
+fn render_word_definition(
+    word: Word,
+    ctx: &mut BTerm,
+    x: u32,
+    y: u32,
+) -> Result<(), Box<dyn Error>> {
+    let x_offset: u32 = 13;
+
+    let definition = "(pending)".to_string();
+
+    ctx.print_color(x, y, GREEN, BLACK, " Definition:");
+    ctx.print_color(x + x_offset, y, WHITE, BLACK, definition);
+
+    Ok(())
 }
 
 fn render_selected_word_glyphs_as_base10(

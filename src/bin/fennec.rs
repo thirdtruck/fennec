@@ -5,7 +5,19 @@ fn main() -> BError {
     let small_text_font = "dbyte_1x.png";
     let large_text_font = "dbyte_2x.png";
 
-    let state = FennecState::new(Snippet::starting_snippet());
+    let dictionary = match dictionary_from_yaml_file(DEFAULT_DICTIONARY_FILE) {
+        Ok((dict, _yaml)) => dict,
+        Err(error) => {
+            println!(
+                "Unable to load dictionary file: {}",
+                DEFAULT_DICTIONARY_FILE
+            );
+            println!("{:?}", error);
+            panic!("Aborting");
+        }
+    };
+
+    let state = FennecState::new(Snippet::starting_snippet(), dictionary);
 
     let context = BTermBuilder::new()
         .with_title("Tunic Language Toolkit")
