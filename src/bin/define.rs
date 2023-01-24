@@ -46,6 +46,7 @@ fn initialize_dictionary() {
 
 fn search_for_word(cmd: WordCmd) {
     let word: TunicWord = cmd.glyphs.into();
+    let dict_word: DictionaryWord = (&word).into();
     let readable_word: String = format_word_for_reading(&word);
 
     println!("Loading dictionary...");
@@ -57,7 +58,7 @@ fn search_for_word(cmd: WordCmd) {
                 readable_word.green()
             );
 
-            if let Some(entry) = dictionary.get(&word) {
+            if let Some(entry) = dictionary.get(&dict_word) {
                 let definition: String = match entry.definition() {
                     Definition::Undefined => "Undefined".into(),
                     Definition::Tentative(text) => text.clone(),

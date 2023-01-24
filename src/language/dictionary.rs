@@ -15,6 +15,14 @@ pub enum Definition {
     Confirmed(String),
 }
 
+impl From<TunicWord> for DictionaryWord {
+    fn from(tunic_word: TunicWord) -> Self {
+        Self {
+            glyphs: tunic_word.glyphs()
+        }
+    }
+}
+
 impl From<&TunicWord> for DictionaryWord {
     fn from(tunic_word: &TunicWord) -> Self {
         Self {
@@ -90,9 +98,7 @@ impl Dictionary {
         Self { entries, ..self }
     }
 
-    pub fn get(&self, tunic_word: &TunicWord) -> Option<&Entry> {
-        let word: DictionaryWord = tunic_word.into();
-
-        self.entries.get(&word)
+    pub fn get(&self, word: &DictionaryWord) -> Option<&Entry> {
+        self.entries.get(word)
     }
 }

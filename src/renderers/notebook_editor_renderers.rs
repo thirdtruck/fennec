@@ -120,8 +120,13 @@ pub fn render_selected_snippet_on(
         render_snippet_on(snippet_view, map, ctx, x, y)?;
 
         if let Some(word) = &selected_word {
-            render_selected_word_glyphs_as_base10(word.clone(), ctx, y, y_from_bottom - 7)?;
-            render_word_definition(word.clone(), ctx, x, y_from_bottom - 6)?;
+            if let WordType::Tunic(tunic_word) = &word.word_type {
+                let dict_word: DictionaryWord = tunic_word.into();
+                let entry = dictionary.get(&dict_word);
+                render_word_definition(entry, ctx, x, y_from_bottom - 7)?;
+            }
+
+            render_selected_word_glyphs_as_base10(word.clone(), ctx, y, y_from_bottom - 6)?;
         }
 
         render_description_status(snippet_view, ctx, x, y_from_bottom - 5)?;
@@ -142,14 +147,23 @@ fn format_glyphs_for_reading(glyphs: Vec<Glyph>) -> String {
 }
 
 fn render_word_definition(
-    word: Word,
+    entry: Option<&Entry>,
     ctx: &mut BTerm,
     x: u32,
     y: u32,
 ) -> Result<(), Box<dyn Error>> {
     let x_offset: u32 = 13;
 
-    let definition = "(pending)".to_string();
+    let definition = match entry {
+        Some(entry) => entry.definition(),
+        None => &Definition::Undefined,
+    };
+
+    let definition = match definition {
+        Definition::Undefined => "(pending)".into(),
+        Definition::Tentative(text) => text.clone(),
+        Definition::Confirmed(text) => text.clone(),
+    };
 
     ctx.print_color(x, y, GREEN, BLACK, " Definition:");
     ctx.print_color(x + x_offset, y, WHITE, BLACK, definition);

@@ -168,7 +168,8 @@ fn search_snippets(notebook: Notebook, dictionary: Dictionary, search_args: Snip
 fn format_word_for_reading_as_defined(dictionary: &Dictionary, word: &Word) -> ColoredString {
     match &word.word_type {
         WordType::Tunic(word) => {
-            if let Some(entry) = dictionary.get(word) {
+            let dict_word: DictionaryWord = word.into();
+            if let Some(entry) = dictionary.get(&dict_word) {
                 match entry.definition() {
                     Definition::Undefined => format_glyphs_for_reading(word.glyphs()).normal(),
                     Definition::Tentative(text) => format!("{}", text).bright_yellow().underline(),
