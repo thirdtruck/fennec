@@ -22,7 +22,7 @@ enum Commands {
 #[derive(Args)]
 struct Snippets {
     /// Search for snippets that contain this Tunic word. Space-separated list of glyph values
-    word: Option<String>,
+    word: Option<Vec<u16>>,
     /// Render words as their definition if available. Default: Render words as their glyph values
     #[arg(short, long)]
     define_inline: bool,
@@ -107,20 +107,11 @@ fn search_snippets(notebook: Notebook, dictionary: Dictionary, search_args: Snip
         .word
         .expect("Missing argument: glyph values for word");
 
+    let word: Word = word.into();
+
     let define_inline = search_args.define_inline;
 
-    println!("Looking for word {}", word.green());
-
-    let glyphs: Vec<Glyph> = word
-        .split_whitespace()
-        .map(|string| {
-            u16::from_str_radix(string, 10)
-                .expect("Invalid glyph value. Expected a base 10 u16 value")
-                .into()
-        })
-        .collect();
-
-    let word: Word = glyphs.into();
+    println!("Looking for word {}", word);
 
     let matches: Vec<&Snippet> = notebook
         .snippets
