@@ -17,6 +17,17 @@ enum Commands {
     Snippets(Snippets),
     /// Search for usage
     Usage(Usage),
+    /// Find all snippets for a given manual page
+    Page(Page),
+}
+
+#[derive(Args)]
+struct Page {
+    /// Manual page number
+    number: usize,
+    /// Render words as their definition if available. Default: Render words as their glyph values
+    #[arg(short, long)]
+    define_inline: bool,
 }
 
 #[derive(Args)]
@@ -57,6 +68,7 @@ fn main() {
     match cli.command {
         Commands::Snippets(args) => search_snippets(notebook, dictionary, args),
         Commands::Usage(args) => search_usage(notebook, args),
+        Commands::Page(args) => search_by_page(notebook, dictionary, args),
     };
 }
 
@@ -102,6 +114,34 @@ fn search_word_usage(notebook: Notebook) {
     }
 }
 
+fn search_by_page(notebook: Notebook, dictionary: Dictionary, args: Page) {
+    let page_number = args.number;
+    let define_inline = args.define_inline;
+
+    println!("Searching for all snippets on manual page {}", page_number);
+
+    let matches: Vec<&Snippet> = notebook
+        .snippets
+        .iter()
+        .filter(|snippet| {
+            match &snippet.source {
+                Some(source) => match &source {
+                    Source::ManualPageNumber(number) => *number == page_number,
+                    _ => false
+                },
+                None => false,
+            }
+        })
+        .collect();
+
+    // TODO: Refactor print_snippet to slash that argument count. May involve callbacks
+    let placeholder_word: Word = vec![0].into();
+
+    for (index, snippet) in matches.iter().enumerate() {
+        print_snippet(snippet, index, define_inline, &placeholder_word, &dictionary);
+    }
+}
+
 fn search_snippets(notebook: Notebook, dictionary: Dictionary, search_args: Snippets) {
     let word = search_args
         .word
@@ -122,39 +162,43 @@ fn search_snippets(notebook: Notebook, dictionary: Dictionary, search_args: Snip
     println!("Found {} match(es)", matches.len());
 
     for (index, snippet) in matches.iter().enumerate() {
-        let source = snippet
-            .source
-            .clone()
-            .map_or("(None)".into(), |source| source.to_string());
-
-        let sentence: Vec<ColoredString> = snippet
-            .words
-            .iter()
-            .map(|w| {
-                let formatted_word = if define_inline {
-                    format_word_for_reading_as_defined(&dictionary, w)
-                } else {
-                    format_word_for_reading_as_glyphs(w)
-                };
-
-                (formatted_word, *w == word)
-            })
-            .map(|(w, matches)| if matches { w.underline().green() } else { w })
-            .collect();
-
-        println!(" {:3}: {}", index, snippet.description.green().bold());
-
-        println!("      {}", source);
-
-        print!("      ");
-        for word in sentence {
-            print!("{}", word);
-            print!(" ");
-        }
-        println!();
-
-        println!();
+        print_snippet(snippet, index, define_inline, &word, &dictionary);
     }
+}
+
+fn print_snippet(snippet: &Snippet, index: usize, define_inline: bool, selected_word: &Word, dictionary: &Dictionary) {
+    let source = snippet
+        .source
+        .clone()
+        .map_or("(None)".into(), |source| source.to_string());
+
+    let sentence: Vec<ColoredString> = snippet
+        .words
+        .iter()
+        .map(|w| {
+            let formatted_word = if define_inline {
+                format_word_for_reading_as_defined(&dictionary, w)
+            } else {
+                format_word_for_reading_as_glyphs(w)
+            };
+
+            (formatted_word, *w == *selected_word)
+        })
+        .map(|(w, matches)| if matches { w.underline().green() } else { w })
+        .collect();
+
+    println!(" {:3}: {}", index, snippet.description.green().bold());
+
+    println!("      {}", source);
+
+    print!("      ");
+    for word in sentence {
+        print!("{}", word);
+        print!(" ");
+    }
+    println!();
+
+    println!();
 }
 
 fn format_word_for_reading_as_defined(dictionary: &Dictionary, word: &Word) -> ColoredString {
