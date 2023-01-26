@@ -7,14 +7,14 @@ pub fn map_keys_to_glyph_segments(key: VirtualKeyCode, shift_key: bool) -> Vec<S
         VirtualKeyCode::W if shift_key => vec![1, 3],
         VirtualKeyCode::R if shift_key => vec![1, 3],
 
-        VirtualKeyCode::E if shift_key => vec![2, 6],
-        VirtualKeyCode::D if shift_key => vec![2, 6],
+        VirtualKeyCode::E => vec![2, 6],
+        VirtualKeyCode::D => vec![2, 6],
 
-        VirtualKeyCode::I if shift_key => vec![10, 13],
-        VirtualKeyCode::K if shift_key => vec![10, 13],
+        VirtualKeyCode::I => vec![10, 13],
+        VirtualKeyCode::K => vec![10, 13],
 
-        VirtualKeyCode::P if shift_key => vec![4, 8],
-        VirtualKeyCode::A if shift_key => vec![4, 8],
+        VirtualKeyCode::P => vec![4, 8],
+        VirtualKeyCode::A => vec![4, 8],
 
         VirtualKeyCode::U if shift_key => vec![9, 11],
         VirtualKeyCode::O if shift_key => vec![9, 11],
@@ -26,21 +26,15 @@ pub fn map_keys_to_glyph_segments(key: VirtualKeyCode, shift_key: bool) -> Vec<S
         VirtualKeyCode::F if shift_key => vec![5, 7],
 
         VirtualKeyCode::W => vec![1],
-        VirtualKeyCode::E => vec![2],
         VirtualKeyCode::R => vec![3],
 
-        VirtualKeyCode::A => vec![4],
         VirtualKeyCode::S => vec![5],
-        VirtualKeyCode::D => vec![6],
         VirtualKeyCode::F => vec![7],
 
         VirtualKeyCode::U => vec![9],
-        VirtualKeyCode::I => vec![10],
         VirtualKeyCode::O => vec![11],
-        VirtualKeyCode::P => vec![8],
 
         VirtualKeyCode::J => vec![12],
-        VirtualKeyCode::K => vec![13],
         VirtualKeyCode::L => vec![14],
         VirtualKeyCode::Semicolon => vec![15],
 
