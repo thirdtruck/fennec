@@ -28,3 +28,7 @@ path = "src/bin/fennec.rs"
 [[bin]]
 name = "search"
 path = "src/bin/search.rs"
+
+[[bin]]
+name = "define"
+path = "src/bin/define.rs"
