@@ -19,6 +19,8 @@ enum Commands {
     Usage(Usage),
     /// Find all snippets for a given manual page
     Page(Page),
+    /// List all entries
+    List(List),
 }
 
 #[derive(Args)]
@@ -42,6 +44,12 @@ struct Snippets {
 #[derive(Args)]
 struct Usage {
     words: Option<String>,
+}
+
+#[derive(Args)]
+struct List {
+    #[arg(short, long)]
+    define_inline: bool,
 }
 
 fn main() {
@@ -69,6 +77,7 @@ fn main() {
         Commands::Snippets(args) => search_snippets(notebook, dictionary, args),
         Commands::Usage(args) => search_usage(notebook, args),
         Commands::Page(args) => search_by_page(notebook, dictionary, args),
+        Commands::List(args) => list_all_snippets(notebook, dictionary, args),
     };
 }
 
@@ -138,7 +147,7 @@ fn search_by_page(notebook: Notebook, dictionary: Dictionary, args: Page) {
     let placeholder_word: Word = vec![0].into();
 
     for (index, snippet) in matches.iter().enumerate() {
-        print_snippet(snippet, index, define_inline, &placeholder_word, &dictionary);
+        print_snippet(snippet, index, define_inline, Some(&placeholder_word), &dictionary);
     }
 }
 
@@ -162,11 +171,19 @@ fn search_snippets(notebook: Notebook, dictionary: Dictionary, search_args: Snip
     println!("Found {} match(es)", matches.len());
 
     for (index, snippet) in matches.iter().enumerate() {
-        print_snippet(snippet, index, define_inline, &word, &dictionary);
+        print_snippet(snippet, index, define_inline, Some(&word), &dictionary);
     }
 }
 
-fn print_snippet(snippet: &Snippet, index: usize, define_inline: bool, selected_word: &Word, dictionary: &Dictionary) {
+fn list_all_snippets(notebook: Notebook, dictionary: Dictionary, args: List) {
+    let define_inline = args.define_inline;
+
+    for (index, snippet) in notebook.snippets.iter().enumerate() {
+        print_snippet(snippet, index, define_inline, None, &dictionary);
+    }
+}
+
+fn print_snippet(snippet: &Snippet, index: usize, define_inline: bool, selected_word: Option<&Word>, dictionary: &Dictionary) {
     let source = snippet
         .source
         .clone()
@@ -182,7 +199,9 @@ fn print_snippet(snippet: &Snippet, index: usize, define_inline: bool, selected_
                 format_word_for_reading_as_glyphs(w)
             };
 
-            (formatted_word, *w == *selected_word)
+            let does_match = selected_word.map(|word| *w == *word).unwrap_or(false);
+
+            (formatted_word, does_match)
         })
         .map(|(w, matches)| if matches { w.underline().green() } else { w })
         .collect();
