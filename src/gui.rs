@@ -95,7 +95,10 @@ pub fn on_snippet_editor_input(editor: &SnippetEditor, ctx: BTerm) -> EditorEven
             VirtualKeyCode::Up => EditorEvent::MoveWordCursorBackward,
             VirtualKeyCode::Down => EditorEvent::MoveWordCursorForward,
             VirtualKeyCode::Key0 => EditorEvent::ToggleSnippetTranscriptionState,
-            VirtualKeyCode::Return if ctx.shift => EditorEvent::AddNewEnglishWordAtCursor,
+            VirtualKeyCode::Return if ctx.shift && ctx.control => EditorEvent::AddNewEnglishWordAtCursor("...".to_owned()),
+            VirtualKeyCode::Return if ctx.shift => EditorEvent::AddNewEnglishWordAtCursor(".".to_owned()),
+            VirtualKeyCode::Slash => EditorEvent::AddNewEnglishWordAtCursor("?".to_owned()),
+            VirtualKeyCode::Key1 => EditorEvent::AddNewEnglishWordAtCursor("!".to_owned()),
             VirtualKeyCode::Return => EditorEvent::AddNewTunicWordAtCursor,
             _ => {
                 let glyph_ctx = ctx.clone();

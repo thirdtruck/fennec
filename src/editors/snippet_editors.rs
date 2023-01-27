@@ -86,8 +86,8 @@ impl SnippetEditor {
         self.with_new_word_at_cursor(vec![DEFAULT_GLYPH].into())
     }
 
-    fn with_new_english_word_at_cursor(self) -> Self {
-        self.with_new_word_at_cursor(".".into())
+    fn with_new_english_word_at_cursor(self, text: String) -> Self {
+        self.with_new_word_at_cursor(text.into())
     }
 
     fn with_new_word_at_cursor(self, new_word: Word) -> Self {
@@ -238,7 +238,7 @@ impl AppliesEditorEvents for SnippetEditor {
             EditorEvent::MoveWordCursorBackward => self.with_word_selection_moved_backward(1),
             EditorEvent::MoveWordCursorForward => self.with_word_selection_moved_forward(1),
             EditorEvent::AddNewTunicWordAtCursor => self.with_new_tunic_word_at_cursor(),
-            EditorEvent::AddNewEnglishWordAtCursor => self.with_new_english_word_at_cursor(),
+            EditorEvent::AddNewEnglishWordAtCursor(text) => self.with_new_english_word_at_cursor(text),
             EditorEvent::DeleteWordAtCursor => self.with_word_at_cursor_deleted(),
             EditorEvent::ToggleSnippetTranscriptionState => self.with_transcription_state_toggled(),
             EditorEvent::MoveWordsViewSliceForward(amount) => {

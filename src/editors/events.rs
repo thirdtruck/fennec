@@ -14,7 +14,7 @@ pub enum EditorEvent {
     MoveSnippetCursorForward,
     MoveSnippetCursorBackward,
     AddNewTunicWordAtCursor,
-    AddNewEnglishWordAtCursor,
+    AddNewEnglishWordAtCursor(String),
     AddNewGlyphToTunicWordAtCursor,
     AddNewSnippetAtCursor,
     DeleteGlyphAtCursor,
