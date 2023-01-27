@@ -12,8 +12,12 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Create a new dictionary file. (Default: dictionary.yaml)
     Init,
+    /// Search for a word's definition
     Word(WordCmd),
+    /// Add a new definition
+    Add(AddCmd),
 }
 
 #[derive(Args)]
@@ -22,6 +26,26 @@ struct WordCmd {
     /// Example: 1 27 339
     glyphs: Vec<u16>,
 }
+
+#[derive(Args)]
+struct AddCmd {
+    /// The Tunic word to be defined as a space-delimited sequence of integer values for its glyphs
+    /// Example: 1 27 339
+    glyphs: Vec<u16>,
+
+    /// The new word's definition
+    #[arg(short, long)]
+    definition: String,
+
+    /// Attach a note to the new defition. Supports multiple uses.
+    #[arg(short, long, action = clap::ArgAction::Append, num_args(1))]
+    note: Vec<String>,
+
+    /// Set the definition type. Options: tenative, confirmed, undefined. Default: tentative.
+    #[arg(short, long, name = "oranges")]
+    _type: Option<String>,
+}
+
 
 fn initialize_dictionary() {
     println!(
@@ -87,6 +111,54 @@ fn search_for_word(cmd: WordCmd) {
     };
 }
 
+fn add_definition(args: AddCmd) {
+    let definition = args.definition;
+
+    let def_type = args._type.unwrap_or("tentative".to_owned());
+
+    let definition = match def_type.as_ref() {
+        "tentative" => Definition::Tentative(definition.to_owned()),
+        "confirmed" => Definition::Confirmed(definition.to_owned()),
+        "undefined" => Definition::Undefined,
+        _ => panic!("Unrecognized definition type: {def_type}"),
+    };
+
+    let notes = args
+        .note
+        .iter()
+        .map(|text| Note(text.to_string()))
+        .collect::<Vec<Note>>();
+
+    let entry = Entry::new(definition, notes);
+
+    let word: TunicWord = args.glyphs.into();
+    let word: DictionaryWord = word.into();
+
+    println!("Loading dictionary...");
+
+    match dictionary_from_yaml_file(DEFAULT_DICTIONARY_FILE) {
+        Ok((dictionary, _yaml)) => {
+            println!("Adding definition...");
+
+            match dictionary.get(&word) {
+                None => {
+                    let dictionary = dictionary.with_new_complete_definition(&word, &entry);
+                    dictionary_to_yaml_file(&dictionary, DEFAULT_DICTIONARY_FILE).expect("Unable to save file");
+                    println!("Definition added for {word}: {entry}");
+                },
+                Some(_existing_def) => panic!("A definition already exists for {word}. Aborting"),
+            };
+        }
+        Err(error) => {
+            println!(
+                "Unable to load dictionary file: {}",
+                DEFAULT_DICTIONARY_FILE
+            );
+            println!("{:?}", error);
+        }
+    };
+}
+
 fn format_word_for_reading(word: &TunicWord) -> String {
     word
         .glyphs()
@@ -100,6 +172,7 @@ fn main() {
     let cli = Cli::parse();
 
     match cli.command {
+        Commands::Add(cmd) => add_definition(cmd),
         Commands::Init => initialize_dictionary(),
         Commands::Word(cmd) => search_for_word(cmd),
     }
