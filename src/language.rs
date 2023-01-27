@@ -27,7 +27,7 @@ impl fmt::Display for Source {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct Note(String);
+pub struct Note(pub String);
 
 impl Note {
     pub fn as_text(&self) -> String {
