@@ -42,7 +42,7 @@ struct AddCmd {
     note: Vec<String>,
 
     /// Set the definition type. Options: tenative, confirmed, undefined. Default: tentative.
-    #[arg(short, long, name = "oranges")]
+    #[arg(short, long, name = "DEFINITION TYPE")]
     _type: Option<String>,
 }
 

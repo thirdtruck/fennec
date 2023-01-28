@@ -39,6 +39,9 @@ struct Snippets {
     /// Render words as their definition if available. Default: Render words as their glyph values
     #[arg(short, long)]
     define_inline: bool,
+    /// Use this as the definition of the word being searched for
+    #[arg(short, long)]
+    as_if: Option<String>,
 }
 
 #[derive(Args)]
@@ -158,9 +161,19 @@ fn search_snippets(notebook: Notebook, dictionary: Dictionary, search_args: Snip
 
     let word: Word = word.into();
 
-    let define_inline = search_args.define_inline;
+    let define_inline = search_args.define_inline || search_args.as_if.is_some();
 
     println!("Looking for word {}", word);
+
+    let dictionary = if let Some(temporary_definition) = &search_args.as_if {
+        if let WordType::Tunic(tunic_word) = &word.word_type {
+            dictionary.with_new_definition(&tunic_word, temporary_definition.clone())
+        } else {
+            dictionary
+        }
+    } else {
+        dictionary
+    };
 
     let matches: Vec<&Snippet> = notebook
         .snippets
