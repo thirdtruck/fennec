@@ -1,0 +1,40 @@
+<!doctype html>
+
+<head>
+  <meta charset="utf-8">
+  <title>{{title}} - Definitions</title>
+</head>
+
+<body>
+
+<table>
+  <thead>
+    <tr>
+      <th>Word</th>
+      <th>Definition</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each entries}}
+      <tr>
+        <td>
+          [{{#each this.glyphs}}{{this}} {{/each}}]
+        </td>
+        <td><b>{{this.definition}}<b></td>
+        <td>
+          <ul>
+            {{#each this.notes}}
+              <li>{{this}}</li>
+            {{/each}}
+          </ul>
+        </td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+</body>
+
+</html>
+

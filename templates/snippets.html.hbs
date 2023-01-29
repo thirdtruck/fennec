@@ -1,0 +1,67 @@
+<!doctype html>
+
+<head>
+  <meta charset="utf-8">
+  <title>{{title}} - Snippets</title>
+</head>
+
+<body>
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Snippets</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each snippets as |snippet|}}
+      <tr>
+        <td style="border: 1px solid grey; padding: 10px;">
+          <div><h3>{{snippet.description}}<h3></div>
+          <div>
+            <img height="400px" src="{{snippet.source}}" alt="{{snippet.source}}"/>
+          </div>
+          <div style="width: 400px">
+            {{#each snippet.words as |word|}}
+              <span>
+                {{#if word.is_english}}
+                  {{word.text}}
+                {{/if}}
+                {{#if word.is_tunic}}
+                  {{#if word.has_definition}}
+                    <span style="text-decoration: underline;" title="[{{#each word.glyphs as |glyph|}} {{glyph}} {{/each}}]">{{word.text}}</span>
+                  {{else}}
+                    <span style="background-color: #C9E5EA; margin-right: 5px;">
+                    [
+                    {{#each word.glyphs as |glyph|}}
+                      {{glyph}}
+                    {{/each}}
+                    ]
+                    </span>
+                  {{/if}}
+                {{/if}}
+              </span>
+            {{/each}}
+          </div>
+        </td>
+        <td>
+          <div><h3>Transcribed?</h3>{{snippet.transcribed}}</span></div>
+          <div>
+            <h3>Notes:</h3>
+            <ul>
+              {{#each snippet.notes as |note|}}
+                <li>{{note}}</li>
+              {{/each}}
+            </ul>
+          <div>
+        </td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+</body>
+
+</html>
+
