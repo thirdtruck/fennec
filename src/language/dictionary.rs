@@ -9,6 +9,12 @@ pub struct DictionaryWord {
     glyphs: Vec<Glyph>,
 }
 
+impl DictionaryWord {
+    pub fn glyphs(&self) -> Vec<Glyph> {
+        self.glyphs.clone()
+    }
+}
+
 impl From<TunicWord> for DictionaryWord {
     fn from(tunic_word: TunicWord) -> Self {
         Self {
@@ -149,5 +155,9 @@ impl Dictionary {
 
     pub fn get(&self, word: &DictionaryWord) -> Option<&Entry> {
         self.entries.get(word)
+    }
+
+    pub fn entries(&self) -> &HashMap<DictionaryWord, Entry> {
+        &self.entries
     }
 }
