@@ -46,3 +46,9 @@ impl From<&str> for Note {
         Note(text.to_string())
     }
 }
+
+impl From<&Note> for String {
+    fn from(note: &Note) -> Self {
+        note.0.clone()
+    }
+}
