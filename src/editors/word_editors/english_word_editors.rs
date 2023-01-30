@@ -15,6 +15,7 @@ impl EnglishWordEditor {
             selected: params.selected,
             index: params.index,
             within_visible_range: params.within_visible_range,
+            definition: params.definition,
         }
     }
 }

@@ -119,6 +119,31 @@ pub fn render_selected_snippet_on(
 
         render_snippet_on(snippet_view, map, ctx, x, y)?;
 
+        let translation = snippet_view
+            .word_views
+            .iter()
+            .map(|view| match &view.word.word_type {
+                WordType::Tunic(word) => dictionary
+                    .get(&word.into())
+                    .map(|entry| entry.clone()),
+                WordType::English(word) => {
+                    let definition = Definition::Confirmed(word.text().clone());
+                    Some(Entry::new(definition, vec![]))
+                }
+            })
+            .map(|entry| match entry {
+                Some(e) => match e.definition() {
+                    Definition::Tentative(text) => text.to_owned(),
+                    Definition::Confirmed(text) => text.to_owned(),
+                    Definition::Undefined => "___".to_owned(),
+                },
+                None => "___".to_owned(),
+            })
+            .reduce(|translation, word| format!("{translation} {word}"))
+            .unwrap_or("___".to_owned());
+
+        render_translation(&translation, ctx, x, y_from_bottom - 8)?;
+
         if let Some(word) = &selected_word {
             if let WordType::Tunic(tunic_word) = &word.word_type {
                 let dict_word: DictionaryWord = tunic_word.into();
@@ -144,6 +169,20 @@ fn format_glyphs_for_reading(glyphs: Vec<Glyph>) -> String {
         .map(|glyph| glyph.0.to_string())
         .reduce(|word, glyph_value| word + " " + &glyph_value)
         .map_or("(Empty)".into(), |word| format!("[{}]", word))
+}
+
+fn render_translation(
+    translation: &str,
+    ctx: &mut BTerm,
+    x: u32,
+    y: u32,
+) -> Result<(), Box<dyn Error>> {
+    let x_offset: u32 = 13;
+
+    ctx.print_color(x, y, GREEN, BLACK, "Translation:");
+    ctx.print_color(x + x_offset, y, WHITE, BLACK, translation);
+
+    Ok(())
 }
 
 fn render_word_definition(

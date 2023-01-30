@@ -249,15 +249,14 @@ impl NotebookEditor {
         }
     }
 
-    #[allow(dead_code)]
-    pub fn render_with<R>(&self, mut renderer: R)
+    pub fn render_with<R>(&self, dictionary: &Dictionary, mut renderer: R)
     where
         R: FnMut(NotebookView, usize),
     {
-        renderer(self.to_view(), 0)
+        renderer(self.to_view(dictionary), 0)
     }
 
-    pub fn to_view(&self) -> NotebookView {
+    pub fn to_view(&self, dictionary: &Dictionary) -> NotebookView {
         let snippet_views: Vec<SnippetView> = self
             .retained_snippet_outcomes()
             .iter()
@@ -273,16 +272,16 @@ impl NotebookEditor {
 
                 if selected {
                     match self.snippet_editor.as_ref() {
-                        Some(editor) => editor.to_view(true, outcome.retained),
+                        Some(editor) => editor.to_view(true, outcome.retained, dictionary),
                         None => {
                             dbg!("Missing SnippetEditor");
                             dbg!(&self.snippet_editor);
 
-                            SnippetEditor::new(snippet.clone()).to_view(false, outcome.retained)
+                            SnippetEditor::new(snippet.clone()).to_view(false, outcome.retained, dictionary)
                         }
                     }
                 } else {
-                    SnippetEditor::new(snippet.clone()).to_view(false, outcome.retained)
+                    SnippetEditor::new(snippet.clone()).to_view(false, outcome.retained, dictionary)
                 }
             })
             .collect();

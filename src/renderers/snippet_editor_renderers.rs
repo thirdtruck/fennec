@@ -42,6 +42,13 @@ pub fn render_snippet_on(
         let absolute_index: u32 = view_index.absolute_index.try_into()?;
         let view = &view_index.view;
         let word = &view_index.view.word;
+        let definition = match &view.definition {
+            Definition::Tentative(text) => text.to_owned(),
+            Definition::Confirmed(text) => text.to_owned(),
+            Definition::Undefined => "".to_owned(),
+        };
+
+        let translation_offset = 15;
 
         match &word.word_type {
             WordType::English(word) => {
@@ -50,8 +57,15 @@ pub fn render_snippet_on(
                 let color = if view.selected { YELLOW } else { WHITE };
 
                 ctx.print_color(x, y, color, BLACK, word.text());
+                ctx.print_color(x + translation_offset, y, WHITE, BLACK, definition);
             }
-            WordType::Tunic(_) => map.render_word_on(view, x, y + absolute_index)?,
+            WordType::Tunic(_) => {
+                map.render_word_on(view, x, y + absolute_index)?;
+
+                let x = x + x_offset;
+                let y = (absolute_index * 2) + y + y_offset;
+                ctx.print_color(x + translation_offset, y, WHITE, BLACK, definition);
+            }
         };
 
         let x = 1;

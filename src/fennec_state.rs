@@ -17,7 +17,7 @@ impl FennecState {
     }
 
     fn render(&self, map: &mut GlyphMap, ctx: &mut BTerm) -> Result<(), Box<dyn Error>> {
-        self.file_editor.render_with(|file_editor_view| {
+        self.file_editor.render_with(&self.dictionary, |file_editor_view| {
             ctx.set_active_console(FILE_CONSOLE);
             ctx.cls();
             ctx.set_active_console(NOTEBOOK_CONSOLE);

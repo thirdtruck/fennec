@@ -15,6 +15,7 @@ pub struct WordView {
     pub within_visible_range: bool,
     pub selected: bool,
     pub glyph_views: Vec<GlyphView>,
+    pub definition: Definition,
 }
 
 #[derive(Clone, Debug)]
@@ -22,6 +23,7 @@ pub struct WordViewParams {
     pub index: usize,
     pub within_visible_range: bool,
     pub selected: bool,
+    pub definition: Definition,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]

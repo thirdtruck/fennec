@@ -166,17 +166,27 @@ impl SnippetEditor {
         Self { cursor, ..self }
     }
 
-    pub fn to_view(&self, selected_snippet: bool, retained: bool) -> SnippetView {
+    pub fn to_view(&self, selected_snippet: bool, retained: bool, dictionary: &Dictionary) -> SnippetView {
         let word_views: Vec<WordView> = self
             .selected_snippet
             .words
             .iter()
             .enumerate()
             .map(|(word_index, word)| {
+                let definition: Definition = match &word.word_type {
+                    WordType::English(text) => Definition::Confirmed(text.into()),
+                    WordType::Tunic(tunic_word) => dictionary
+                        .get(&tunic_word.into())
+                        .map(|entry| entry.definition())
+                        .unwrap_or(&Definition::Undefined)
+                        .clone(),
+                };
+
                 let params = WordViewParams {
                     index: word_index,
                     within_visible_range: self.cursor.visible_range_includes(word_index),
                     selected: false,
+                    definition,
                 };
 
                 let selected_word = word_index == self.cursor.index();

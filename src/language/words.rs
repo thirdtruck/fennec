@@ -229,6 +229,18 @@ impl From<&EnglishWord> for Word {
     }
 }
 
+impl From<EnglishWord> for String {
+    fn from(english_word: EnglishWord) -> Self {
+        english_word.text.clone()
+    }
+}
+
+impl From<&EnglishWord> for String {
+    fn from(english_word: &EnglishWord) -> Self {
+        english_word.text.clone()
+    }
+}
+
 impl From<String> for EnglishWord {
     fn from(text: String) -> Self {
         EnglishWord { text }

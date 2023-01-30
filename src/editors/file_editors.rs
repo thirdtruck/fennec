@@ -123,16 +123,16 @@ impl FileEditor {
         self.notebook_editor.on_input(callback)
     }
 
-    pub fn render_with<R>(&self, mut renderer: R) -> Result<(), Box<dyn Error>>
+    pub fn render_with<R>(&self, dictionary: &Dictionary, mut renderer: R) -> Result<(), Box<dyn Error>>
     where
         R: FnMut(FileEditorView) -> Result<(), Box<dyn Error>>,
     {
-        renderer(self.to_view())
+        renderer(self.to_view(dictionary))
     }
 
-    pub fn to_view(&self) -> FileEditorView {
+    pub fn to_view(&self, dictionary: &Dictionary) -> FileEditorView {
         FileEditorView {
-            notebook_view: self.notebook_editor.to_view(),
+            notebook_view: self.notebook_editor.to_view(&dictionary),
             state: self.state.clone(),
             target_file: self.target_file.clone(),
         }
