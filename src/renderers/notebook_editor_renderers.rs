@@ -46,6 +46,11 @@ pub fn render_notebook_on(
                 ctx.print_color(x, y, description_color, BLACK, description_label);
                 ctx.print_color(x, y + 1, source_color, BLACK, source_label);
             }
+
+            let count_y = 1;
+
+            ctx.print_color(SCREEN_WIDTH - 12, count_y, GREEN, BLACK, "Count: ");
+            ctx.print_color(SCREEN_WIDTH - 5, count_y, WHITE, BLACK, format!("{:3}", snippet_views.len()));
         }
         NotebookEditorState::EditingSnippet => {
             render_selected_snippet_on(notebook_view, dictionary, map, ctx, x, y)?
