@@ -40,7 +40,7 @@ fn ui_example_system(
     mut circle_radius: Local<f32>,
 ) {
     if !*is_initialized {
-        *word_size = egui::vec2(1.0, 1.0);
+        *word_size = egui::vec2(0.0, 1.0);
         *glyph_size = egui::Vec2::new(0.45, 0.85);
         *is_initialized = true;
         *rendered_texture_id = egui_ctx.add_image(app_state.example_image.clone_weak());
@@ -71,10 +71,10 @@ fn ui_example_system(
         ui.label("Word Height");
         ui.add(egui::Slider::new(&mut word_size.y, 0.0..=10.0));
 
-        ui.label("Glyph Width");
+        ui.label("Glyph Widget Width");
         ui.add(egui::Slider::new(&mut glyph_size.x, 0.0..=1.0));
 
-        ui.label("Glyph Height");
+        ui.label("Glyph Widget Height");
         ui.add(egui::Slider::new(&mut glyph_size.y, 0.0..=1.0));
     });
 
@@ -129,7 +129,7 @@ fn tunic_word(word_size: egui::Vec2, glyph_size: egui::Vec2, color: egui::Color3
 fn tunic_word_ui(ui: &mut egui::Ui, word_size: egui::Vec2, glyph_size: egui::Vec2, color: egui::Color32) -> egui::Response {
     let glyph_count = 3;
 
-    let desired_size = ui.spacing().interact_size.x * egui::vec2(1.0, 1.0);
+    let desired_size = ui.spacing().interact_size.x * word_size;
 
     let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::hover());
 
@@ -139,7 +139,7 @@ fn tunic_word_ui(ui: &mut egui::Ui, word_size: egui::Vec2, glyph_size: egui::Vec
 
     ui.with_layout(layout, |ui| {
         for _ in 0..glyph_count {
-            ui.add_sized(word_size, glyph(glyph_size, color));
+            ui.add_sized(desired_size, glyph(glyph_size, color));
         }
     });
 
