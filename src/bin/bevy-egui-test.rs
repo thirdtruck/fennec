@@ -36,8 +36,6 @@ fn ui_example_system(
     mut is_initialized: Local<bool>,
     mut word_size: Local<egui::Vec2>,
     mut glyph_size: Local<egui::Vec2>,
-    mut stroke_width: Local<f32>,
-    mut circle_radius: Local<f32>,
 ) {
     if !*is_initialized {
         *word_size = egui::vec2(0.0, 1.0);
@@ -131,7 +129,7 @@ fn tunic_word_ui(ui: &mut egui::Ui, word_size: egui::Vec2, glyph_size: egui::Vec
 
     let desired_size = ui.spacing().interact_size.x * word_size;
 
-    let (rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::hover());
+    let (_rect, mut response) = ui.allocate_exact_size(desired_size, egui::Sense::hover());
 
     response.mark_changed();
 
