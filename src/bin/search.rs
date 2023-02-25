@@ -20,6 +20,7 @@ enum Commands {
     /// Find all snippets for a given manual page
     Page(Page),
     /// List all entries
+    #[command(subcommand)]
     List(List),
 }
 
@@ -49,8 +50,14 @@ struct Usage {
     words: Option<String>,
 }
 
+#[derive(Subcommand)]
+enum List {
+    /// List all snippets
+    Snippets(ListSnippets),
+}
+
 #[derive(Args)]
-struct List {
+struct ListSnippets {
     #[arg(short, long)]
     define_inline: bool,
 }
@@ -80,7 +87,11 @@ fn main() {
         Commands::Snippets(args) => search_snippets(notebook, dictionary, args),
         Commands::Usage(args) => search_usage(notebook, args),
         Commands::Page(args) => search_by_page(notebook, dictionary, args),
-        Commands::List(args) => list_all_snippets(notebook, dictionary, args),
+        Commands::List(subcommand) => {
+            match subcommand {
+                List::Snippets(args) => list_all_snippets(notebook, dictionary, args),
+            }
+        }
     };
 }
 
@@ -188,7 +199,7 @@ fn search_snippets(notebook: Notebook, dictionary: Dictionary, search_args: Snip
     }
 }
 
-fn list_all_snippets(notebook: Notebook, dictionary: Dictionary, args: List) {
+fn list_all_snippets(notebook: Notebook, dictionary: Dictionary, args: ListSnippets) {
     let define_inline = args.define_inline;
 
     for (index, snippet) in notebook.snippets.iter().enumerate() {
